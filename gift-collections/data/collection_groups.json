@@ -1,0 +1,237 @@
+{
+  "groups": {
+    "new_year_christmas": {
+      "name": "Новый год и Рождество",
+      "collections": [
+        {"id": "5983471780763796287", "name": "Santa Hat"},
+        {"id": "5983484377902875708", "name": "Ginger Cookie"},
+        {"id": "6001473264306619020", "name": "Jingle Bells"},
+        {"id": "5980789805615678057", "name": "Snow Mittens"},
+        {"id": "5983259145522906006", "name": "Winter Wreath"},
+        {"id": "5981132629905245483", "name": "Snow Globe"},
+        {"id": "6003373314888696650", "name": "Candy Cane"},
+        {"id": "6003767644426076664", "name": "Xmas Stocking"},
+        {"id": "6003735372041814769", "name": "Holiday Drink"},
+        {"id": "5981026247860290310", "name": "Sleigh Bell"},
+        {"id": "6028283532500009446", "name": "Big Year"}
+      ]
+    },
+    "halloween_mystical": {
+      "name": "Хэллоуин и Мистика",
+      "collections": [
+        {"id": "5825801628657124140", "name": "Hex Pot"},
+        {"id": "5825480571261813595", "name": "Evil Eye"},
+        {"id": "5841689550203650524", "name": "Sharp Tongue"},
+        {"id": "5841391256135008713", "name": "Trapped Heart"},
+        {"id": "5839038009193792264", "name": "Skull Flower"},
+        {"id": "5837059369300132790", "name": "Scared Cat"},
+        {"id": "5821384757304362229", "name": "Witch Hat"},
+        {"id": "5836780359634649414", "name": "Voodoo Doll"},
+        {"id": "5841632504448025405", "name": "Mad Pumpkin"},
+        {"id": "5837063436634161765", "name": "Flying Broom"},
+        {"id": "5846192273657692751", "name": "Electric Skull"},
+        {"id": "5821205665758053411", "name": "Eternal Candle"}
+      ]
+    },
+    "valentines_love": {
+      "name": "День Святого Валентина",
+      "collections": [
+        {"id": "5882125812596999035", "name": "Eternal Rose"},
+        {"id": "5915550639663874519", "name": "Love Candle"},
+        {"id": "6001538689543439169", "name": "Cookie Heart"},
+        {"id": "5868348541058942091", "name": "Love Potion"},
+        {"id": "5868455043362980631", "name": "Heart Locket"},
+        {"id": "5868561433997870501", "name": "Cupid Charm"},
+        {"id": "5868595669182186720", "name": "Valentine Box"},
+        {"id": "5841391256135008713", "name": "Trapped Heart"},
+        {"id": "5871002671934079382", "name": "Lush Bouquet"},
+        {"id": "5870661333703197240", "name": "Bonded Ring"}
+      ]
+    },
+    "easter_spring": {
+      "name": "Пасха и Весна",
+      "collections": [
+        {"id": "5915502858152706668", "name": "Jelly Bunny"},
+        {"id": "5773668482394620318", "name": "Easter Egg"},
+        {"id": "5773725897517433693", "name": "Spring Basket"},
+        {"id": "5935936766358847989", "name": "Bunny Muffin"},
+        {"id": "5167939598143193218", "name": "Sakura Flower"},
+        {"id": "5933737850477478635", "name": "Pretty Posy"}
+      ]
+    },
+    "sweets_food": {
+      "name": "Сладости и Еда",
+      "collections": [
+        {"id": "5882252952218894938", "name": "Berry Box"},
+        {"id": "5783075783622787539", "name": "Homemade Cake"},
+        {"id": "5825895989088617224", "name": "Hypno Lollipop"},
+        {"id": "5935936766358847989", "name": "Bunny Muffin"},
+        {"id": "5933543975653737112", "name": "Whip Cupcake"},
+        {"id": "5170594532177215681", "name": "Lol Pop"},
+        {"id": "5900177027566142759", "name": "Ice Cream"},
+        {"id": "6005564615793050414", "name": "Instant Ramen"},
+        {"id": "6006064678835323371", "name": "Happy Brownie"},
+        {"id": "5935877878062253519", "name": "Mousse Cake"},
+        {"id": "5983484377902875708", "name": "Ginger Cookie"},
+        {"id": "6003373314888696650", "name": "Candy Cane"},
+        {"id": "5933671725160989227", "name": "Precious Peach"}
+      ]
+    },
+    "luxury_jewelry": {
+      "name": "Роскошь и Украшения",
+      "collections": [
+        {"id": "5936085638515261992", "name": "Signet Ring"},
+        {"id": "5868503709637411929", "name": "Diamond Ring"},
+        {"id": "5859442703032386168", "name": "Gem Signet"},
+        {"id": "5936043693864651359", "name": "Swiss Watch"},
+        {"id": "5870661333703197240", "name": "Bonded Ring"},
+        {"id": "5870720080265871962", "name": "Nail Bracelet"},
+        {"id": "5998981470310368313", "name": "Moon Pendant"},
+        {"id": "5902339509239940491", "name": "Bling Binky"},
+        {"id": "5870947077877400011", "name": "Sky Stilettos"},
+        {"id": "5913517067138499193", "name": "Perfume Bottle"},
+        {"id": "5895544372761461960", "name": "Bow Tie"},
+        {"id": "5897593557492957738", "name": "Top Hat"},
+        {"id": "5857140566201991735", "name": "Vintage Cigar"}
+      ]
+    },
+    "tech_gadgets": {
+      "name": "Техника и Гаджеты",
+      "collections": [
+        {"id": "5856973938650776169", "name": "Record Player"},
+        {"id": "6023752243218481939", "name": "Tama Gadget"},
+        {"id": "5870972044522291836", "name": "Input Key"},
+        {"id": "5933937398953018107", "name": "Ionic Dryer"},
+        {"id": "5782988952268964995", "name": "Desk Calendar"},
+        {"id": "5936017773737018241", "name": "Star Notepad"}
+      ]
+    },
+    "chinese_asian": {
+      "name": "Китайский Новый год",
+      "collections": [
+        {"id": "6028426950047957932", "name": "Lunar Snake"},
+        {"id": "6023917088358269866", "name": "Pet Snake"},
+        {"id": "6023679164349940429", "name": "Snake Box"},
+        {"id": "5933793770951673155", "name": "Neko Helmet"},
+        {"id": "5167939598143193218", "name": "Sakura Flower"}
+      ]
+    },
+    "toys_kids": {
+      "name": "Игрушки и Детское",
+      "collections": [
+        {"id": "5868220813026526561", "name": "Toy Bear"},
+        {"id": "6005880141270483700", "name": "Jolly Chimp"},
+        {"id": "6005659564635063386", "name": "Jack-in-the-Box"},
+        {"id": "5936013938331222567", "name": "Plush Pepe"},
+        {"id": "5902339509239940491", "name": "Bling Binky"},
+        {"id": "5845776576658015084", "name": "Kissed Frog"},
+        {"id": "6005797617768858105", "name": "Artisan Brick"}
+      ]
+    },
+    "magic_fantasy": {
+      "name": "Магия и Фэнтези",
+      "collections": [
+        {"id": "5933531623327795414", "name": "Genie Lamp"},
+        {"id": "5933629604416717361", "name": "Astral Shard"},
+        {"id": "5841336413697606412", "name": "Crystal Ball"},
+        {"id": "5846226946928673709", "name": "Magic Potion"},
+        {"id": "5843762284240831056", "name": "Ion Gem"},
+        {"id": "6003456431095808759", "name": "Faith Amulet"},
+        {"id": "5897581235231785485", "name": "Light Sword"},
+        {"id": "5870784783948186838", "name": "Restless Jar"}
+      ]
+    },
+    "party_celebration": {
+      "name": "Праздник и Вечеринка",
+      "collections": [
+        {"id": "6003643167683903930", "name": "Party Sparkler"},
+        {"id": "5933590374185435592", "name": "Jester Hat"},
+        {"id": "5782984811920491178", "name": "B-Day Candle"},
+        {"id": "5915733223018594841", "name": "Hanging Star"},
+        {"id": "5879737836550226478", "name": "Mini Oscar"},
+        {"id": "5868659926187901653", "name": "Loot Bag"},
+        {"id": "5870862540036113469", "name": "Joyful Bundle"},
+        {"id": "6042113507581755979", "name": "Stellar Rocket"},
+        {"id": "5895603153683874485", "name": "Fresh Socks"}
+      ]
+    },
+    "snoop_dogg": {
+      "name": "Snoop Dogg Collection",
+      "collections": [
+        {"id": "6014591077976114307", "name": "Snoop Dogg"},
+        {"id": "6012607142387778152", "name": "Swag Bag"},
+        {"id": "6012435906336654262", "name": "Snoop Cigar"},
+        {"id": "6014675319464657779", "name": "Low Rider"},
+        {"id": "6014697240977737490", "name": "Westside Sign"}
+      ]
+    },
+    "sports_combat": {
+      "name": "Спорт и Бои",
+      "collections": [
+        {"id": "5839094187366024301", "name": "Khabib's Papakha"},
+        {"id": "5882260270843168924", "name": "UFC Strike"},
+        {"id": "5895328365971244193", "name": "Heroic Helmet"},
+        {"id": "5895518353849582541", "name": "Mighty Arm"}
+      ]
+    },
+    "space_cosmos": {
+      "name": "Космос и Астрономия",
+      "collections": [
+        {"id": "6042113507581755979", "name": "Stellar Rocket"},
+        {"id": "5998981470310368313", "name": "Moon Pendant"},
+        {"id": "5933629604416717361", "name": "Astral Shard"},
+        {"id": "6028426950047957932", "name": "Lunar Snake"},
+        {"id": "5915733223018594841", "name": "Hanging Star"}
+      ]
+    },
+    "luck_fortune": {
+      "name": "Удача и Богатство",
+      "collections": [
+        {"id": "5960747083030856414", "name": "Clover Pin"},
+        {"id": "5963238670868677492", "name": "Money Pot"},
+        {"id": "5868659926187901653", "name": "Loot Bag"},
+        {"id": "6012607142387778152", "name": "Swag Bag"},
+        {"id": "5936043693864651359", "name": "Swiss Watch"},
+        {"id": "5868503709637411929", "name": "Diamond Ring"}
+      ]
+    },
+    "headwear_accessories": {
+      "name": "Головные уборы",
+      "collections": [
+        {"id": "5983471780763796287", "name": "Santa Hat"},
+        {"id": "5915521180483191380", "name": "Durov's Cap"},
+        {"id": "5933590374185435592", "name": "Jester Hat"},
+        {"id": "5821384757304362229", "name": "Witch Hat"},
+        {"id": "5897593557492957738", "name": "Top Hat"},
+        {"id": "5933793770951673155", "name": "Neko Helmet"},
+        {"id": "5895328365971244193", "name": "Heroic Helmet"},
+        {"id": "5839094187366024301", "name": "Khabib's Papakha"}
+      ]
+    },
+    "nature_flowers": {
+      "name": "Природа и Цветы",
+      "collections": [
+        {"id": "5882125812596999035", "name": "Eternal Rose"},
+        {"id": "5167939598143193218", "name": "Sakura Flower"},
+        {"id": "5933737850477478635", "name": "Pretty Posy"},
+        {"id": "5871002671934079382", "name": "Lush Bouquet"},
+        {"id": "5839038009193792264", "name": "Skull Flower"},
+        {"id": "5821261908354794038", "name": "Spy Agaric"}
+      ]
+    },
+    "drinks_beverages": {
+      "name": "Напитки",
+      "collections": [
+        {"id": "5913442287462908725", "name": "Spiced Wine"},
+        {"id": "6003735372041814769", "name": "Holiday Drink"},
+        {"id": "5846226946928673709", "name": "Magic Potion"},
+        {"id": "5868348541058942091", "name": "Love Potion"}
+      ]
+    }
+  },
+  "metadata": {
+    "total_groups": 18,
+    "total_collections": 107,
+    "description": "Тематическая группировка коллекций Telegram Gifts"
+  }
+}
