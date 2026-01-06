@@ -1,6 +1,6 @@
 # Satellite Contest
 
-Проект для конкурса с двумя задачами: сортировка цветов и группировка коллекций подарков Telegram.
+Проект для конкурса с тремя задачами: сортировка цветов, группировка коллекций подарков Telegram и анализ алгоритма распределения призов.
 
 ## Структура проекта
 
@@ -19,6 +19,14 @@ satellite-contest/
 │   ├── output/             # Сгенерированные изображения
 │   ├── background.png      # Фон для визуализаций
 │   └── task.md             # Описание задачи
+│
+├── algorithm/              # Задача 3: Анализ алгоритма призов
+│   ├── prize_simulation.ipynb  # Monte Carlo симуляция
+│   └── task.md             # Условие конкурса
+│
+├── research/               # Результаты исследований
+│   ├── contest-answer.md   # Ответ для конкурса
+│   └── portals-prize-algorithm-analysis.md
 │
 └── pyproject.toml          # Зависимости проекта
 ```
@@ -69,6 +77,22 @@ uv run generate_groups_image.py
 # Три отдельных изображения
 uv run generate_groups_split.py
 ```
+
+## Задача 3: Анализ алгоритма распределения призов Portals
+
+Математический анализ алгоритма раздачи призов в конкурсе Portals (TON).
+
+**Проблема:** Топ-7 участников с 20.3% билетов получили только 1.07% призового фонда (279 TON из 26,000).
+
+**Решение:** Monte Carlo симуляция доказывает, что такой результат возможен только при розыгрыше с дешёвых призов или в случайном порядке. Вариант "с дорогих" исключён (ожидаемый выигрыш ~4200 TON, разница в 15x).
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DefaultPerson/satellite-contest/blob/main/algorithm/prize_simulation.ipynb)
+
+### Файлы
+
+- `algorithm/task.md` — условие конкурса
+- `algorithm/prize_simulation.ipynb` — симуляция Monte Carlo
+- `research/contest-answer.md` — готовый ответ для конкурса
 
 ## Цветовые пространства
 
