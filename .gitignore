@@ -16,3 +16,9 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+# claude
+.claude/
+docs/
+.mcp.json
+CLAUDE.md
