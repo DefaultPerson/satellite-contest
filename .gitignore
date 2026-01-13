@@ -7,18 +7,4 @@ venv/
 env/
 
 # IDE
-.idea/
 .vscode/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# claude
-.claude/
-docs/
-.mcp.json
-CLAUDE.md
