@@ -1,0 +1,2418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1260,initial-scale=1">
+<title>Gift Satellite — v3 · Broadsheet Brutal</title>
+<!--
+  ============================================================================
+  Gift Satellite · Subscription Card Redesign · Variant 3
+  "BROADSHEET BRUTAL"
+  ============================================================================
+
+  CONCEPT
+    A subscription is a classified ad in a financial broadsheet. Each card is
+    a rubric of its own: MARKET WATCH, WILDCARD, COMBO LOT, SYNDICATE, CUSTOM
+    INDEX, OBITUARY (sold out), WITHDRAWN, NO ALERTS, LONG LOT. Layout is
+    rigid Swiss grid with heavy horizontal rules and stock-ticker rows. Dark
+    mode reads as FT Pink inverted to ink black with acid yellow accents —
+    Bloomberg Businessweek rigor crossed with Dia Beacon exhibition signage.
+
+  FONTS (Google)
+    Archivo Black 400         — display headlines, section titles
+    Instrument Serif 400/ital — stock-ticker prices (HUGE italic)
+    Space Mono 400/700/ital   — kickers, labels, metadata
+
+  PALETTE (flat, no gradients)
+    #0c0c0a newsprint-dark    #141412 phone-bg    #1c1c1a surface
+    #2d2d2a rule-heavy        #f4f1e8 ink-white   #8a8478 dust
+    #f5ff00 acid-yellow       #d62828 blood-red   #050505 ink-black
+
+  DIFFERENTIATOR
+    Huge Instrument Serif italic prices + kicker-headline-subhed newspaper
+    composition + stock-ticker market rows + 3px offset hard shadow stamps
+    + acid yellow underline hover sweeps + zero easing (80-120ms linear
+    snap cuts) + FEATURED inverted pill + OBITUARY black-and-red diagonal
+    SOLD stamp for zero-stock subscriptions.
+
+  MOTION
+    All transitions linear 80-120ms. No easing curves, no springs. Hover:
+    clip-path-driven underline sweep. Click: instant snap.
+  ============================================================================
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Instrument+Serif:ital@0;1&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ========================================================================
+     TOKENS
+     ======================================================================== */
+  :root {
+    --news-dark: #0c0c0a;
+    --phone-bg:  #141412;
+    --surface:   #1c1c1a;
+    --surface-2: #222220;
+    --rule:      #2d2d2a;
+    --rule-thin: #201f1d;
+    --ink-white: #f4f1e8;
+    --ink-mute:  #c8c3b3;
+    --dust:      #8a8478;
+    --dust-dim:  #5a564c;
+    --acid:      #f5ff00;
+    --blood:     #d62828;
+    --blood-dim: #8a1a1a;
+    --ink-black: #050505;
+
+    --f-display: "Archivo Black", "Arial Black", sans-serif;
+    --f-serif:   "Instrument Serif", "Times New Roman", serif;
+    --f-mono:    "Space Mono", "Courier New", monospace;
+
+    --t: 100ms linear;
+    --stamp: 3px 3px 0 var(--ink-black);
+    --stamp-acid: 3px 3px 0 var(--acid);
+    --stamp-blood: 3px 3px 0 var(--blood);
+  }
+
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--news-dark);
+    color: var(--ink-white);
+    font-family: var(--f-mono);
+    font-size: 13px;
+    line-height: 1.35;
+    min-height: 100vh;
+    padding: 40px 28px 72px;
+    background-image:
+      linear-gradient(var(--rule-thin) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule-thin) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  img { display: block; max-width: 100%; }
+
+  /* ========================================================================
+     PAGE MASTHEAD
+     ======================================================================== */
+  .masthead {
+    max-width: 1260px;
+    margin: 0 auto 32px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: end;
+    gap: 16px;
+    border-top: 3px solid var(--ink-white);
+    border-bottom: 3px double var(--ink-white);
+    padding: 14px 0;
+  }
+  .masthead__left, .masthead__right {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dust);
+  }
+  .masthead__right { text-align: right; }
+  .masthead__title {
+    font-family: var(--f-display);
+    font-size: 42px;
+    letter-spacing: 0.01em;
+    line-height: 0.95;
+    color: var(--ink-white);
+    text-align: center;
+  }
+  .masthead__title span { color: var(--acid); }
+  .masthead__sub {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink-mute);
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  /* ========================================================================
+     DECK — three mockups side by side
+     ======================================================================== */
+  .deck {
+    max-width: 1260px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 393px);
+    gap: 24px;
+    justify-content: center;
+    align-items: start;
+  }
+  .deck__col { display: flex; flex-direction: column; gap: 14px; }
+  .deck__label {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dust);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 2px;
+  }
+  .deck__label::before {
+    content: "";
+    width: 14px; height: 14px;
+    background: var(--acid);
+    display: inline-block;
+    box-shadow: var(--stamp);
+  }
+  .deck__label b {
+    font-weight: 400;
+    color: var(--ink-white);
+    font-family: var(--f-display);
+    font-size: 11px;
+  }
+  .deck__meta {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--dust);
+    padding-left: 2px;
+  }
+
+  /* ========================================================================
+     PHONE FRAME 393 × 852 with 40px safe area
+     ======================================================================== */
+  .phone {
+    width: 393px;
+    height: 852px;
+    background: var(--phone-bg);
+    border: 2px solid var(--ink-white);
+    box-shadow: 6px 6px 0 var(--ink-black), 6px 6px 0 2px var(--ink-white);
+    position: relative;
+    overflow: hidden;
+    font-family: var(--f-mono);
+  }
+
+  /* Telegram status bar (simulated, lives inside the 40px safe area) */
+  .tg-status {
+    height: 40px;
+    background: var(--phone-bg);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0 22px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-white);
+    border-bottom: 1px solid var(--rule-thin);
+  }
+  .tg-status__time { text-align: left; letter-spacing: 0.02em; }
+  .tg-status__dot {
+    width: 110px;
+    height: 28px;
+    background: var(--ink-black);
+    border-radius: 14px;
+    justify-self: center;
+  }
+  .tg-status__icons {
+    text-align: right;
+    letter-spacing: 0.08em;
+    color: var(--ink-white);
+    font-size: 10px;
+  }
+
+  /* Newspaper masthead strip (app header) */
+  .paper-head {
+    background: var(--phone-bg);
+    border-bottom: 2px solid var(--ink-white);
+    padding: 10px 16px 12px;
+  }
+  .paper-head__row1 {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dust);
+    margin-bottom: 6px;
+  }
+  .paper-head__title {
+    font-family: var(--f-display);
+    font-size: 26px;
+    line-height: 0.9;
+    color: var(--ink-white);
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .paper-head__title .acid-under {
+    border-bottom: 3px solid var(--acid);
+  }
+  .paper-head__icons {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .icon-btn {
+    width: 30px; height: 30px;
+    border: 1.5px solid var(--ink-white);
+    display: grid; place-items: center;
+    color: var(--ink-white);
+    transition: background var(--t), color var(--t);
+  }
+  .icon-btn:hover { background: var(--acid); color: var(--ink-black); }
+  .icon-btn svg { width: 14px; height: 14px; }
+
+  /* Toolbar row (filters + density + bulk) */
+  .toolbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--phone-bg);
+    border-bottom: 1.5px solid var(--rule);
+  }
+  .tabs {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .tab {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dust);
+    padding: 5px 8px;
+    border: 1.5px solid transparent;
+    transition: all var(--t);
+  }
+  .tab:hover { color: var(--ink-white); }
+  .tab--on {
+    color: var(--ink-black);
+    background: var(--acid);
+    border-color: var(--ink-black);
+    box-shadow: var(--stamp);
+  }
+  .tool-cluster { display: flex; gap: 6px; }
+  .tool-btn {
+    width: 28px; height: 28px;
+    border: 1.5px solid var(--ink-white);
+    display: grid; place-items: center;
+    color: var(--ink-white);
+    transition: all var(--t);
+  }
+  .tool-btn:hover { background: var(--ink-white); color: var(--ink-black); }
+  .tool-btn svg { width: 13px; height: 13px; }
+
+  /* Price index strip (page-level ticker) */
+  .ticker-strip {
+    background: var(--ink-black);
+    color: var(--ink-white);
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-bottom: 1.5px solid var(--rule);
+    display: flex;
+    gap: 18px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-strip span { color: var(--dust); }
+  .ticker-strip b { color: var(--acid); font-weight: 700; margin-left: 4px; }
+  .ticker-strip .up   { color: #9de07a; }
+  .ticker-strip .down { color: var(--blood); }
+
+  /* ========================================================================
+     MAIN SCROLL AREA
+     ======================================================================== */
+  .scroll {
+    height: calc(852px - 40px - 70px - 40px - 22px - 56px);
+    /* status 40 + paper-head ~70 + toolbar 40 + ticker 22 + bottom-tab 56 */
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 14px 16px 24px;
+    background: var(--phone-bg);
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule) transparent;
+  }
+  .scroll::-webkit-scrollbar { width: 4px; }
+  .scroll::-webkit-scrollbar-thumb { background: var(--rule); }
+
+  /* Column headline inside the feed */
+  .feed-title {
+    font-family: var(--f-display);
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    color: var(--ink-white);
+    margin: 0 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--ink-white);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .feed-title em {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--dust);
+    font-weight: 400;
+  }
+
+  /* ========================================================================
+     CARD — the "classified ad"
+     ======================================================================== */
+  .card {
+    background: var(--surface);
+    border: 2px solid var(--ink-white);
+    box-shadow: var(--stamp);
+    margin-bottom: 16px;
+    position: relative;
+    transition: transform var(--t), box-shadow var(--t);
+  }
+  .card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--ink-black);
+  }
+  .card__kicker {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px 6px;
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dust);
+    border-bottom: 1px solid var(--rule);
+  }
+  .card__kicker .rubric { color: var(--acid); font-weight: 700; }
+  .card__kicker .lotno { color: var(--dust); }
+
+  .card__head {
+    padding: 10px 12px 8px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 10px;
+    align-items: start;
+  }
+  .card__headline {
+    font-family: var(--f-display);
+    font-size: 22px;
+    line-height: 1.02;
+    color: var(--ink-white);
+    letter-spacing: 0.005em;
+    word-break: break-word;
+  }
+  .card__headline .acid { background: var(--acid); color: var(--ink-black); padding: 0 3px; }
+  .card__headline u { text-decoration: none; border-bottom: 2px solid var(--acid); padding-bottom: 1px; }
+  .card__infobtn {
+    width: 26px; height: 26px;
+    border: 1.5px solid var(--ink-white);
+    display: grid; place-items: center;
+    color: var(--ink-white);
+    transition: background var(--t), color var(--t);
+    flex-shrink: 0;
+  }
+  .card__infobtn:hover { background: var(--acid); color: var(--ink-black); }
+  .card__infobtn svg { width: 12px; height: 12px; }
+
+  .card__subhed {
+    grid-column: 1 / -1;
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-mute);
+    line-height: 1.25;
+  }
+  .card__subhed b {
+    font-family: var(--f-mono);
+    font-weight: 700;
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-white);
+    border-bottom: 1.5px solid var(--acid);
+    padding-bottom: 1px;
+  }
+
+  .rule-heavy { height: 0; border: 0; border-top: 2px solid var(--ink-white); margin: 0; }
+  .rule-thin  { height: 0; border: 0; border-top: 1px solid var(--rule); margin: 0; }
+  .rule-double { height: 0; border: 0; border-top: 3px double var(--ink-white); margin: 0; }
+
+  /* Body: preview + price column */
+  .card__body {
+    display: grid;
+    grid-template-columns: 128px 1fr;
+    gap: 0;
+  }
+  .preview {
+    position: relative;
+    background: var(--ink-black);
+    border-right: 2px solid var(--ink-white);
+    aspect-ratio: 1;
+    overflow: hidden;
+  }
+  .preview__bg {
+    position: absolute; inset: 0;
+  }
+  .preview__bg--single { background: var(--bd1, #5abea6); }
+  .preview__bg--pair   { background: linear-gradient(90deg, var(--bd1) 0 50%, var(--bd2) 50% 100%); }
+  .preview__bg--triple {
+    background: linear-gradient(90deg,
+      var(--bd1) 0 33.34%,
+      var(--bd2) 33.34% 66.67%,
+      var(--bd3) 66.67% 100%);
+  }
+  .preview__bg--quad {
+    background:
+      linear-gradient(var(--bd1) 50%, var(--bd3) 50%) left/50% 100% no-repeat,
+      linear-gradient(var(--bd2) 50%, var(--bd4) 50%) right/50% 100% no-repeat,
+      var(--bd1);
+  }
+  .preview__bg--quint {
+    background: linear-gradient(90deg,
+      var(--bd1) 0 20%,
+      var(--bd2) 20% 40%,
+      var(--bd3) 40% 60%,
+      var(--bd4) 60% 80%,
+      var(--bd5) 80% 100%);
+  }
+  /* Custom 25-backdrop brutal mosaic — striped pattern with acid marker */
+  .preview__bg--custom {
+    background:
+      repeating-linear-gradient(90deg, #b77a77 0 6px, #4318a6 6px 12px, #60b195 12px 18px, #bf9b47 18px 24px, #e07b85 24px 30px),
+      #060606;
+  }
+  .preview__bg--solid-red {
+    background: var(--ink-black);
+  }
+
+  /* grid bg when purchase off — diagonal stripes */
+  .preview__bg--off {
+    background:
+      repeating-linear-gradient(135deg, #1a1a18 0 8px, #0a0a08 8px 16px);
+  }
+
+  .preview__inner {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 6px;
+  }
+  .preview__inner img { width: 78%; height: 78%; object-fit: contain; filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.6)); }
+
+  /* Chain of model previews (2-5 models) */
+  .preview__chain {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    gap: 4px;
+    padding: 8px;
+  }
+  .preview__chain img {
+    width: 34%; height: 60%;
+    object-fit: contain;
+    filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.5));
+  }
+
+  /* Lot number stamp in corner of preview */
+  .preview__stamp {
+    position: absolute;
+    top: 6px; left: 6px;
+    background: var(--ink-white);
+    color: var(--ink-black);
+    font-family: var(--f-mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 4px;
+    border: 1px solid var(--ink-black);
+  }
+  .preview__stamp--acid { background: var(--acid); }
+  .preview__count {
+    position: absolute;
+    bottom: 6px; right: 6px;
+    background: var(--ink-black);
+    border: 1.5px solid var(--ink-white);
+    padding: 2px 5px;
+    font-family: var(--f-mono);
+    font-size: 9px;
+    color: var(--ink-white);
+    letter-spacing: 0.04em;
+  }
+
+  /* Price column */
+  .price {
+    padding: 8px 12px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .price__label {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dust);
+  }
+  .price__num {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 52px;
+    line-height: 0.82;
+    color: var(--ink-white);
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin: 2px 0 2px -2px;
+  }
+  .price__num small {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    font-style: normal;
+    letter-spacing: 0.06em;
+    color: var(--acid);
+  }
+  .price__stock {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--ink-white);
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .price__stock em {
+    font-style: normal;
+    color: var(--dust);
+    font-weight: 400;
+  }
+
+  /* Stock ticker rows */
+  .tickers {
+    padding: 8px 12px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .tickers__row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    align-items: center;
+    gap: 8px;
+  }
+  .tickers__row .lbl {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--acid);
+  }
+  .tickers__row .lbl--off { color: var(--dust); text-decoration: line-through; }
+  .ticks {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .tick {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--ink-white);
+    background: var(--ink-black);
+    border: 1px solid var(--rule);
+    padding: 2px 5px 2px 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-transform: uppercase;
+  }
+  .tick .code { color: var(--acid); }
+  .tick .val  { color: var(--ink-white); }
+  .tick .arr  { color: #9de07a; font-family: var(--f-serif); font-style: italic; }
+  .tick--dim  { opacity: 0.35; }
+
+  .switch-pill {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 3px 8px 3px 10px;
+    border: 1.5px solid var(--ink-white);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all var(--t);
+    cursor: pointer;
+  }
+  .switch-pill::before {
+    content: "";
+    width: 8px; height: 8px;
+    background: var(--acid);
+    box-shadow: 1px 1px 0 var(--ink-black);
+  }
+  .switch-pill.off {
+    color: var(--dust);
+    border-color: var(--rule);
+  }
+  .switch-pill.off::before { background: var(--rule); box-shadow: none; }
+  .switch-pill.on {
+    background: var(--acid);
+    color: var(--ink-black);
+    border-color: var(--ink-black);
+    box-shadow: var(--stamp);
+  }
+  .switch-pill.on::before { background: var(--ink-black); box-shadow: none; }
+
+  /* Card footer with action row */
+  .card__foot {
+    padding: 6px 12px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-top: 1px solid var(--rule);
+  }
+  .card__foot .byline {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--dust);
+  }
+  .foot-acts { display: flex; gap: 6px; }
+  .foot-btn {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 7px;
+    border: 1.5px solid var(--ink-white);
+    color: var(--ink-white);
+    transition: all var(--t);
+  }
+  .foot-btn:hover { background: var(--ink-white); color: var(--ink-black); }
+  .foot-btn--del {
+    border-color: var(--blood);
+    color: var(--blood);
+  }
+  .foot-btn--del:hover { background: var(--blood); color: var(--ink-white); }
+
+  /* Bulk-mode checkbox */
+  .card__check {
+    position: absolute;
+    top: -2px; left: -2px;
+    width: 28px; height: 28px;
+    background: var(--phone-bg);
+    border: 2px solid var(--ink-white);
+    display: none;
+    place-items: center;
+    z-index: 4;
+  }
+  .card--bulk .card__check {
+    display: grid;
+  }
+  .card__check::after {
+    content: "";
+    width: 14px; height: 14px;
+    background: transparent;
+    border: 1.5px solid var(--ink-white);
+  }
+  .card--bulk.card--checked .card__check {
+    background: var(--acid);
+    border-color: var(--ink-black);
+    box-shadow: var(--stamp);
+  }
+  .card--bulk.card--checked .card__check::after {
+    content: "X";
+    background: transparent;
+    border: 0;
+    width: auto; height: auto;
+    font-family: var(--f-display);
+    font-size: 14px;
+    color: var(--ink-black);
+    line-height: 1;
+  }
+  .card--bulk.card--checked {
+    outline: 2px solid var(--acid);
+    outline-offset: 3px;
+  }
+
+  /* ========================================================================
+     SPECIAL CARD STATES
+     ======================================================================== */
+
+  /* "Any models" / "Any backdrops" — wildcard version. Bigger subhed, big * */
+  .card--wildcard .card__subhed b { background: var(--acid); color: var(--ink-black); border-bottom: 0; padding: 1px 4px; }
+  .preview__wild {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--f-display);
+    font-size: 96px;
+    color: var(--acid);
+    line-height: 0.5;
+  }
+
+  /* FEATURED pill — inverted acid box */
+  .featured {
+    position: absolute;
+    top: -2px; right: -2px;
+    background: var(--acid);
+    color: var(--ink-black);
+    font-family: var(--f-display);
+    font-size: 9px;
+    padding: 4px 7px;
+    letter-spacing: 0.08em;
+    border: 2px solid var(--ink-black);
+    box-shadow: var(--stamp);
+    z-index: 3;
+  }
+
+  /* OBITUARY — 0 стока: полностью чёрная карточка, красный бордер, диагональный SOLD штамп */
+  .card--obit {
+    background: var(--ink-black);
+    border: 2px solid var(--blood);
+    box-shadow: 3px 3px 0 var(--blood);
+    color: #ffe1e1;
+  }
+  .card--obit .card__kicker { color: var(--blood); border-bottom-color: var(--blood-dim); }
+  .card--obit .card__kicker .rubric { color: var(--blood); }
+  .card--obit .card__headline { color: #ffdede; }
+  .card--obit .card__headline .acid { background: var(--blood); color: var(--ink-white); }
+  .card--obit .card__subhed { color: #c96a6a; font-style: italic; }
+  .card--obit .card__subhed b { color: var(--blood); border-bottom-color: var(--blood); }
+  .card--obit .price__num { color: var(--blood); }
+  .card--obit .price__num small { color: var(--blood); }
+  .card--obit .price__stock { color: var(--blood); }
+  .card--obit .price__stock em { color: #7a3030; }
+  .card--obit .tickers__row .lbl { color: var(--blood); }
+  .card--obit .tick { border-color: var(--blood-dim); background: #140404; }
+  .card--obit .tick .code { color: var(--blood); }
+  .card--obit .switch-pill.on { background: var(--blood); border-color: var(--ink-black); color: var(--ink-white); }
+  .card--obit .switch-pill.on::before { background: var(--ink-white); }
+  .card--obit .card__foot { border-top-color: var(--blood-dim); }
+  .card--obit .preview { border-right-color: var(--blood); background: #160404; }
+  .card--obit .preview__inner img { opacity: 0.3; filter: grayscale(1) drop-shadow(2px 2px 0 rgba(214,40,40,0.6)); }
+  .card--obit .rule-heavy { border-top-color: var(--blood); }
+  .card--obit .card__infobtn { border-color: var(--blood); color: var(--blood); }
+  .card--obit .card__infobtn:hover { background: var(--blood); color: var(--ink-white); }
+  .card--obit .foot-btn { border-color: var(--blood); color: var(--blood); }
+  .card--obit .foot-btn:hover { background: var(--blood); color: var(--ink-white); }
+
+  .obit-stamp {
+    position: absolute;
+    top: 58px; left: -12px; right: -12px;
+    height: 48px;
+    pointer-events: none;
+    z-index: 2;
+    transform: rotate(-6deg);
+    border-top: 3px solid var(--blood);
+    border-bottom: 3px solid var(--blood);
+    background: rgba(214, 40, 40, 0.08);
+  }
+  .obit-stamp span {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--f-display);
+    font-size: 44px;
+    letter-spacing: 0.06em;
+    color: var(--blood);
+    text-shadow: 3px 3px 0 var(--ink-black);
+  }
+
+  /* WITHDRAWN — покупка выкл, dimmed grayscale */
+  .card--withdrawn {
+    background: var(--surface);
+    filter: grayscale(0.9);
+    opacity: 0.82;
+    border-color: var(--dust-dim);
+    box-shadow: 3px 3px 0 var(--ink-black);
+  }
+  .card--withdrawn .card__kicker .rubric { color: var(--dust); }
+  .card--withdrawn .card__headline { color: var(--dust); }
+  .card--withdrawn .preview__inner img { opacity: 0.5; }
+  .card--withdrawn .price__num { color: var(--dust); text-decoration: line-through; text-decoration-thickness: 2px; }
+  .card--withdrawn .price__num small { color: var(--dust); }
+  .withdrawn-stamp {
+    position: absolute;
+    top: 38px; left: 8px;
+    background: var(--ink-white);
+    color: var(--ink-black);
+    font-family: var(--f-display);
+    font-size: 11px;
+    padding: 3px 6px;
+    border: 2px solid var(--ink-black);
+    box-shadow: var(--stamp);
+    z-index: 3;
+    letter-spacing: 0.06em;
+    transform: rotate(-3deg);
+  }
+
+  /* ========================================================================
+     BOTTOM TAB BAR
+     ======================================================================== */
+  .bottom-tab {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 56px;
+    background: var(--phone-bg);
+    border-top: 2px solid var(--ink-white);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    font-family: var(--f-mono);
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .bottom-tab__item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: var(--dust);
+    border-right: 1px solid var(--rule);
+    transition: all var(--t);
+  }
+  .bottom-tab__item:last-child { border-right: 0; }
+  .bottom-tab__item.active { color: var(--ink-white); background: var(--ink-black); }
+  .bottom-tab__item.active::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--acid);
+    pointer-events: none;
+  }
+  .bottom-tab__item svg { width: 18px; height: 18px; stroke: currentColor; fill: none; }
+
+  /* ========================================================================
+     BOTTOM-SHEET MODAL
+     ======================================================================== */
+  .sheet-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 5, 5, 0.72);
+    z-index: 10;
+    display: flex;
+    align-items: flex-end;
+  }
+  .sheet {
+    width: 100%;
+    max-height: 92%;
+    background: var(--phone-bg);
+    border-top: 3px solid var(--acid);
+    border-left: 2px solid var(--ink-white);
+    border-right: 2px solid var(--ink-white);
+    box-shadow: 0 -6px 0 var(--ink-black);
+    display: flex;
+    flex-direction: column;
+  }
+  .sheet__handle {
+    height: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .sheet__handle span {
+    display: block;
+    width: 48px; height: 3px;
+    background: var(--ink-white);
+  }
+  .sheet__head {
+    padding: 10px 16px 12px;
+    border-bottom: 2px solid var(--ink-white);
+  }
+  .sheet__kicker {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--acid);
+    margin-bottom: 3px;
+  }
+  .sheet__title {
+    font-family: var(--f-display);
+    font-size: 26px;
+    line-height: 0.95;
+    color: var(--ink-white);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .sheet__title u { text-decoration: none; border-bottom: 3px solid var(--acid); padding-bottom: 1px; }
+  .sheet__sub {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-mute);
+    margin-top: 4px;
+  }
+  .sheet__close {
+    width: 28px; height: 28px;
+    border: 1.5px solid var(--ink-white);
+    display: grid; place-items: center;
+    color: var(--ink-white);
+    flex-shrink: 0;
+    transition: all var(--t);
+  }
+  .sheet__close:hover { background: var(--blood); border-color: var(--blood); color: var(--ink-white); }
+  .sheet__close svg { width: 13px; height: 13px; }
+
+  .sheet__body {
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule) transparent;
+  }
+
+  .sheet__section {
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 16px 14px;
+  }
+  .sheet__section-title {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dust);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .sheet__section-title b {
+    color: var(--acid);
+  }
+  .sheet__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .chip {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 4px 7px;
+    background: var(--ink-black);
+    border: 1px solid var(--rule);
+    color: var(--ink-white);
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .chip .sw {
+    display: inline-block;
+    width: 9px; height: 9px;
+    background: var(--bdx, #5abea6);
+    border: 1px solid var(--ink-black);
+  }
+  .chip--acid { background: var(--acid); color: var(--ink-black); border-color: var(--ink-black); }
+
+  /* Sheet: price block, big ticker */
+  .sheet__price {
+    padding: 14px 16px 16px;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+  }
+  .sheet__price-cell .lbl {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dust);
+  }
+  .sheet__price-cell .big {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 44px;
+    line-height: 0.88;
+    color: var(--ink-white);
+    margin-top: 2px;
+  }
+  .sheet__price-cell .big small {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    font-style: normal;
+    color: var(--acid);
+    letter-spacing: 0.05em;
+  }
+
+  .sheet__markets {
+    padding: 10px 16px 12px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sheet__actions {
+    padding: 12px 16px 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .sheet__actions .btn {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 12px 10px;
+    border: 2px solid var(--ink-white);
+    color: var(--ink-white);
+    background: var(--surface);
+    transition: all var(--t);
+    text-align: center;
+    font-weight: 700;
+  }
+  .sheet__actions .btn--edit:hover {
+    background: var(--acid); color: var(--ink-black); border-color: var(--ink-black);
+    box-shadow: var(--stamp);
+  }
+  .sheet__actions .btn--del {
+    border-color: var(--blood); color: var(--blood);
+  }
+  .sheet__actions .btn--del:hover {
+    background: var(--blood); color: var(--ink-white);
+  }
+
+  /* ========================================================================
+     BULK MODE
+     ======================================================================== */
+  .bulk-banner {
+    margin: 12px 16px 14px;
+    background: var(--acid);
+    color: var(--ink-black);
+    padding: 10px 12px;
+    border: 2px solid var(--ink-black);
+    box-shadow: var(--stamp);
+    font-family: var(--f-display);
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 8px;
+    line-height: 0.95;
+  }
+  .bulk-banner em {
+    display: block;
+    font-family: var(--f-mono);
+    font-weight: 400;
+    font-style: normal;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-black);
+    margin-top: 3px;
+    opacity: 0.75;
+  }
+  .bulk-banner .cancel {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 5px 8px;
+    border: 1.5px solid var(--ink-black);
+    background: transparent;
+    color: var(--ink-black);
+    transition: background var(--t), color var(--t);
+  }
+  .bulk-banner .cancel:hover { background: var(--ink-black); color: var(--acid); }
+
+  .bulk-actions {
+    position: absolute;
+    left: 0; right: 0; bottom: 56px;
+    background: var(--ink-black);
+    border-top: 3px solid var(--acid);
+    border-bottom: 1px solid var(--rule);
+    padding: 10px 14px 12px;
+    z-index: 6;
+  }
+  .bulk-actions__title {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--acid);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .bulk-actions__title b {
+    font-family: var(--f-display);
+    color: var(--ink-white);
+    font-size: 11px;
+  }
+  .bulk-actions__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .bulk-actions__btn {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 4px 9px;
+    border: 1.5px solid var(--ink-white);
+    color: var(--ink-white);
+    background: transparent;
+    transition: all var(--t);
+    text-align: center;
+    line-height: 1.15;
+  }
+  .bulk-actions__btn:hover { background: var(--ink-white); color: var(--ink-black); }
+  .bulk-actions__btn--del { border-color: var(--blood); color: var(--blood); }
+  .bulk-actions__btn--del:hover { background: var(--blood); color: var(--ink-white); }
+
+  /* ========================================================================
+     NOTES BAND AT TOP OF EACH DECK COLUMN
+     ======================================================================== */
+  .note {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dust);
+    line-height: 1.5;
+    border-top: 1px solid var(--rule);
+    padding-top: 8px;
+  }
+  .note b { color: var(--acid); }
+
+  /* ========================================================================
+     UNDERLINE SWEEP ON HOVER — clip-path driven
+     ======================================================================== */
+  .underline-sweep {
+    position: relative;
+    display: inline-block;
+  }
+  .underline-sweep::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -2px;
+    height: 3px;
+    background: var(--acid);
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path var(--t);
+  }
+  .underline-sweep:hover::after { clip-path: inset(0 0 0 0); }
+
+  /* ========================================================================
+     RESPONSIVE (for narrow desktop preview)
+     ======================================================================== */
+  @media (max-width: 1260px) {
+    .deck { grid-template-columns: 393px; gap: 40px; }
+    .masthead__title { font-size: 30px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- =============================================================
+     MASTHEAD
+     ============================================================= -->
+<header class="masthead">
+  <div class="masthead__left">Vol. III · No. 01 · Apr 14 2026</div>
+  <div>
+    <h1 class="masthead__title">THE GIFT <span>SATELLITE</span> DESK</h1>
+    <div class="masthead__sub">A Broadsheet Brutal Concept for Subscription Management</div>
+  </div>
+  <div class="masthead__right">Variant 3 / Three Mockups / A · B · C</div>
+</header>
+
+<!-- =============================================================
+     DECK — three phones
+     ============================================================= -->
+<main class="deck">
+
+  <!-- ==============================================================
+       COLUMN A · MAIN SCREEN with 9 subscription cards
+       ============================================================== -->
+  <section class="deck__col" id="col-a">
+    <div class="deck__label"><b>MOCKUP A</b> · MAIN SCREEN</div>
+    <div class="deck__meta">Subscriptions desk — nine classified ads, one rubric each.</div>
+
+    <div class="phone">
+      <!-- Status bar (safe area 40px) -->
+      <div class="tg-status">
+        <div class="tg-status__time">09:41</div>
+        <div class="tg-status__dot"></div>
+        <div class="tg-status__icons">5G · 87%</div>
+      </div>
+
+      <!-- Paper head (app header) -->
+      <div class="paper-head">
+        <div class="paper-head__row1">
+          <span>MON · APR 14 · 2026</span>
+          <span>EST. 2024 · TG WEBAPP</span>
+        </div>
+        <div class="paper-head__title">
+          <span>SUBSCR<span class="acid-under">I</span>PT<span class="acid-under">I</span>ONS</span>
+          <div class="paper-head__icons">
+            <button class="icon-btn" title="Search" aria-label="search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            </button>
+            <button class="icon-btn" title="Sort" aria-label="sort">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M6 12h12M9 18h6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="tabs">
+          <button class="tab tab--on">ALL · 45</button>
+          <button class="tab">BUY</button>
+          <button class="tab">NTF</button>
+          <button class="tab">IDLE</button>
+        </div>
+        <div class="tool-cluster">
+          <button class="tool-btn" title="Density list" aria-label="list">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <button class="tool-btn" title="Bulk select" aria-label="bulk">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="4" width="16" height="16"/><path d="M8 12l3 3 5-5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Page-level ticker -->
+      <div class="ticker-strip">
+        <span>TON <b>5.28 <span class="up">&#9650;</span></b></span>
+        <span>PRT <b>1.02 <span class="down">&#9660;</span></b></span>
+        <span>FRG <b>0.44 <span class="up">&#9650;</span></b></span>
+        <span>MRK <b>0.97 <span class="down">&#9660;</span></b></span>
+      </div>
+
+      <!-- Scroll area with 9 cards -->
+      <div class="scroll">
+
+        <h2 class="feed-title">CLASSIFIED ADS <em>nine lots</em></h2>
+
+        <!-- ========= CARD 1 — MARKET WATCH — Ice Cream ========= -->
+        <article class="card">
+          <div class="card__kicker">
+            <span><span class="rubric">MARKET WATCH</span> · PORTALS · ACTIVE</span>
+            <span class="lotno">LOT 01</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline"><u>ICE CREAM</u> FLIP UNDER 30</div>
+            <button class="card__infobtn" title="Details" data-info="1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>
+            </button>
+            <div class="card__subhed">Ice Cream Cone collection · <b>GHOST BITERS</b> · Sapphire backdrop</div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--single" style="--bd1:#58a3c8"></div>
+              <div class="preview__stamp">LOT 01</div>
+              <div class="preview__inner">
+                <img src="../../../assets/originals/5900177027566142759/Original.png" alt="Ice Cream">
+              </div>
+              <div class="preview__count">1 MDL · 1 BD</div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">ASK CEILING</div>
+                <div class="price__num">30<small>TON</small></div>
+              </div>
+              <div class="price__stock">
+                <span>STOCK</span>
+                <em>02 / 03 FILLED</em>
+              </div>
+            </div>
+          </div>
+          <hr class="rule-thin">
+          <div class="tickers">
+            <div class="tickers__row">
+              <span class="lbl">BUY</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">12.00</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">FRG</span> <span class="val">14.50</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">MRK</span> <span class="val">13.20</span> <span class="arr">&#9650;</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+            <div class="tickers__row">
+              <span class="lbl">NTF</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">32.00</span></span>
+                <span class="tick"><span class="code">MRK</span> <span class="val">32.00</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+          </div>
+          <div class="card__foot">
+            <div class="byline">&mdash; edited 3h ago &middot; lot filed by @you</div>
+            <div class="foot-acts">
+              <button class="foot-btn">EDIT</button>
+              <button class="foot-btn foot-btn--del">DEL</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ========= CARD 2 — WILDCARD — Lol Pop, any / any ========= -->
+        <article class="card card--wildcard">
+          <div class="card__kicker">
+            <span><span class="rubric">WILDCARD</span> · LOL POP · OPEN LOT</span>
+            <span class="lotno">LOT 02</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline">LOL POP · <span class="acid">ANY BUILD</span></div>
+            <button class="card__infobtn" title="Details" data-info="2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>
+            </button>
+            <div class="card__subhed">Collection Lol Pop · <b>ANY MODELS</b> · <b>ANY BACKDROPS</b></div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg" style="background:#1a1a18"></div>
+              <div class="preview__wild">&#42;</div>
+              <div class="preview__stamp preview__stamp--acid">WILDCARD</div>
+              <div class="preview__inner">
+                <img src="../../../assets/originals/5170594532177215681/Original.png" alt="Lol Pop" style="width:60%;height:60%">
+              </div>
+              <div class="preview__count">ANY · ANY</div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">ASK CEILING</div>
+                <div class="price__num">8<small>TON</small></div>
+              </div>
+              <div class="price__stock">
+                <span>STOCK</span>
+                <em>04 / 10 FILLED</em>
+              </div>
+            </div>
+          </div>
+          <hr class="rule-thin">
+          <div class="tickers">
+            <div class="tickers__row">
+              <span class="lbl">BUY</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">7.40</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">TNL</span> <span class="val">7.90</span> <span class="arr">&#9650;</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+            <div class="tickers__row">
+              <span class="lbl">NTF</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">9.00</span></span>
+                <span class="tick"><span class="code">FRG</span> <span class="val">9.00</span></span>
+                <span class="tick"><span class="code">MRK</span> <span class="val">9.00</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+          </div>
+          <div class="card__foot">
+            <div class="byline">&mdash; ANY lot, broad intake, low floor</div>
+            <div class="foot-acts">
+              <button class="foot-btn">EDIT</button>
+              <button class="foot-btn foot-btn--del">DEL</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ========= CARD 3 — COMBO LOT — Light Sword, 3 models chain ========= -->
+        <article class="card">
+          <div class="card__kicker">
+            <span><span class="rubric">COMBO LOT</span> · LIGHT SWORD · TRIPLE</span>
+            <span class="lotno">LOT 03</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline"><u>SWORD TRIO</u> FULL SET</div>
+            <button class="card__infobtn" title="Details" data-info="3">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>
+            </button>
+            <div class="card__subhed">Light Sword collection · <b>3 MODELS</b> · 1 backdrop Satin Gold</div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--single" style="--bd1:#bf9b47"></div>
+              <div class="preview__stamp">LOT 03</div>
+              <div class="preview__chain">
+                <img src="../../../assets/originals/5897581235231785485/Original.png" alt="">
+                <img src="../../../assets/originals/5897581235231785485/Original.png" alt="">
+                <img src="../../../assets/originals/5897581235231785485/Original.png" alt="">
+              </div>
+              <div class="preview__count">3 MDL · 1 BD</div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">ASK CEILING</div>
+                <div class="price__num">45<small>TON</small></div>
+              </div>
+              <div class="price__stock">
+                <span>STOCK</span>
+                <em>01 / 05 FILLED</em>
+              </div>
+            </div>
+          </div>
+          <hr class="rule-thin">
+          <div class="tickers">
+            <div class="tickers__row">
+              <span class="lbl">BUY</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">42.00</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">FRG</span> <span class="val">44.80</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">GMS</span> <span class="val">43.50</span> <span class="arr">&#9650;</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+            <div class="tickers__row">
+              <span class="lbl">NTF</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">50.00</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+          </div>
+          <div class="card__foot">
+            <div class="byline">&mdash; rare triple, only gold backdrop</div>
+            <div class="foot-acts">
+              <button class="foot-btn">EDIT</button>
+              <button class="foot-btn foot-btn--del">DEL</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ========= CARD 4 — SYNDICATE — Plush Pepe, 12 models, 3 backdrops partitioned ========= -->
+        <article class="card">
+          <div class="card__kicker">
+            <span><span class="rubric">SYNDICATE</span> · PLUSH PEPE · WHALE</span>
+            <span class="lotno">LOT 04</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline">PEPE WHALE BAG</div>
+            <button class="card__infobtn" title="Details" data-info="4">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>
+            </button>
+            <div class="card__subhed">Plush Pepe · <b>12 MODELS</b> · 3 backdrops partitioned</div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--triple" style="--bd1:#85b9d7;--bd2:#a980f3;--bd3:#e07b85"></div>
+              <div class="preview__stamp">LOT 04</div>
+              <div class="preview__inner">
+                <img src="../../../assets/originals/5936013938331222567/Original.png" alt="Plush Pepe">
+              </div>
+              <div class="preview__count">12 MDL · 3 BD</div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">ASK CEILING</div>
+                <div class="price__num">780<small>TON</small></div>
+              </div>
+              <div class="price__stock">
+                <span>STOCK</span>
+                <em>06 / 20 FILLED</em>
+              </div>
+            </div>
+          </div>
+          <hr class="rule-thin">
+          <div class="tickers">
+            <div class="tickers__row">
+              <span class="lbl">BUY</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">750</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">FRG</span> <span class="val">770</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">TNL</span> <span class="val">775</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">MRK</span> <span class="val">760</span> <span class="arr">&#9650;</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+            <div class="tickers__row">
+              <span class="lbl">NTF</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">810</span></span>
+                <span class="tick"><span class="code">FRG</span> <span class="val">810</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+          </div>
+          <div class="card__foot">
+            <div class="byline">&mdash; syndicate bag, 12-model coverage</div>
+            <div class="foot-acts">
+              <button class="foot-btn">EDIT</button>
+              <button class="foot-btn foot-btn--del">DEL</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ========= CARD 5 — CUSTOM INDEX — Jolly Chimp, 25 backdrops custom ========= -->
+        <article class="card">
+          <span class="featured">FEATURED</span>
+          <div class="card__kicker">
+            <span><span class="rubric">CUSTOM INDEX</span> · JOLLY CHIMP · BROAD</span>
+            <span class="lotno">LOT 05</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline">CHIMP RAINBOW SWEEP</div>
+            <button class="card__infobtn" title="Details" data-info="5">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>
+            </button>
+            <div class="card__subhed">Jolly Chimp · <b>2 MODELS</b> · <b>25 BACKDROPS</b> (custom index)</div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--custom"></div>
+              <div class="preview__stamp preview__stamp--acid">LOT 05</div>
+              <div class="preview__chain">
+                <img src="../../../assets/originals/6005880141270483700/Original.png" alt="">
+                <img src="../../../assets/originals/6005880141270483700/Original.png" alt="">
+              </div>
+              <div class="preview__count">2 MDL · 25 BD</div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">ASK CEILING</div>
+                <div class="price__num">18<small>TON</small></div>
+              </div>
+              <div class="price__stock">
+                <span>STOCK</span>
+                <em>11 / 40 FILLED</em>
+              </div>
+            </div>
+          </div>
+          <hr class="rule-thin">
+          <div class="tickers">
+            <div class="tickers__row">
+              <span class="lbl">BUY</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">16.50</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">MRK</span> <span class="val">17.10</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">TNL</span> <span class="val">17.40</span> <span class="arr">&#9650;</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+            <div class="tickers__row">
+              <span class="lbl">NTF</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">19.80</span></span>
+                <span class="tick"><span class="code">FRG</span> <span class="val">19.80</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+          </div>
+          <div class="card__foot">
+            <div class="byline">&mdash; broad 25-backdrop sweep, custom palette</div>
+            <div class="foot-acts">
+              <button class="foot-btn">EDIT</button>
+              <button class="foot-btn foot-btn--del">DEL</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ========= CARD 6 — OBITUARY — Jack-in-the-Box, 0 of 3 ========= -->
+        <article class="card card--obit">
+          <div class="obit-stamp"><span>SOLD OUT</span></div>
+          <div class="card__kicker">
+            <span><span class="rubric">OBITUARY</span> &middot; 0 / 3 REMAINING &middot; STOP</span>
+            <span class="lotno">LOT 06</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline">JACK SURPRISE BAG</div>
+            <button class="card__infobtn" title="Details" data-info="6">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>
+            </button>
+            <div class="card__subhed">Jack-in-the-Box &middot; <b>ROYAL KING</b> &middot; Onyx Black backdrop</div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--solid-red"></div>
+              <div class="preview__stamp" style="background:#d62828;color:#fff;border-color:#050505">LOT 06</div>
+              <div class="preview__inner">
+                <img src="../../../assets/originals/6005659564635063386/Original.png" alt="Jack-in-the-Box">
+              </div>
+              <div class="preview__count" style="border-color:#d62828;color:#ff9a9a">0 / 3 BOUGHT</div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label" style="color:#ff9a9a">STOCK EXHAUSTED</div>
+                <div class="price__num">0<small>/ 3</small></div>
+              </div>
+              <div class="price__stock">
+                <span>DEAD LOT</span>
+                <em>BUY OFF</em>
+              </div>
+            </div>
+          </div>
+          <hr class="rule-thin">
+          <div class="tickers">
+            <div class="tickers__row">
+              <span class="lbl">BUY</span>
+              <div class="ticks">
+                <span class="tick tick--dim"><span class="code">PRT</span> <span class="val">55.00</span></span>
+                <span class="tick tick--dim"><span class="code">FRG</span> <span class="val">57.00</span></span>
+              </div>
+              <span class="switch-pill on">HALT</span>
+            </div>
+            <div class="tickers__row">
+              <span class="lbl">NTF</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">60.00</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+          </div>
+          <div class="card__foot">
+            <div class="byline" style="color:#c96a6a">&mdash; CLOSED: all 3 filled 08:12</div>
+            <div class="foot-acts">
+              <button class="foot-btn">REOPEN</button>
+              <button class="foot-btn foot-btn--del">BURY</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ========= CARD 7 — WITHDRAWN — Homemade Cake, purchase off ========= -->
+        <article class="card card--withdrawn">
+          <div class="withdrawn-stamp">WITHDRAWN</div>
+          <div class="card__kicker">
+            <span><span class="rubric">WITHDRAWN</span> · PURCHASE :: OFFLINE</span>
+            <span class="lotno">LOT 07</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline">CAKE HUNT &mdash; PAUSED</div>
+            <button class="card__infobtn" title="Details" data-info="7">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>
+            </button>
+            <div class="card__subhed">Homemade Cake · <b>3 MODELS</b> · Platinum backdrop</div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--off"></div>
+              <div class="preview__stamp">LOT 07</div>
+              <div class="preview__inner">
+                <img src="../../../assets/originals/5783075783622787539/Original.png" alt="Homemade Cake">
+              </div>
+              <div class="preview__count">3 MDL · 1 BD</div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">WAS ASKING</div>
+                <div class="price__num">22<small>TON</small></div>
+              </div>
+              <div class="price__stock">
+                <span>STOCK</span>
+                <em>00 / 02 FILLED</em>
+              </div>
+            </div>
+          </div>
+          <hr class="rule-thin">
+          <div class="tickers">
+            <div class="tickers__row">
+              <span class="lbl lbl--off">BUY</span>
+              <div class="ticks">
+                <span class="tick tick--dim"><span class="code">PRT</span> <span class="val">21.00</span></span>
+                <span class="tick tick--dim"><span class="code">FRG</span> <span class="val">22.50</span></span>
+              </div>
+              <span class="switch-pill off">OFF</span>
+            </div>
+            <div class="tickers__row">
+              <span class="lbl">NTF</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">24.00</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+          </div>
+          <div class="card__foot">
+            <div class="byline">&mdash; paused by user · flip BUY to reopen</div>
+            <div class="foot-acts">
+              <button class="foot-btn">EDIT</button>
+              <button class="foot-btn foot-btn--del">DEL</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ========= CARD 8 — NO ALERTS — Desk Calendar, notif off, 4 patterns ========= -->
+        <article class="card">
+          <div class="card__kicker">
+            <span><span class="rubric">NO ALERTS</span> · DESK CALENDAR · DATE LOT</span>
+            <span class="lotno">LOT 08</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline"><u>DATE PATTERN</u> SWEEP</div>
+            <button class="card__infobtn" title="Details" data-info="8">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>
+            </button>
+            <div class="card__subhed">Desk Calendar · <b>2 MODELS</b> · <b>4 PATTERNS</b> · Burgundy backdrop</div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--single" style="--bd1:#a35e66"></div>
+              <div class="preview__stamp">LOT 08</div>
+              <div class="preview__chain">
+                <img src="../../../assets/originals/5782988952268964995/Original.png" alt="">
+                <img src="../../../assets/originals/5782988952268964995/Original.png" alt="">
+              </div>
+              <div class="preview__count">2 MDL · 4 PTN</div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">ASK CEILING</div>
+                <div class="price__num">16<small>TON</small></div>
+              </div>
+              <div class="price__stock">
+                <span>STOCK</span>
+                <em>03 / 08 FILLED</em>
+              </div>
+            </div>
+          </div>
+          <hr class="rule-thin">
+          <div class="tickers">
+            <div class="tickers__row">
+              <span class="lbl">BUY</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">14.80</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">FRG</span> <span class="val">15.50</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">TNL</span> <span class="val">15.20</span> <span class="arr">&#9650;</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+            <div class="tickers__row">
+              <span class="lbl lbl--off">NTF</span>
+              <div class="ticks">
+                <span class="tick tick--dim"><span class="code">PRT</span> <span class="val">--.--</span></span>
+                <span class="tick tick--dim"><span class="code">MRK</span> <span class="val">--.--</span></span>
+              </div>
+              <span class="switch-pill off">MUTE</span>
+            </div>
+          </div>
+          <div class="card__foot">
+            <div class="byline">&mdash; patterns: NUMBER 1 · 2 · 3 · 7</div>
+            <div class="foot-acts">
+              <button class="foot-btn">EDIT</button>
+              <button class="foot-btn foot-btn--del">DEL</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ========= CARD 9 — LONG LOT — Victory Medal, long prompt, 5 backdrops ========= -->
+        <article class="card">
+          <div class="card__kicker">
+            <span><span class="rubric">LONG LOT</span> · VICTORY MEDAL · SPREAD</span>
+            <span class="lotno">LOT 09</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline">HUNTING EVERY VICTORY MEDAL UNDER FLOOR</div>
+            <button class="card__infobtn" title="Details" data-info="9">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>
+            </button>
+            <div class="card__subhed">Victory Medal · <b>1 MODEL</b> &middot; <b>5 BACKDROPS</b> partitioned</div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--quint" style="--bd1:#6ba97c;--bd2:#bf9b47;--bd3:#b77a77;--bd4:#5db1cb;--bd5:#a980f3"></div>
+              <div class="preview__stamp">LOT 09</div>
+              <div class="preview__inner">
+                <img src="../../../assets/originals/5830340739074097859/Original.png" alt="Victory Medal">
+              </div>
+              <div class="preview__count">1 MDL · 5 BD</div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">ASK CEILING</div>
+                <div class="price__num">4.2<small>TON</small></div>
+              </div>
+              <div class="price__stock">
+                <span>STOCK</span>
+                <em>00 / 99 OPEN</em>
+              </div>
+            </div>
+          </div>
+          <hr class="rule-thin">
+          <div class="tickers">
+            <div class="tickers__row">
+              <span class="lbl">BUY</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">3.90</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">FRG</span> <span class="val">4.10</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">MRK</span> <span class="val">4.00</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">TNL</span> <span class="val">4.15</span> <span class="arr">&#9650;</span></span>
+                <span class="tick"><span class="code">GMS</span> <span class="val">4.05</span> <span class="arr">&#9650;</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+            <div class="tickers__row">
+              <span class="lbl">NTF</span>
+              <div class="ticks">
+                <span class="tick"><span class="code">PRT</span> <span class="val">5.00</span></span>
+              </div>
+              <span class="switch-pill on">ON</span>
+            </div>
+          </div>
+          <div class="card__foot">
+            <div class="byline">&mdash; wide spread, volume play, five backdrops</div>
+            <div class="foot-acts">
+              <button class="foot-btn">EDIT</button>
+              <button class="foot-btn foot-btn--del">DEL</button>
+            </div>
+          </div>
+        </article>
+
+        <div class="note" style="margin: 20px 2px 0">
+          END OF PAGE · 9 OF 45 LOTS · <b>SCROLL FOR MORE</b>
+        </div>
+
+      </div>
+
+      <!-- Bottom tabs -->
+      <nav class="bottom-tab">
+        <button class="bottom-tab__item">
+          <svg viewBox="0 0 24 24" stroke-width="2"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg>
+          HOME
+        </button>
+        <button class="bottom-tab__item active">
+          <svg viewBox="0 0 24 24" stroke-width="2"><rect x="4" y="4" width="16" height="7"/><rect x="4" y="13" width="16" height="7"/></svg>
+          SUBS
+        </button>
+        <button class="bottom-tab__item">
+          <svg viewBox="0 0 24 24" stroke-width="2"><rect x="4" y="6" width="16" height="14"/><path d="M4 10h16M8 6V3M16 6V3"/></svg>
+          FEED
+        </button>
+        <button class="bottom-tab__item">
+          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c1-4 5-6 8-6s7 2 8 6"/></svg>
+          ME
+        </button>
+      </nav>
+    </div>
+
+    <div class="note">
+      Each of the nine cards is a distinct <b>rubric</b>: Market Watch · Wildcard ·
+      Combo Lot · Syndicate · Custom Index · <b>Obituary</b> · Withdrawn · No Alerts · Long Lot.
+    </div>
+  </section>
+
+  <!-- ==============================================================
+       COLUMN B · BOTTOM-SHEET MODAL OPEN
+       ============================================================== -->
+  <section class="deck__col" id="col-b">
+    <div class="deck__label"><b>MOCKUP B</b> · INFO SHEET OPEN</div>
+    <div class="deck__meta">Lot 01 expanded: full feature article &mdash; collection, models, backdrops, patterns, buy &amp; notify.</div>
+
+    <div class="phone">
+      <div class="tg-status">
+        <div class="tg-status__time">09:41</div>
+        <div class="tg-status__dot"></div>
+        <div class="tg-status__icons">5G · 87%</div>
+      </div>
+
+      <div class="paper-head">
+        <div class="paper-head__row1">
+          <span>MON · APR 14 · 2026</span>
+          <span>EST. 2024 · TG WEBAPP</span>
+        </div>
+        <div class="paper-head__title">
+          <span>SUBSCR<span class="acid-under">I</span>PT<span class="acid-under">I</span>ONS</span>
+          <div class="paper-head__icons">
+            <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+            <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M6 12h12M9 18h6"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="tabs">
+          <button class="tab tab--on">ALL · 45</button>
+          <button class="tab">BUY</button>
+          <button class="tab">NTF</button>
+          <button class="tab">IDLE</button>
+        </div>
+        <div class="tool-cluster">
+          <button class="tool-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+          <button class="tool-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="4" width="16" height="16"/><path d="M8 12l3 3 5-5"/></svg></button>
+        </div>
+      </div>
+
+      <div class="ticker-strip">
+        <span>TON <b>5.28 <span class="up">&#9650;</span></b></span>
+        <span>PRT <b>1.02 <span class="down">&#9660;</span></b></span>
+        <span>FRG <b>0.44 <span class="up">&#9650;</span></b></span>
+        <span>MRK <b>0.97 <span class="down">&#9660;</span></b></span>
+      </div>
+
+      <!-- Blurred feed under the sheet (just a peek of card 1 header) -->
+      <div class="scroll" style="pointer-events:none;opacity:0.4">
+        <h2 class="feed-title">CLASSIFIED ADS <em>nine lots</em></h2>
+        <article class="card">
+          <div class="card__kicker">
+            <span><span class="rubric">MARKET WATCH</span> · PORTALS · ACTIVE</span>
+            <span class="lotno">LOT 01</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline"><u>ICE CREAM</u> FLIP UNDER 30</div>
+            <div style="width:26px;height:26px;border:1.5px solid #f4f1e8"></div>
+          </div>
+        </article>
+      </div>
+
+      <nav class="bottom-tab" style="opacity:0.4">
+        <button class="bottom-tab__item">HOME</button>
+        <button class="bottom-tab__item active">SUBS</button>
+        <button class="bottom-tab__item">FEED</button>
+        <button class="bottom-tab__item">ME</button>
+      </nav>
+
+      <!-- Sheet overlay -->
+      <div class="sheet-overlay">
+        <div class="sheet">
+          <div class="sheet__handle"><span></span></div>
+          <div class="sheet__head">
+            <div class="sheet__kicker">FEATURE &middot; LOT 01 FULL SPREAD</div>
+            <div class="sheet__title">
+              <span><u>ICE CREAM</u> FLIP UNDER 30</span>
+              <button class="sheet__close" data-close>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
+            </div>
+            <div class="sheet__sub">A one-model flip from the Ice Cream shelf &middot; Ghost Biters on Sapphire &middot; active across three markets.</div>
+          </div>
+
+          <div class="sheet__body">
+
+            <!-- COLLECTION -->
+            <div class="sheet__section">
+              <div class="sheet__section-title">COLLECTION <b>01</b></div>
+              <div class="sheet__chips">
+                <span class="chip chip--acid">ICE CREAM</span>
+              </div>
+            </div>
+
+            <!-- MODELS -->
+            <div class="sheet__section">
+              <div class="sheet__section-title">MODELS <b>01 / 01</b></div>
+              <div class="sheet__chips">
+                <span class="chip">GHOST BITERS · 2%</span>
+              </div>
+            </div>
+
+            <!-- BACKDROPS -->
+            <div class="sheet__section">
+              <div class="sheet__section-title">BACKDROPS <b>01 / 01</b></div>
+              <div class="sheet__chips">
+                <span class="chip"><span class="sw" style="--bdx:#58a3c8"></span>SAPPHIRE</span>
+              </div>
+            </div>
+
+            <!-- PATTERNS -->
+            <div class="sheet__section">
+              <div class="sheet__section-title">PATTERNS <b>ANY</b></div>
+              <div class="sheet__chips">
+                <span class="chip" style="color:#8a8478">*  ANY PATTERN</span>
+              </div>
+            </div>
+
+            <!-- NUMBER -->
+            <div class="sheet__section">
+              <div class="sheet__section-title">NUMBER PATTERN</div>
+              <div class="sheet__chips">
+                <span class="chip" style="color:#8a8478">*  ANY NUMBER</span>
+              </div>
+            </div>
+
+            <!-- BUY BLOCK -->
+            <div class="sheet__price">
+              <div class="sheet__price-cell">
+                <div class="lbl">BUY &mdash; ASK CEILING</div>
+                <div class="big">30<small>TON</small></div>
+              </div>
+              <div class="sheet__price-cell">
+                <div class="lbl">STOCK PROGRESS</div>
+                <div class="big">02<small>/ 03</small></div>
+              </div>
+            </div>
+
+            <div class="sheet__markets">
+              <div class="tickers__row">
+                <span class="lbl" style="font-family: 'Space Mono', monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;color:#f5ff00">BUY</span>
+                <div class="ticks">
+                  <span class="tick"><span class="code">PRT</span> <span class="val">12.00</span> <span class="arr">&#9650;</span></span>
+                  <span class="tick"><span class="code">FRG</span> <span class="val">14.50</span> <span class="arr">&#9650;</span></span>
+                  <span class="tick"><span class="code">MRK</span> <span class="val">13.20</span> <span class="arr">&#9650;</span></span>
+                </div>
+                <span class="switch-pill on">ON</span>
+              </div>
+              <div class="tickers__row">
+                <span class="lbl" style="font-family: 'Space Mono', monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;color:#f5ff00">NTF</span>
+                <div class="ticks">
+                  <span class="tick"><span class="code">PRT</span> <span class="val">32.00</span></span>
+                  <span class="tick"><span class="code">MRK</span> <span class="val">32.00</span></span>
+                </div>
+                <span class="switch-pill on">ON</span>
+              </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="sheet__actions">
+              <button class="btn btn--edit">EDIT LOT</button>
+              <button class="btn btn--del">DELETE LOT</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      Modal = <b>full feature article</b>. Sections separated by thin rules,
+      price block doubled as editorial pull-quote, action buttons in paper stock.
+    </div>
+  </section>
+
+  <!-- ==============================================================
+       COLUMN C · BULK SELECT MODE
+       ============================================================== -->
+  <section class="deck__col" id="col-c">
+    <div class="deck__label"><b>MOCKUP C</b> · BULK EDIT DESK</div>
+    <div class="deck__meta">Headline snaps to CLASSIFIED ADS :: BULK EDIT. Action strip docked above the tab bar.</div>
+
+    <div class="phone">
+      <div class="tg-status">
+        <div class="tg-status__time">09:41</div>
+        <div class="tg-status__dot"></div>
+        <div class="tg-status__icons">5G · 87%</div>
+      </div>
+
+      <div class="paper-head">
+        <div class="paper-head__row1">
+          <span>MON · APR 14 · 2026</span>
+          <span>BULK EDIT MODE</span>
+        </div>
+        <div class="paper-head__title">
+          <span>BULK <span class="acid-under">ED</span>IT</span>
+          <div class="paper-head__icons">
+            <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar" style="background:#050505">
+        <div class="tabs">
+          <button class="tab tab--on" style="background:#f5ff00">SELECT ALL</button>
+          <button class="tab">INVERT</button>
+          <button class="tab">BY RUBRIC</button>
+        </div>
+        <div class="tool-cluster">
+          <button class="tool-btn" title="Cancel" style="border-color:#d62828;color:#d62828">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="ticker-strip" style="background:#f5ff00;color:#050505">
+        <span style="color:#050505"><b style="color:#050505">CLASSIFIED ADS :: BULK EDIT DESK :: 03 SELECTED</b></span>
+      </div>
+
+      <div class="scroll" style="padding-bottom:180px">
+        <div class="bulk-banner">
+          <div>
+            03 OF 09 SELECTED
+            <em>Tap card to toggle &middot; apply action below</em>
+          </div>
+          <button class="cancel">CANCEL</button>
+        </div>
+
+        <!-- Card 1 — checked -->
+        <article class="card card--bulk card--checked">
+          <div class="card__check"></div>
+          <div class="card__kicker">
+            <span><span class="rubric">MARKET WATCH</span> · LOT 01</span>
+            <span class="lotno">SELECTED</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline"><u>ICE CREAM</u> FLIP UNDER 30</div>
+            <button class="card__infobtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg></button>
+            <div class="card__subhed">Ice Cream &middot; <b>GHOST BITERS</b> &middot; Sapphire</div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--single" style="--bd1:#58a3c8"></div>
+              <div class="preview__inner"><img src="../../../assets/originals/5900177027566142759/Original.png" alt=""></div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">ASK CEILING</div>
+                <div class="price__num">30<small>TON</small></div>
+              </div>
+              <div class="price__stock"><span>STOCK</span><em>02 / 03</em></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 2 — unchecked -->
+        <article class="card card--bulk">
+          <div class="card__check"></div>
+          <div class="card__kicker">
+            <span><span class="rubric">WILDCARD</span> · LOT 02</span>
+            <span class="lotno">&middot; &middot; &middot;</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline">LOL POP · ANY BUILD</div>
+            <button class="card__infobtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg></button>
+            <div class="card__subhed">Lol Pop &middot; <b>ANY MODELS</b> &middot; <b>ANY BACKDROPS</b></div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg" style="background:#1a1a18"></div>
+              <div class="preview__wild">&#42;</div>
+              <div class="preview__inner"><img src="../../../assets/originals/5170594532177215681/Original.png" alt="" style="width:60%;height:60%"></div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">ASK CEILING</div>
+                <div class="price__num">8<small>TON</small></div>
+              </div>
+              <div class="price__stock"><span>STOCK</span><em>04 / 10</em></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 3 — checked -->
+        <article class="card card--bulk card--checked">
+          <div class="card__check"></div>
+          <div class="card__kicker">
+            <span><span class="rubric">COMBO LOT</span> · LOT 03</span>
+            <span class="lotno">SELECTED</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline"><u>SWORD TRIO</u> FULL SET</div>
+            <button class="card__infobtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg></button>
+            <div class="card__subhed">Light Sword &middot; <b>3 MODELS</b> &middot; Satin Gold</div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--single" style="--bd1:#bf9b47"></div>
+              <div class="preview__chain">
+                <img src="../../../assets/originals/5897581235231785485/Original.png" alt="">
+                <img src="../../../assets/originals/5897581235231785485/Original.png" alt="">
+                <img src="../../../assets/originals/5897581235231785485/Original.png" alt="">
+              </div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">ASK CEILING</div>
+                <div class="price__num">45<small>TON</small></div>
+              </div>
+              <div class="price__stock"><span>STOCK</span><em>01 / 05</em></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 4 — unchecked -->
+        <article class="card card--bulk">
+          <div class="card__check"></div>
+          <div class="card__kicker">
+            <span><span class="rubric">SYNDICATE</span> · LOT 04</span>
+            <span class="lotno">&middot; &middot; &middot;</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline">PEPE WHALE BAG</div>
+            <button class="card__infobtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg></button>
+            <div class="card__subhed">Plush Pepe &middot; <b>12 MODELS</b> &middot; 3 backdrops</div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--triple" style="--bd1:#85b9d7;--bd2:#a980f3;--bd3:#e07b85"></div>
+              <div class="preview__inner"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">ASK CEILING</div>
+                <div class="price__num">780<small>TON</small></div>
+              </div>
+              <div class="price__stock"><span>STOCK</span><em>06 / 20</em></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 5 — checked -->
+        <article class="card card--bulk card--checked">
+          <div class="card__check"></div>
+          <div class="card__kicker">
+            <span><span class="rubric">CUSTOM INDEX</span> · LOT 05</span>
+            <span class="lotno">SELECTED</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline">CHIMP RAINBOW SWEEP</div>
+            <button class="card__infobtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg></button>
+            <div class="card__subhed">Jolly Chimp &middot; <b>2 MODELS</b> &middot; <b>25 BACKDROPS</b></div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--custom"></div>
+              <div class="preview__chain">
+                <img src="../../../assets/originals/6005880141270483700/Original.png" alt="">
+                <img src="../../../assets/originals/6005880141270483700/Original.png" alt="">
+              </div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label">ASK CEILING</div>
+                <div class="price__num">18<small>TON</small></div>
+              </div>
+              <div class="price__stock"><span>STOCK</span><em>11 / 40</em></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 6 — unchecked (obit) -->
+        <article class="card card--bulk card--obit">
+          <div class="card__check"></div>
+          <div class="card__kicker">
+            <span><span class="rubric">OBITUARY</span> &middot; LOT 06</span>
+            <span class="lotno">0 / 3</span>
+          </div>
+          <div class="card__head">
+            <div class="card__headline">JACK SURPRISE BAG</div>
+            <button class="card__infobtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg></button>
+            <div class="card__subhed">Jack-in-the-Box &middot; <b>ROYAL KING</b> &middot; Onyx Black</div>
+          </div>
+          <hr class="rule-heavy">
+          <div class="card__body">
+            <div class="preview">
+              <div class="preview__bg preview__bg--solid-red"></div>
+              <div class="preview__inner"><img src="../../../assets/originals/6005659564635063386/Original.png" alt=""></div>
+            </div>
+            <div class="price">
+              <div>
+                <div class="price__label" style="color:#ff9a9a">STOCK EXHAUSTED</div>
+                <div class="price__num">0<small>/ 3</small></div>
+              </div>
+              <div class="price__stock"><span>DEAD</span><em>OFF</em></div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Bulk action dock (above bottom tab) -->
+      <div class="bulk-actions">
+        <div class="bulk-actions__title">
+          BULK ACTION DESK
+          <b>APPLY TO 03 LOTS</b>
+        </div>
+        <div class="bulk-actions__grid">
+          <button class="bulk-actions__btn">BUY<br>ON</button>
+          <button class="bulk-actions__btn">BUY<br>OFF</button>
+          <button class="bulk-actions__btn">CLONE</button>
+          <button class="bulk-actions__btn bulk-actions__btn--del">DELETE</button>
+        </div>
+      </div>
+
+      <nav class="bottom-tab">
+        <button class="bottom-tab__item">HOME</button>
+        <button class="bottom-tab__item active">SUBS</button>
+        <button class="bottom-tab__item">FEED</button>
+        <button class="bottom-tab__item">ME</button>
+      </nav>
+    </div>
+
+    <div class="note">
+      Bulk mode = <b>EDIT DESK</b>. Acid-yellow banner snaps in from top, card
+      check stamps live at the top-left corner, action dock pinned above the tab bar.
+    </div>
+  </section>
+
+</main>
+
+<!-- =============================================================
+     JS — minimal interactions
+     ============================================================= -->
+<script>
+(function () {
+  'use strict';
+
+  // Info button -> toast (no real modal wiring needed — mockup B is dedicated)
+  document.querySelectorAll('[data-info]').forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var lot = b.getAttribute('data-info');
+      console.log('[broadsheet] open feature article for LOT ' + String(lot).padStart(2, '0'));
+    });
+  });
+
+  // Close button in the mockup sheet just logs — the sheet is the mockup itself
+  var close = document.querySelector('[data-close]');
+  if (close) {
+    close.addEventListener('click', function () {
+      console.log('[broadsheet] close feature article');
+    });
+  }
+
+  // Switch pill toggle (per-card, instant snap)
+  document.querySelectorAll('.switch-pill').forEach(function (p) {
+    p.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (p.classList.contains('on')) {
+        p.classList.remove('on');
+        p.classList.add('off');
+        p.textContent = 'OFF';
+      } else {
+        p.classList.remove('off');
+        p.classList.add('on');
+        p.textContent = 'ON';
+      }
+    });
+  });
+
+  // Bulk toggle — tap a .card--bulk to flip its checked state
+  document.querySelectorAll('.card--bulk').forEach(function (c) {
+    c.addEventListener('click', function (e) {
+      // Ignore clicks on inner controls
+      if (e.target.closest('button')) return;
+      c.classList.toggle('card--checked');
+      // Update kicker "SELECTED" indicator
+      var lotno = c.querySelector('.lotno');
+      if (lotno) {
+        lotno.textContent = c.classList.contains('card--checked') ? 'SELECTED' : '· · ·';
+      }
+    });
+  });
+
+  // Tab button hover is pure CSS, but toggle on click to show snap
+  document.querySelectorAll('.tabs').forEach(function (tg) {
+    tg.addEventListener('click', function (e) {
+      var t = e.target.closest('.tab');
+      if (!t) return;
+      tg.querySelectorAll('.tab').forEach(function (x) { x.classList.remove('tab--on'); });
+      t.classList.add('tab--on');
+    });
+  });
+})();
+</script>
+</body>
+</html>
