@@ -84,16 +84,16 @@ img{display:block}
 .head-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .balance{
   display:flex;align-items:center;gap:6px;
-  height:32px;padding:0 4px 0 12px;
+  height:34px;padding:0 4px 0 12px;
   background:var(--secondary);border-radius:999px;
-  font-size:13px;font-weight:500;color:var(--text);
+  font-size:14px;font-weight:500;color:var(--text);
   border:1px solid var(--outlines);
 }
-.balance .ton{width:12px;height:12px;color:var(--primary)}
+.balance .ton{width:16px;height:16px;color:var(--text)}
 .balance .plus{
-  width:22px;height:22px;border-radius:999px;background:var(--primary);
+  width:26px;height:26px;border-radius:999px;background:var(--primary);
   display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:14px;font-weight:600;line-height:1;
+  color:#fff;font-size:16px;font-weight:600;line-height:1;
 }
 .icon-btn{
   width:32px;height:32px;border-radius:8px;
@@ -126,9 +126,9 @@ img{display:block}
 }
 .selection-btn.on{background:var(--primary);color:var(--text);border-color:var(--primary)}
 .selection-btn svg{width:14px;height:14px}
-.density{display:flex;gap:2px;padding:2px;background:var(--secondary);border:1px solid var(--outlines);border-radius:8px}
-.density button{width:30px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:var(--text-sec);background:transparent}
-.density button.on{background:var(--tertiary);color:var(--text)}
+.density{display:flex;border:1px solid var(--outlines);border-radius:8px;overflow:hidden;background:var(--bg)}
+.density button{width:32px;height:30px;display:flex;align-items:center;justify-content:center;color:var(--text-sec);background:transparent}
+.density button.on{background:var(--secondary);color:var(--text)}
 .density svg{width:14px;height:14px}
 
 .counter{font-size:11.5px;color:var(--text-sec);text-align:center;letter-spacing:0.01em;padding:0}
@@ -224,9 +224,9 @@ img{display:block}
 .c-markets .grp .ms{display:flex;min-width:0;flex-shrink:1}
 .c-markets .grp .mk{
   width:16px;height:16px;border-radius:999px;
-  object-fit:cover;
-  border:1.5px solid var(--fg);margin-left:-5px;flex-shrink:0;
-  background:var(--secondary);
+  object-fit:cover;margin-left:-4px;flex-shrink:0;
+  background:#fff;
+  box-shadow:0 0 0 1.5px var(--fg);
 }
 .c-markets .grp .mk:first-child{margin-left:0}
 .c-markets .grp.dim svg.i{opacity:0.4}
@@ -383,7 +383,6 @@ body.bulk .info{display:none}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M6 6l12 12M6 18L18 6"/></svg>
       </span>
       <div class="tg-brand">
-        <img src="../../assets/logo.jpg" alt="">
         <span>Gift Satellite Bot</span>
       </div>
       <span class="ic dim">
@@ -543,36 +542,48 @@ function marketChip(m, cls='mk'){
   return `<img class="${cls}" src="${MARKET_LOGOS[m]}" title="${MARKET_NAMES[m]}" alt="${MARKET_NAMES[m]}">`;
 }
 
+// Backdrops from data/gifts/backdrops.json (real Telegram Stars gifts palette)
+const BD = {
+  Sapphire:       {name:"Sapphire",       center:"#58a3c8", edge:"#5379c2", pattern:"#0d45b6"},
+  Emerald:        {name:"Emerald",        center:"#78c585", edge:"#42a171", pattern:"#006532"},
+  Lavender:       {name:"Lavender",       center:"#b789e4", edge:"#8a5abc", pattern:"#5b10ab"},
+  Cyberpunk:      {name:"Cyberpunk",      center:"#858ff3", edge:"#865fd3", pattern:"#4318a6"},
+  ElectricIndigo: {name:"Electric Indigo",center:"#a980f3", edge:"#5b62d8", pattern:"#3722ab"},
+  ElectricPurple: {name:"Electric Purple",center:"#ca70c6", edge:"#9662d4", pattern:"#620fb4"},
+  CoralRed:       {name:"Coral Red",      center:"#da896b", edge:"#c4654f", pattern:"#891200"},
+  Amber:          {name:"Amber",          center:"#dab345", edge:"#b1802a", pattern:"#7a3100"},
+  MintGreen:      {name:"Mint Green",     center:"#7ecb82", edge:"#459e5a", pattern:"#026b22"},
+  Black:          {name:"Black",          center:"#363738", edge:"#0e0f0f", pattern:"#6c6868"},
+};
+
 const CARDS = [
-  // 1. Default — 1 model, 1 backdrop, 3 buy markets + 2 notify
+  // 1. Default — 1 model, 1 backdrop (radial), 3 buy markets + 2 notify
   {
     name:"Ice Cream флип до 12",
     collection:"Ice Cream",
-    modelsText:"Ghost Biters", modelsCount:1, models:["Ghost Biters"],
-    backdropsText:"Sapphire", backdropsCount:1, backdrops:[{name:"Sapphire",hex:"#58a3c8"}],
+    modelsText:"Apple Dip", modelsCount:1, models:["Apple Dip"],
+    backdropsText:"Sapphire", backdropsCount:1, backdrops:[BD.Sapphire],
     patternText:"Все узоры", patterns:[], patternsCount:0,
     numberText:"Любой номер",
-    bandClass:"", bands:["#58a3c8"],
     preview:{ type:"one", gifts:["5900177027566142759"], lottie:["ice-cream/apple-dip"] },
     buy:{ on:true, price:"12", count:"1 шт", markets:["portals","fragment","mrkt"] },
     notify:{ on:true, price:"15", markets:["portals","fragment"] },
   },
-  // 2. 0/3 bought — destructive state
+  // 2. 0/3 bought — destructive state, 5 backdrops split
   {
-    name:"Jack-in-the-Box · Lucifer",
+    name:"Jack-in-the-Box · Aliens",
     collection:"Jack-in-the-Box",
-    modelsText:"Lucifer", modelsCount:1, models:["Lucifer"],
+    modelsText:"Aliens", modelsCount:1, models:["Aliens"],
     backdropsText:"5 фонов", backdropsCount:5,
-    backdrops:[{name:"Electric Indigo",hex:"#a980f3"},{name:"Electric Purple",hex:"#ca70c6"},{name:"Coral Red",hex:"#fc4a2f"},{name:"Amber",hex:"#f0b429"},{name:"Mint Green",hex:"#79dd3b"}],
+    backdrops:[BD.ElectricIndigo, BD.ElectricPurple, BD.CoralRed, BD.Amber, BD.MintGreen],
     patternText:"Все узоры", patterns:[], patternsCount:0,
     numberText:"Любой номер",
-    bandClass:"", bands:["#a980f3","#ca70c6","#fc4a2f","#f0b429","#79dd3b"],
     preview:{ type:"one", gifts:["6005659564635063386"], lottie:["jack-in-the-box/aliens"] },
     buy:{ on:true, price:"14", count:"0 из 3", alert:true, markets:["portals","fragment"] },
     notify:{ on:true, price:"14", markets:["portals","fragment"] },
     alert:"0 шт",
   },
-  // 3. All collections + any models + any backdrops
+  // 3. All collections + any models + any backdrops — striped none pattern
   {
     name:"Любой подарок ≤ 10",
     collection:"Все коллекции",
@@ -580,7 +591,7 @@ const CARDS = [
     backdropsText:"Любые фоны", backdropsCount:0, backdrops:[],
     patternText:"Любые узоры", patterns:[], patternsCount:0,
     numberText:"Любой номер",
-    bandClass:"none", bands:[],
+    bandClass:"none",
     preview:{ type:"any", gifts:["5170594532177215681"] },
     buy:{ on:true, price:"9.5", count:"5 шт", markets:["portals","fragment","tonnel","getgems"] },
     notify:{ on:true, price:"11", markets:["portals","mrkt","tonnel"] },
@@ -589,81 +600,75 @@ const CARDS = [
   {
     name:"Plush Pepe floor hunt",
     collection:"Plush Pepe",
-    modelsText:"12 моделей", modelsCount:12, models:["Amalgam","Birthday","Crown","..."],
+    modelsText:"12 моделей", modelsCount:12, models:["Amalgam","Aqua Plush","Barcelona","Bavaria","Birmingham","Christmas","..."],
     backdropsText:"3 фона", backdropsCount:3,
-    backdrops:[{name:"Amber",hex:"#f0b429"},{name:"Electric Purple",hex:"#ca70c6"},{name:"Coral Red",hex:"#fc4a2f"}],
+    backdrops:[BD.Amber, BD.ElectricPurple, BD.CoralRed],
     patternText:"2 узора", patterns:["Palms","Diamonds"], patternsCount:2,
     numberText:"Любой номер",
-    bandClass:"", bands:["#f0b429","#ca70c6","#fc4a2f"],
     preview:{ type:"one", gifts:["5936013938331222567"] },
     buy:{ on:true, price:"450", count:"1 шт", markets:["portals","fragment"] },
     notify:{ on:true, price:"500", markets:["portals","fragment","tonnel"] },
   },
-  // 5. 3 models chain + 1 backdrop
+  // 5. 3 models chain + 1 backdrop (radial)
   {
     name:"Light Sword · Samurai trio",
     collection:"Light Sword",
     modelsText:"3 модели", modelsCount:3, models:["Absinthe","Andromeda","Bifrost"],
-    backdropsText:"Emerald", backdropsCount:1, backdrops:[{name:"Emerald",hex:"#78c585"}],
+    backdropsText:"Emerald", backdropsCount:1, backdrops:[BD.Emerald],
     patternText:"Star", patterns:["Star"], patternsCount:1,
     numberText:"77x",
-    bandClass:"", bands:["#78c585"],
     preview:{ type:"chain", gifts:["5897581235231785485","5897581235231785485","5897581235231785485"], lottie:["light-sword/absinthe","light-sword/andromeda","light-sword/bifrost"] },
     buy:{ on:true, price:"17", count:"2 шт", markets:["portals","fragment","mrkt","tonnel","getgems"] },
     notify:{ on:true, price:"19", markets:["portals","fragment","mrkt"] },
   },
-  // 6. 25 backdrops → custom gradient, 2 models chain
+  // 6. 25 backdrops → custom conic gradient, 2 models chain
   {
     name:"Jolly Chimp rainbow",
     collection:"Jolly Chimp",
     modelsText:"2 модели", modelsCount:2, models:["Abubu","Alarm Ape"],
-    backdropsText:"25 фонов", backdropsCount:25,
-    backdrops:[{name:"Любые",hex:"linear"}],
+    backdropsText:"25 фонов", backdropsCount:25, backdrops:[],
     patternText:"Любые узоры", patterns:[], patternsCount:0,
     numberText:"XX7",
-    bandClass:"custom-many", bands:[],
+    bandClass:"custom-many",
     preview:{ type:"chain", gifts:["6005880141270483700","6005880141270483700"], lottie:["jolly-chimp/abubu","jolly-chimp/alarm-ape"] },
     buy:{ on:true, price:"9.99", count:"3 шт", markets:["portals","fragment","mrkt","getgems"] },
     notify:{ on:true, price:"10.5", markets:["fragment","tonnel","getgems"] },
   },
-  // 7. Purchase disabled — dimmed card + off badge
+  // 7. Purchase disabled — dimmed card + off badge, 1 backdrop (radial)
   {
     name:"Homemade Cake · sale",
     collection:"Homemade Cake",
-    modelsText:"Love Candle", modelsCount:1, models:["Love Candle"],
-    backdropsText:"Lavender", backdropsCount:1, backdrops:[{name:"Lavender",hex:"#b789e4"}],
+    modelsText:"Angel Cake", modelsCount:1, models:["Angel Cake"],
+    backdropsText:"Lavender", backdropsCount:1, backdrops:[BD.Lavender],
     patternText:"1 узор", patterns:["Hearts"], patternsCount:1,
     numberText:"Любой номер",
-    bandClass:"", bands:["#b789e4"],
     preview:{ type:"one", gifts:["5783075783622787539"], lottie:["homemade-cake/angel-cake"] },
     buy:{ on:false, price:"22", count:"— шт", markets:["portals","fragment","mrkt"] },
     notify:{ on:true, price:"25", markets:["portals","fragment"] },
     dim:true,
     offBadge:"Покупка выкл",
   },
-  // 8. Notifications OFF — bell-off, 4 patterns Desk Calendar, 0 models
+  // 8. Notifications OFF, 0 models → collection icon, 1 backdrop (radial)
   {
     name:"Desk Calendar узорный",
     collection:"Desk Calendar",
     modelsText:"Любые модели", modelsCount:0, models:[],
-    backdropsText:"Cyberpunk", backdropsCount:1, backdrops:[{name:"Cyberpunk",hex:"#858ff3"}],
-    patternText:"4 узора", patterns:["Spring","Summer","Autumn","Winter"], patternsCount:4,
+    backdropsText:"Cyberpunk", backdropsCount:1, backdrops:[BD.Cyberpunk],
+    patternText:"4 узора", patterns:["April","August","September","October"], patternsCount:4,
     numberText:"1XX",
-    bandClass:"", bands:["#858ff3"],
     preview:{ type:"any", gifts:["5782988952268964995"] },
     buy:{ on:true, price:"8", count:"5 шт", markets:["portals","tonnel","getgems"] },
     notify:{ on:false, markets:[] },
   },
-  // 9. Long prompt — truncation + 5 backdrops
+  // 9. Long prompt — truncation + 5 backdrops split (dark scheme)
   {
     name:"Victory Medal для коллекции чёрных фонов",
     collection:"Victory Medal",
-    modelsText:"Heartbreaker", modelsCount:1, models:["Heartbreaker"],
+    modelsText:"Aegis", modelsCount:1, models:["Aegis"],
     backdropsText:"5 фонов", backdropsCount:5,
-    backdrops:[{name:"Black",hex:"#363738"},{name:"Charcoal",hex:"#0e0f0f"},{name:"Electric Purple",hex:"#ca70c6"},{name:"Lavender",hex:"#b789e4"},{name:"Electric Indigo",hex:"#a980f3"}],
+    backdrops:[BD.Black, {name:"Onyx Black", center:"#1c1b1b", edge:"#0a0a0a", pattern:"#4a4848"}, BD.ElectricPurple, BD.Lavender, BD.ElectricIndigo],
     patternText:"Любые узоры", patterns:[], patternsCount:0,
     numberText:"999",
-    bandClass:"", bands:["#363738","#0e0f0f","#ca70c6","#b789e4","#a980f3"],
     preview:{ type:"one", gifts:["5830340739074097859"], lottie:["victory-medal/aegis"] },
     buy:{ on:true, price:"36", count:"1 шт", markets:["portals","fragment","mrkt","tonnel","getgems"] },
     notify:{ on:true, price:"42", markets:["portals","fragment","mrkt"] },
@@ -690,12 +695,20 @@ function renderCard(c, i){
     pvInner = `<img src="${PNG(c.preview.gifts[0])}" alt="">`;
   }
 
-  // Bands (backdrop color strip)
+  // Backdrop rendering per task.md:
+  // 0 backdrops → striped/none; 1 → full radial-gradient (center→edge from backdrops.json);
+  // 2..5 → split into N equal bands with centerColor each; >5 → custom conic-gradient (Jolly Chimp case).
   let bandsHTML = "";
-  if(c.bandClass){
-    bandsHTML = `<div class="c-preview-bands ${c.bandClass}"></div>`;
-  } else if(c.bands && c.bands.length){
-    bandsHTML = `<div class="c-preview-bands">${c.bands.map(b=>`<div class="band" style="background:${b}"></div>`).join("")}</div>`;
+  const bds = c.backdrops || [];
+  if(c.bandClass === 'none' || (bds.length === 0 && !c.bandClass)){
+    bandsHTML = `<div class="c-preview-bands none"></div>`;
+  } else if(c.bandClass === 'custom-many'){
+    bandsHTML = `<div class="c-preview-bands custom-many"></div>`;
+  } else if(bds.length === 1){
+    const b = bds[0];
+    bandsHTML = `<div class="c-preview-bands" style="background:radial-gradient(circle at 50% 42%, ${b.center} 0%, ${b.edge} 100%)"></div>`;
+  } else if(bds.length > 1){
+    bandsHTML = `<div class="c-preview-bands">${bds.map(b=>`<div class="band" style="background:${b.center}"></div>`).join("")}</div>`;
   } else {
     bandsHTML = `<div class="c-preview-bands none"></div>`;
   }
@@ -805,12 +818,14 @@ function openModal(i, e){
     modelsSectHtml = `<div class="val-small">${list}</div>`;
   }
 
-  // Backdrops chips
+  // Backdrops chips (in modal)
   let bdSectHtml = "";
   if(c.backdropsCount===0){
     bdSectHtml = `<div class="val-small">Любые фоны</div>`;
+  } else if(c.backdrops && c.backdrops.length){
+    bdSectHtml = `<div class="chips">${c.backdrops.slice(0,8).map(b=>`<span class="c"><span class="dot" style="background:${b.center}"></span>${b.name}</span>`).join('')}${c.backdropsCount>c.backdrops.length?`<span class="c">+${c.backdropsCount-c.backdrops.length}</span>`:''}</div>`;
   } else {
-    bdSectHtml = `<div class="chips">${c.backdrops.slice(0,8).map(b=>`<span class="c"><span class="dot" style="background:${b.hex==='linear'?'conic-gradient(#7596f9,#a980f3,#ca70c6,#f0b429,#79dd3b)':b.hex}"></span>${b.name}</span>`).join('')}${c.backdropsCount>c.backdrops.length?`<span class="c">+${c.backdropsCount-c.backdrops.length}</span>`:''}</div>`;
+    bdSectHtml = `<div class="val-small">${c.backdropsCount} фонов (кастомный спектр)</div>`;
   }
 
   // Patterns
