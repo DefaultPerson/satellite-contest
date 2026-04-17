@@ -106,9 +106,9 @@ img{display:block}
 .toolbar{padding:4px 12px 10px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--outlines)}
 .chip-row{display:flex;gap:6px;align-items:center}
 .chip{
-  height:30px;padding:0 12px;border-radius:999px;background:var(--secondary);
-  display:inline-flex;align-items:center;gap:5px;
-  font-size:12px;color:var(--text);font-weight:500;
+  height:36px;padding:0 14px;border-radius:999px;background:var(--secondary);
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;color:var(--text);font-weight:500;
   border:1px solid var(--outlines);white-space:nowrap;
 }
 .chip svg{width:14px;height:14px;opacity:0.6}
@@ -184,23 +184,32 @@ img{display:block}
 .c-head .info svg{width:16px;height:16px}
 .c-head .more svg{width:18px;height:18px}
 
-.c-preview-wrap{position:relative;height:70px;border-radius:10px;background:var(--secondary);margin-bottom:8px;overflow:hidden;cursor:pointer}
-.c-preview-bands{position:absolute;inset:0;display:flex}
+.c-preview-wrap{position:relative;height:76px;border-radius:10px;background:var(--secondary);margin-bottom:8px;overflow:hidden;cursor:pointer}
+/* Spotlight + vignette layers per tg-gifts-autotrade-system/app/static/css/pages.css */
+.c-preview-wrap::before{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse 60% 50% at 50% 40%,rgba(255,255,255,0.22) 0%,transparent 70%);
+}
+.c-preview-wrap::after{
+  content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,0.35) 100%);
+}
+.c-preview-bands{position:absolute;inset:0;display:flex;z-index:1}
 .c-preview-bands .band{flex:1}
 .c-preview-bands.custom-many{background:conic-gradient(from 220deg at 50% 50%,#7596f9,#a980f3,#ca70c6,#f0b429,#79dd3b,#7596f9)}
-.c-preview-bands.none{background:repeating-linear-gradient(45deg,#25242b,#25242b 6px,#1f1e24 6px,#1f1e24 12px)}
-.c-preview{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:4px}
-.c-preview img{width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.35))}
-.c-preview lottie-player{width:60px;height:60px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.35))}
-.c-preview .chain{display:flex;align-items:center}
-.c-preview .chain img,.c-preview .chain lottie-player{
-  width:38px;height:38px;object-fit:contain;
-  filter:drop-shadow(0 1px 3px rgba(0,0,0,0.4));
-  background:rgba(27,26,29,0.55);
-  border-radius:999px;border:1.5px solid rgba(240,240,240,0.2);
-  padding:2px;margin-left:-10px;box-sizing:border-box;
+.c-preview-bands.none{
+  background:radial-gradient(circle at 50% 42%,rgba(85,53,243,0.22) 0%,rgba(85,53,243,0.06) 60%,var(--fg) 100%),var(--secondary);
 }
-.c-preview .chain img:first-child,.c-preview .chain lottie-player:first-child{margin-left:0}
+.c-preview{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:4px;z-index:4}
+.c-preview img{width:62px;height:62px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.45))}
+.c-preview .chain{display:flex;align-items:center}
+.c-preview .chain img{
+  width:44px;height:44px;object-fit:contain;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+  background:none;border:0;padding:0;
+  margin-left:-12px;box-sizing:border-box;
+}
+.c-preview .chain img:first-child{margin-left:0}
 
 .c-badge-top{
   position:absolute;top:-8px;left:10px;
@@ -525,8 +534,11 @@ body.bulk .info{display:none}
    Data for 9 cards covering 16 states from task.md spec.
    ============================================================ */
 const PNG = id => `../../assets/originals/${id}/Original.png`;
-const LOTTIE = slug => `../../assets/models-lottie/${slug}.json`;
-const lp = (slug, size) => `<lottie-player src="${LOTTIE(slug)}" background="transparent" speed="1" autoplay loop${size?` style="width:${size}px;height:${size}px"`:''}></lottie-player>`;
+// Models pre-rendered from .tgs Lottie → static PNG (192×192 transparent).
+// Uses <img> instead of <lottie-player> to avoid the loading-state warning
+// triangle and to make screenshots/still exports reliable.
+const MODEL_PNG = slug => `../../assets/models-png/${slug.replace('/','_')}.png`;
+const lp = (slug, size) => `<img class="model" src="${MODEL_PNG(slug)}" alt=""${size?` style="width:${size}px;height:${size}px"`:''}>`;
 
 const MARKET_LOGOS = {
   portals:  '../../assets/market-logos/portals.png',
@@ -934,6 +946,13 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); if
 const qp = new URLSearchParams(location.search);
 if(qp.has('m')){ setTimeout(()=>openModal(parseInt(qp.get('m'))), 50); }
 if(qp.get('bulk')==='1'){ setTimeout(()=>{ toggleBulk(); toggleSelect(0); toggleSelect(2); }, 50); }
+if(qp.get('full')==='1'){
+  // Expand phone to show all cards vertically for screenshot/preview
+  document.querySelector('.phone').style.height='auto';
+  document.querySelector('.grid-wrap').style.height='auto';
+  document.querySelector('.grid-wrap').style.overflow='visible';
+  document.querySelector('.tab').style.position='static';
+}
 </script>
 
 </body>
