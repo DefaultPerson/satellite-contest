@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gift Satellite — Подписки</title>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@2.0.12/dist/lottie-player.js"></script>
+<style>
+@font-face{font-family:'Hauora';src:url('../../assets/fonts/Hauora-Regular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Hauora';src:url('../../assets/fonts/Hauora-Medium.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:'Hauora';src:url('../../assets/fonts/Hauora-SemiBold.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}
+
+:root{
+  --bg:#101010;
+  --fg:#1b1a1d;
+  --secondary:#25242b;
+  --tertiary:#3a3941;
+  --tertiary-bg:#18171c;
+  --navbar-bg:#18171cbf;
+  --overlays:#10101080;
+  --primary:#5535f3;
+  --primary-soft:#5535f326;
+  --text:#f0f0f0;
+  --text-sec:#f0f0f080;
+  --text-dim:#f0f0f04d;
+  --outlines:#f0f0f026;
+  --destructive:#fc4a2f;
+  --destructive-soft:#fc4a2f26;
+  --success:#79dd3b;
+  --success-soft:#79dd3b26;
+  --warning:#f0b429;
+  --font:'Hauora',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+  --ease:cubic-bezier(0.4,0,0.2,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#0a0a0a;color:var(--text);font-family:var(--font);font-size:14px;line-height:1.35;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01","ss03"}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block}
+
+.page{min-height:100vh;padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.page h1{font-size:16px;font-weight:600;letter-spacing:-0.01em}
+.page p{font-size:12px;color:var(--text-sec);max-width:393px;text-align:center;line-height:1.5}
+
+.phone{
+  width:393px;height:852px;
+  background:var(--bg);
+  border-radius:36px;
+  border:1px solid var(--secondary);
+  box-shadow:0 0 0 6px var(--fg),0 40px 80px rgba(0,0,0,0.5);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+  flex-shrink:0;
+}
+@media (max-width:440px){
+  .page{padding:0;gap:0}
+  .page h1,.page p{display:none}
+  .phone{width:100vw;height:100dvh;border-radius:0;border:0;box-shadow:none}
+}
+
+.safe-top{height:40px;background:transparent;flex-shrink:0;position:relative}
+.safe-top::before{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);width:116px;height:30px;background:#000;border-radius:999px}
+.status-bar{position:absolute;top:14px;left:24px;right:24px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text);font-weight:500;height:14px}
+.status-bar .icons{display:flex;gap:4px;align-items:center;font-size:11px}
+
+.phone-body{flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative}
+
+.tg-bar{height:44px;padding:0 16px;flex-shrink:0;display:flex;align-items:center;gap:12px;background:#000}
+.tg-bar .ic{color:var(--text);width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center}
+.tg-bar .ic.dim{color:var(--text-sec)}
+.tg-bar .tg-brand{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.tg-bar .tg-brand img{width:28px;height:28px;border-radius:8px;object-fit:cover;flex-shrink:0}
+.tg-bar .tg-brand span{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.app-head{
+  padding:8px 14px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--bg);
+}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand img.logo{width:32px;height:32px;border-radius:8px;object-fit:cover;flex-shrink:0}
+.brand .name{font-size:15px;font-weight:600;letter-spacing:-0.01em;white-space:nowrap}
+.brand .name em{color:var(--text-sec);font-weight:500;font-style:normal;margin-left:4px}
+.head-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.balance{
+  display:flex;align-items:center;gap:6px;
+  height:32px;padding:0 4px 0 12px;
+  background:var(--secondary);border-radius:999px;
+  font-size:13px;font-weight:500;color:var(--text);
+  border:1px solid var(--outlines);
+}
+.balance .ton{width:12px;height:12px;color:var(--primary)}
+.balance .plus{
+  width:22px;height:22px;border-radius:999px;background:var(--primary);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:14px;font-weight:600;line-height:1;
+}
+.icon-btn{
+  width:32px;height:32px;border-radius:8px;
+  background:transparent;color:var(--text-sec);
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background 200ms var(--ease),color 200ms var(--ease);
+}
+.icon-btn:hover{background:rgba(255,255,255,0.06);color:var(--text)}
+
+.toolbar{padding:4px 12px 10px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--outlines)}
+.chip-row{display:flex;gap:6px;align-items:center}
+.chip{
+  height:30px;padding:0 12px;border-radius:999px;background:var(--secondary);
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:12px;color:var(--text);font-weight:500;
+  border:1px solid var(--outlines);white-space:nowrap;
+}
+.chip svg{width:14px;height:14px;opacity:0.6}
+.chip.search{flex:1;color:var(--text-dim);justify-content:flex-start}
+.chip.search svg{opacity:0.45}
+
+.sort-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sort{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);font-weight:500;cursor:pointer;padding:4px 2px;background:transparent;white-space:nowrap}
+.sort svg{width:14px;height:14px;color:var(--text-sec)}
+.sort-right{display:flex;align-items:center;gap:6px}
+.selection-btn{
+  width:32px;height:28px;display:flex;align-items:center;justify-content:center;
+  background:var(--secondary);border:1px solid var(--outlines);border-radius:8px;
+  color:var(--text-sec);
+}
+.selection-btn.on{background:var(--primary);color:var(--text);border-color:var(--primary)}
+.selection-btn svg{width:14px;height:14px}
+.density{display:flex;gap:2px;padding:2px;background:var(--secondary);border:1px solid var(--outlines);border-radius:8px}
+.density button{width:30px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:var(--text-sec);background:transparent}
+.density button.on{background:var(--tertiary);color:var(--text)}
+.density svg{width:14px;height:14px}
+
+.counter{font-size:11.5px;color:var(--text-sec);text-align:center;letter-spacing:0.01em;padding:0}
+.counter b{color:var(--text);font-weight:500}
+.counter .sep{display:inline-block;width:1px;height:10px;background:var(--outlines);vertical-align:middle;margin:0 8px;transform:translateY(-1px)}
+
+.cta-row{display:flex;gap:8px}
+.cta{
+  flex:1;height:40px;border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  font-size:13px;font-weight:500;font-family:inherit;color:var(--text);
+  cursor:pointer;border:1px solid transparent;
+  transition:background 200ms var(--ease);
+}
+.cta.primary{background:var(--primary)}
+.cta.secondary{background:var(--secondary);border-color:var(--outlines)}
+.cta .ton{width:13px;height:13px;color:var(--text)}
+.cta svg.ic{width:14px;height:14px}
+
+.grid-wrap{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:10px 12px 80px;position:relative;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.grid-wrap::-webkit-scrollbar{width:4px}
+.grid-wrap::-webkit-scrollbar-thumb{background:var(--outlines);border-radius:4px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+
+.card{
+  background:var(--fg);
+  border-radius:16px;
+  border:1px solid var(--outlines);
+  padding:10px 10px 8px;
+  position:relative;
+  display:flex;flex-direction:column;
+  min-height:214px;
+  min-width:0;
+  transition:transform 200ms var(--ease),border-color 200ms var(--ease);
+}
+.card.dim{opacity:0.55}
+.card.alert{border-color:var(--destructive);border-width:2px;padding:9px 9px 7px}
+.card.selected{border-color:var(--primary);border-width:2px;padding:9px 9px 7px}
+
+.c-head{display:flex;align-items:flex-start;gap:4px;margin-bottom:6px;min-height:16px}
+.c-name{
+  flex:1;font-size:13px;font-weight:600;line-height:1.25;color:var(--text);
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;text-overflow:ellipsis;
+  padding-top:1px;
+}
+.c-head button{
+  width:32px;height:32px;border-radius:8px;
+  color:var(--text-sec);display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin:-6px -4px -6px 0;
+  transition:background 200ms var(--ease),color 200ms var(--ease);
+}
+.c-head button:hover{background:rgba(255,255,255,0.06);color:var(--text)}
+.c-head .info svg{width:16px;height:16px}
+.c-head .more svg{width:18px;height:18px}
+
+.c-preview-wrap{position:relative;height:70px;border-radius:10px;background:var(--secondary);margin-bottom:8px;overflow:hidden;cursor:pointer}
+.c-preview-bands{position:absolute;inset:0;display:flex}
+.c-preview-bands .band{flex:1}
+.c-preview-bands.custom-many{background:conic-gradient(from 220deg at 50% 50%,#7596f9,#a980f3,#ca70c6,#f0b429,#79dd3b,#7596f9)}
+.c-preview-bands.none{background:repeating-linear-gradient(45deg,#25242b,#25242b 6px,#1f1e24 6px,#1f1e24 12px)}
+.c-preview{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:4px}
+.c-preview img{width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.35))}
+.c-preview lottie-player{width:60px;height:60px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.35))}
+.c-preview .chain{display:flex;align-items:center}
+.c-preview .chain img,.c-preview .chain lottie-player{
+  width:38px;height:38px;object-fit:contain;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+  background:rgba(27,26,29,0.55);
+  border-radius:999px;border:1.5px solid rgba(240,240,240,0.2);
+  padding:2px;margin-left:-10px;box-sizing:border-box;
+}
+.c-preview .chain img:first-child,.c-preview .chain lottie-player:first-child{margin-left:0}
+
+.c-badge-top{
+  position:absolute;top:-8px;left:10px;
+  background:var(--destructive);color:var(--text);
+  font-size:10px;font-weight:600;padding:3px 8px;border-radius:999px;
+  letter-spacing:0.02em;display:inline-flex;align-items:center;gap:4px;
+  box-shadow:0 0 0 2px var(--fg);z-index:1;
+}
+.c-badge-top svg{width:11px;height:11px}
+.c-badge-top.off{background:var(--secondary);color:var(--text-sec);border:1px solid var(--outlines);box-shadow:none}
+
+.c-meta{display:flex;flex-direction:column;gap:1px;flex:1;margin-bottom:6px}
+.c-meta .row{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec);line-height:1.35;min-height:14px}
+.c-meta .row svg{width:11px;height:11px;flex-shrink:0;opacity:0.65}
+.c-meta .row .v{flex:1;color:var(--text);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-meta .row.muted .v{color:var(--text-sec)}
+
+.c-markets{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;min-height:18px}
+.c-markets .grp{display:flex;align-items:center;gap:3px;min-width:0;flex:1}
+.c-markets .grp svg.i{width:12px;height:12px;color:var(--text-sec);flex-shrink:0}
+.c-markets .grp .ms{display:flex;min-width:0;flex-shrink:1}
+.c-markets .grp .mk{
+  width:16px;height:16px;border-radius:999px;
+  object-fit:cover;
+  border:1.5px solid var(--fg);margin-left:-5px;flex-shrink:0;
+  background:var(--secondary);
+}
+.c-markets .grp .mk:first-child{margin-left:0}
+.c-markets .grp.dim svg.i{opacity:0.4}
+.c-markets .grp.dim .mk{opacity:0.4;filter:grayscale(1)}
+.c-markets .grp .off{font-size:10px;color:var(--text-dim);font-style:italic}
+
+.c-foot{display:flex;align-items:center;gap:8px;padding-top:6px;border-top:1px solid var(--outlines);min-height:26px}
+.switch{
+  width:36px;height:20px;border-radius:999px;background:var(--tertiary);
+  position:relative;flex-shrink:0;cursor:pointer;
+  transition:background 220ms var(--ease);
+}
+.switch::after{
+  content:"";position:absolute;top:2px;left:2px;
+  width:16px;height:16px;border-radius:999px;background:#fff;
+  transition:transform 220ms var(--ease);
+  box-shadow:0 1px 3px rgba(0,0,0,0.35);
+}
+.switch.on{background:var(--primary)}
+.switch.on::after{transform:translateX(16px)}
+.switch.dimmed{opacity:0.5}
+.c-foot .price{flex:1;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;text-align:right;line-height:1.1}
+.c-foot .price .big{font-size:13px;font-weight:600;color:var(--text);display:inline-flex;align-items:center;gap:3px}
+.c-foot .price .big svg{width:11px;height:11px;color:var(--text-sec)}
+.c-foot .price .big.strike{text-decoration:line-through;color:var(--text-dim)}
+.c-foot .price .big.danger{color:var(--destructive)}
+.c-foot .price .sub{font-size:10px;color:var(--text-sec)}
+.c-foot .price .sub.danger{color:var(--destructive);font-weight:500}
+
+.c-check{
+  position:absolute;top:8px;left:8px;
+  width:24px;height:24px;border-radius:999px;
+  border:1.5px solid var(--outlines);background:var(--bg);
+  display:none;align-items:center;justify-content:center;
+  color:var(--text);z-index:2;cursor:pointer;
+}
+.c-check::before{content:"";position:absolute;inset:-6px;border-radius:999px}
+.c-check svg{width:14px;height:14px;opacity:0}
+body.bulk .c-check{display:inline-flex}
+body.bulk .c-head{padding-left:30px}
+body.bulk .info{display:none}
+.card.selected .c-check{background:var(--primary);border-color:var(--primary)}
+.card.selected .c-check svg{opacity:1}
+
+.tab{
+  position:absolute;left:0;right:0;bottom:0;height:64px;
+  background:var(--navbar-bg);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-top:1px solid var(--outlines);
+  display:flex;align-items:center;justify-content:space-around;
+  padding:0 4px;flex-shrink:0;z-index:5;
+}
+.tab .t{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  color:var(--text-sec);font-size:10px;font-weight:400;
+  padding:8px 4px;min-width:60px;background:transparent;
+}
+.tab .t svg{width:22px;height:22px;margin-bottom:2px}
+.tab .t.active{color:var(--text);font-weight:500}
+.tab .t.pill{
+  background:var(--primary);color:var(--text);
+  border-radius:999px;padding:8px 14px;gap:4px;
+  flex-direction:row;align-items:center;min-width:auto;
+}
+.tab .t.pill svg{width:18px;height:18px;margin:0}
+.tab .t.pill span{font-size:13px;font-weight:500}
+
+/* Modal */
+.modal{position:absolute;inset:0;z-index:20;display:none}
+.modal.show{display:block}
+.scrim{position:absolute;inset:0;background:var(--overlays);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;max-height:85%;
+  background:var(--tertiary-bg);
+  border-top-left-radius:18px;border-top-right-radius:18px;
+  border-top:1px solid var(--outlines);
+  display:flex;flex-direction:column;
+  box-shadow:0 -20px 60px rgba(0,0,0,0.5);
+  animation:sheetUp 280ms ease-out;
+}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet .handle{width:36px;height:4px;background:var(--tertiary);border-radius:999px;margin:8px auto 0}
+.sheet-head{padding:14px 16px 10px;display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--outlines)}
+.sheet-head .preview-mini{width:44px;height:44px;border-radius:10px;background:var(--secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.sheet-head .preview-mini img{width:36px;height:36px;object-fit:contain}
+.sheet-head .preview-mini lottie-player{width:40px;height:40px}
+.sheet-head .title{flex:1;min-width:0}
+.sheet-head .title h2{font-size:15px;font-weight:600;line-height:1.2;margin-bottom:2px}
+.sheet-head .title .sub{font-size:11px;color:var(--text-sec)}
+.sheet-head .close{width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-sec);flex-shrink:0;cursor:pointer}
+
+.sheet-body{flex:1;overflow-y:auto;padding:14px 16px 8px;display:flex;flex-direction:column;gap:14px}
+.sect{display:flex;flex-direction:column;gap:6px}
+.sect .lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);font-weight:500;display:flex;align-items:center;gap:6px}
+.sect .lbl svg{width:12px;height:12px}
+.sect .val{font-size:14px;font-weight:500;color:var(--text)}
+.sect .val-small{font-size:13px;color:var(--text-sec);font-weight:400}
+.sect .chips{display:flex;flex-wrap:wrap;gap:6px}
+.sect .chips .c{
+  background:var(--secondary);color:var(--text);
+  border-radius:999px;padding:6px 10px;font-size:12px;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.sect .chips .c .dot{width:8px;height:8px;border-radius:999px;flex-shrink:0}
+.sect-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sect-box{background:var(--fg);border:1px solid var(--outlines);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.sect-box .top{display:flex;align-items:center;justify-content:space-between}
+.sect-box .top .h{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-sec);font-weight:500}
+.sect-box .top .h svg{width:14px;height:14px}
+.sect-box .big{font-size:18px;font-weight:600;color:var(--text);display:inline-flex;align-items:center;gap:4px}
+.sect-box .big svg{width:14px;height:14px;color:var(--text-sec)}
+.sect-box .sub{font-size:11px;color:var(--text-sec)}
+.sect-box .ms-row{display:flex;gap:3px;margin-top:2px}
+.sect-box .ms-row .mk{width:20px;height:20px;border-radius:999px;object-fit:cover;background:var(--secondary)}
+.sect-box.off{opacity:0.5}
+
+.sheet-foot{padding:12px 16px 22px;display:flex;gap:8px;border-top:1px solid var(--outlines);background:var(--tertiary-bg)}
+.sheet-foot .b{flex:1;height:44px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:500;background:transparent;color:var(--text)}
+.sheet-foot .b.primary{background:var(--primary)}
+.sheet-foot .b.danger{background:var(--destructive-soft);color:var(--destructive);flex:0 0 44px;padding:0}
+.sheet-foot .b svg{width:16px;height:16px}
+
+.bulk-bar{
+  position:absolute;left:12px;right:12px;bottom:76px;
+  background:var(--tertiary-bg);
+  border:1px solid var(--outlines);
+  border-radius:14px;padding:8px;
+  display:none;gap:4px;z-index:6;
+  box-shadow:0 10px 40px rgba(0,0,0,0.5);
+}
+.bulk-bar.show{display:flex}
+.bulk-bar .b{flex:1;height:48px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;color:var(--text-sec);font-weight:500;background:transparent}
+.bulk-bar .b svg{width:18px;height:18px;margin-bottom:1px}
+.bulk-bar .b.danger{color:var(--destructive)}
+.bulk-bar .b.ok{color:var(--success)}
+.bulk-bar .b.primary{color:var(--primary)}
+
+.hide{display:none !important}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <h1>Gift Satellite — Подписки</h1>
+  <p>Карточка подписки в главном меню Telegram Mini App. Все состояния из ТЗ на одном экране. Tap ⓘ для деталей, bulk-селект слева в toolbar.</p>
+
+<div class="phone">
+  <div class="safe-top"><div class="status-bar"><span>14:52</span><span class="icons">5G · 78%</span></div></div>
+  <div class="phone-body">
+
+    <!-- Telegram chrome -->
+    <div class="tg-bar">
+      <span class="ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </span>
+      <div class="tg-brand">
+        <img src="../../assets/logo.jpg" alt="">
+        <span>Gift Satellite Bot</span>
+      </div>
+      <span class="ic dim">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+      </span>
+    </div>
+
+    <!-- App header (v4 layout + v2 balance pill) -->
+    <div class="app-head">
+      <div class="brand">
+        <img class="logo" src="../../assets/logo.jpg" alt="">
+        <div class="name">Gift Satellite <em>Bot</em></div>
+      </div>
+      <div class="head-right">
+        <div class="balance">
+          <svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          <span>1.92</span>
+          <span class="plus">+</span>
+        </div>
+        <button class="icon-btn" aria-label="Настройки">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="chip-row">
+        <button class="chip"><span>Коллекция</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <button class="chip"><span>Фон</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <button class="chip search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <span>Поиск по имени…</span>
+        </button>
+      </div>
+
+      <div class="sort-row">
+        <button class="sort">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M3 16l4 4 4-4M17 4v16M13 8l4-4 4 4"/></svg>
+          Сначала новые
+        </button>
+        <div class="sort-right">
+          <button class="selection-btn" id="selectionBtn" title="Режим выделения">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 11l3 3L22 4"/></svg>
+          </button>
+          <div class="density">
+            <button title="Список"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
+            <button class="on" title="Сетка"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="counter">Всего <b>45</b> слотов<span class="sep"></span>Создано <b>45</b> ордеров</div>
+
+      <div class="cta-row">
+        <button class="cta primary">Слот за 1
+          <svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="cta secondary">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          Добавить подписку
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid-wrap">
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <!-- Tab bar (v1) -->
+    <div class="tab">
+      <button class="t">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H8v2h8v-2h-1c-.55 0-1-.45-1-1v-2.34M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        <span>Лидеры</span>
+      </button>
+      <button class="t">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span>Подписки</span>
+      </button>
+      <button class="t pill active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <span>Поиск</span>
+      </button>
+      <button class="t">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 4 4 6-6"/></svg>
+        <span>Статистика</span>
+      </button>
+      <button class="t">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Профиль</span>
+      </button>
+    </div>
+
+    <!-- Info modal (hidden) -->
+    <div class="modal" id="modal">
+      <div class="scrim" onclick="closeModal()"></div>
+      <div class="sheet" id="sheet">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <!-- Bulk actions bar (hidden) -->
+    <div class="bulk-bar" id="bulkbar">
+      <button class="b ok" onclick="bulkAction('on')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+        Включить
+      </button>
+      <button class="b" onclick="bulkAction('off')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>
+        Выключить
+      </button>
+      <button class="b primary" onclick="bulkAction('edit')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Изменить
+      </button>
+      <button class="b danger" onclick="bulkAction('delete')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+        Удалить
+      </button>
+      <button class="b" onclick="toggleBulk()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        Отмена
+      </button>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<script>
+/* ============================================================
+   Gift Satellite — Subscription Card (consolidated final)
+   ------------------------------------------------------------
+   Data for 9 cards covering 16 states from task.md spec.
+   ============================================================ */
+const PNG = id => `../../assets/originals/${id}/Original.png`;
+const LOTTIE = slug => `../../assets/models-lottie/${slug}.json`;
+const lp = (slug, size) => `<lottie-player src="${LOTTIE(slug)}" background="transparent" speed="1" autoplay loop${size?` style="width:${size}px;height:${size}px"`:''}></lottie-player>`;
+
+const MARKET_LOGOS = {
+  portals:  '../../assets/market-logos/portals.png',
+  fragment: '../../assets/market-logos/fragment.svg',
+  mrkt:     '../../assets/market-logos/mrkt.jpeg',
+  tonnel:   '../../assets/market-logos/tonnel.png',
+  getgems:  '../../assets/market-logos/getgems.png',
+};
+const MARKET_NAMES = {
+  portals:'Portals', fragment:'Fragment', mrkt:'MRKT', tonnel:'Tonnel', getgems:'Getgems',
+};
+function marketChip(m, cls='mk'){
+  return `<img class="${cls}" src="${MARKET_LOGOS[m]}" title="${MARKET_NAMES[m]}" alt="${MARKET_NAMES[m]}">`;
+}
+
+const CARDS = [
+  // 1. Default — 1 model, 1 backdrop, 3 buy markets + 2 notify
+  {
+    name:"Ice Cream флип до 12",
+    collection:"Ice Cream",
+    modelsText:"Ghost Biters", modelsCount:1, models:["Ghost Biters"],
+    backdropsText:"Sapphire", backdropsCount:1, backdrops:[{name:"Sapphire",hex:"#58a3c8"}],
+    patternText:"Все узоры", patterns:[], patternsCount:0,
+    numberText:"Любой номер",
+    bandClass:"", bands:["#58a3c8"],
+    preview:{ type:"one", gifts:["5900177027566142759"], lottie:["ice-cream/apple-dip"] },
+    buy:{ on:true, price:"12", count:"1 шт", markets:["portals","fragment","mrkt"] },
+    notify:{ on:true, price:"15", markets:["portals","fragment"] },
+  },
+  // 2. 0/3 bought — destructive state
+  {
+    name:"Jack-in-the-Box · Lucifer",
+    collection:"Jack-in-the-Box",
+    modelsText:"Lucifer", modelsCount:1, models:["Lucifer"],
+    backdropsText:"5 фонов", backdropsCount:5,
+    backdrops:[{name:"Electric Indigo",hex:"#a980f3"},{name:"Electric Purple",hex:"#ca70c6"},{name:"Coral Red",hex:"#fc4a2f"},{name:"Amber",hex:"#f0b429"},{name:"Mint Green",hex:"#79dd3b"}],
+    patternText:"Все узоры", patterns:[], patternsCount:0,
+    numberText:"Любой номер",
+    bandClass:"", bands:["#a980f3","#ca70c6","#fc4a2f","#f0b429","#79dd3b"],
+    preview:{ type:"one", gifts:["6005659564635063386"], lottie:["jack-in-the-box/aliens"] },
+    buy:{ on:true, price:"14", count:"0 из 3", alert:true, markets:["portals","fragment"] },
+    notify:{ on:true, price:"14", markets:["portals","fragment"] },
+    alert:"0 шт",
+  },
+  // 3. All collections + any models + any backdrops
+  {
+    name:"Любой подарок ≤ 10",
+    collection:"Все коллекции",
+    modelsText:"Любые модели", modelsCount:0, models:[],
+    backdropsText:"Любые фоны", backdropsCount:0, backdrops:[],
+    patternText:"Любые узоры", patterns:[], patternsCount:0,
+    numberText:"Любой номер",
+    bandClass:"none", bands:[],
+    preview:{ type:"any", gifts:["5170594532177215681"] },
+    buy:{ on:true, price:"9.5", count:"5 шт", markets:["portals","fragment","tonnel","getgems"] },
+    notify:{ on:true, price:"11", markets:["portals","mrkt","tonnel"] },
+  },
+  // 4. 12 models → collection icon, 3 backdrops split
+  {
+    name:"Plush Pepe floor hunt",
+    collection:"Plush Pepe",
+    modelsText:"12 моделей", modelsCount:12, models:["Amalgam","Birthday","Crown","..."],
+    backdropsText:"3 фона", backdropsCount:3,
+    backdrops:[{name:"Amber",hex:"#f0b429"},{name:"Electric Purple",hex:"#ca70c6"},{name:"Coral Red",hex:"#fc4a2f"}],
+    patternText:"2 узора", patterns:["Palms","Diamonds"], patternsCount:2,
+    numberText:"Любой номер",
+    bandClass:"", bands:["#f0b429","#ca70c6","#fc4a2f"],
+    preview:{ type:"one", gifts:["5936013938331222567"] },
+    buy:{ on:true, price:"450", count:"1 шт", markets:["portals","fragment"] },
+    notify:{ on:true, price:"500", markets:["portals","fragment","tonnel"] },
+  },
+  // 5. 3 models chain + 1 backdrop
+  {
+    name:"Light Sword · Samurai trio",
+    collection:"Light Sword",
+    modelsText:"3 модели", modelsCount:3, models:["Absinthe","Andromeda","Bifrost"],
+    backdropsText:"Emerald", backdropsCount:1, backdrops:[{name:"Emerald",hex:"#78c585"}],
+    patternText:"Star", patterns:["Star"], patternsCount:1,
+    numberText:"77x",
+    bandClass:"", bands:["#78c585"],
+    preview:{ type:"chain", gifts:["5897581235231785485","5897581235231785485","5897581235231785485"], lottie:["light-sword/absinthe","light-sword/andromeda","light-sword/bifrost"] },
+    buy:{ on:true, price:"17", count:"2 шт", markets:["portals","fragment","mrkt","tonnel","getgems"] },
+    notify:{ on:true, price:"19", markets:["portals","fragment","mrkt"] },
+  },
+  // 6. 25 backdrops → custom gradient, 2 models chain
+  {
+    name:"Jolly Chimp rainbow",
+    collection:"Jolly Chimp",
+    modelsText:"2 модели", modelsCount:2, models:["Abubu","Alarm Ape"],
+    backdropsText:"25 фонов", backdropsCount:25,
+    backdrops:[{name:"Любые",hex:"linear"}],
+    patternText:"Любые узоры", patterns:[], patternsCount:0,
+    numberText:"XX7",
+    bandClass:"custom-many", bands:[],
+    preview:{ type:"chain", gifts:["6005880141270483700","6005880141270483700"], lottie:["jolly-chimp/abubu","jolly-chimp/alarm-ape"] },
+    buy:{ on:true, price:"9.99", count:"3 шт", markets:["portals","fragment","mrkt","getgems"] },
+    notify:{ on:true, price:"10.5", markets:["fragment","tonnel","getgems"] },
+  },
+  // 7. Purchase disabled — dimmed card + off badge
+  {
+    name:"Homemade Cake · sale",
+    collection:"Homemade Cake",
+    modelsText:"Love Candle", modelsCount:1, models:["Love Candle"],
+    backdropsText:"Lavender", backdropsCount:1, backdrops:[{name:"Lavender",hex:"#b789e4"}],
+    patternText:"1 узор", patterns:["Hearts"], patternsCount:1,
+    numberText:"Любой номер",
+    bandClass:"", bands:["#b789e4"],
+    preview:{ type:"one", gifts:["5783075783622787539"], lottie:["homemade-cake/angel-cake"] },
+    buy:{ on:false, price:"22", count:"— шт", markets:["portals","fragment","mrkt"] },
+    notify:{ on:true, price:"25", markets:["portals","fragment"] },
+    dim:true,
+    offBadge:"Покупка выкл",
+  },
+  // 8. Notifications OFF — bell-off, 4 patterns Desk Calendar, 0 models
+  {
+    name:"Desk Calendar узорный",
+    collection:"Desk Calendar",
+    modelsText:"Любые модели", modelsCount:0, models:[],
+    backdropsText:"Cyberpunk", backdropsCount:1, backdrops:[{name:"Cyberpunk",hex:"#858ff3"}],
+    patternText:"4 узора", patterns:["Spring","Summer","Autumn","Winter"], patternsCount:4,
+    numberText:"1XX",
+    bandClass:"", bands:["#858ff3"],
+    preview:{ type:"any", gifts:["5782988952268964995"] },
+    buy:{ on:true, price:"8", count:"5 шт", markets:["portals","tonnel","getgems"] },
+    notify:{ on:false, markets:[] },
+  },
+  // 9. Long prompt — truncation + 5 backdrops
+  {
+    name:"Victory Medal для коллекции чёрных фонов",
+    collection:"Victory Medal",
+    modelsText:"Heartbreaker", modelsCount:1, models:["Heartbreaker"],
+    backdropsText:"5 фонов", backdropsCount:5,
+    backdrops:[{name:"Black",hex:"#363738"},{name:"Charcoal",hex:"#0e0f0f"},{name:"Electric Purple",hex:"#ca70c6"},{name:"Lavender",hex:"#b789e4"},{name:"Electric Indigo",hex:"#a980f3"}],
+    patternText:"Любые узоры", patterns:[], patternsCount:0,
+    numberText:"999",
+    bandClass:"", bands:["#363738","#0e0f0f","#ca70c6","#b789e4","#a980f3"],
+    preview:{ type:"one", gifts:["5830340739074097859"], lottie:["victory-medal/aegis"] },
+    buy:{ on:true, price:"36", count:"1 шт", markets:["portals","fragment","mrkt","tonnel","getgems"] },
+    notify:{ on:true, price:"42", markets:["portals","fragment","mrkt"] },
+  },
+];
+
+/* --- renderCard --- */
+function renderCard(c, i){
+  const alertCls = c.alert ? "alert" : "";
+  const dimCls = c.dim ? "dim" : "";
+
+  // Preview inner — Lottie for 1-4 concrete models, PNG collection icon for 0 or 5+
+  let pvInner;
+  const lottieSlugs = c.preview.lottie;
+  if(c.preview.type==="chain"){
+    if(lottieSlugs && lottieSlugs.length){
+      pvInner = `<div class="chain">${lottieSlugs.map(s=>lp(s)).join("")}</div>`;
+    } else {
+      pvInner = `<div class="chain">${c.preview.gifts.map(id=>`<img src="${PNG(id)}" alt="">`).join("")}</div>`;
+    }
+  } else if(lottieSlugs && lottieSlugs.length){
+    pvInner = lp(lottieSlugs[0]);
+  } else {
+    pvInner = `<img src="${PNG(c.preview.gifts[0])}" alt="">`;
+  }
+
+  // Bands (backdrop color strip)
+  let bandsHTML = "";
+  if(c.bandClass){
+    bandsHTML = `<div class="c-preview-bands ${c.bandClass}"></div>`;
+  } else if(c.bands && c.bands.length){
+    bandsHTML = `<div class="c-preview-bands">${c.bands.map(b=>`<div class="band" style="background:${b}"></div>`).join("")}</div>`;
+  } else {
+    bandsHTML = `<div class="c-preview-bands none"></div>`;
+  }
+
+  // Badge top (alert / off)
+  let badgeTop = "";
+  if(c.alert){
+    badgeTop = `<div class="c-badge-top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>${c.alert}</div>`;
+  } else if(c.offBadge){
+    badgeTop = `<div class="c-badge-top off">${c.offBadge}</div>`;
+  }
+
+  // Markets
+  const buyMs = (c.buy.markets||[]).slice(0,5).map(m=>marketChip(m)).join("");
+  const ntMs = c.notify.on ? (c.notify.markets||[]).slice(0,5).map(m=>marketChip(m)).join("") : "";
+  const buyDim = c.buy.on ? "" : "dim";
+  const notifyDim = c.notify.on ? "" : "dim";
+  const buyMkHTML = (c.buy.markets && c.buy.markets.length) ? `<div class="ms">${buyMs}</div>` : `<span class="off">—</span>`;
+  const notifyIcon = c.notify.on
+    ? `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>`
+    : `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.7 21a2 2 0 0 1-3.4 0M18 8a6 6 0 0 0-9.33-5M6 8c0 6-3 9-3 9h13M1 1l22 22"/></svg>`;
+  const notifyMkHTML = c.notify.on
+    ? (ntMs ? `<div class="ms">${ntMs}</div>` : `<span class="off">—</span>`)
+    : `<span class="off">выкл</span>`;
+
+  // Price
+  let priceBigCls = c.alert ? "danger" : "";
+  const sw = c.buy.on ? "on" : "";
+  const countLabel = c.buy.count || "";
+  const countCls = c.alert ? "danger" : "";
+
+  return `
+    <div class="card ${alertCls} ${dimCls}" data-idx="${i}">
+      <div class="c-check" onclick="toggleSelect(${i},event)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+      </div>
+      ${badgeTop}
+      <div class="c-head">
+        <div class="c-name">${c.name}</div>
+        <button class="info" aria-label="Инфо" onclick="openModal(${i},event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+        <button class="more" aria-label="Меню"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      </div>
+      <div class="c-preview-wrap" onclick="openModal(${i},event)">
+        ${bandsHTML}
+        <div class="c-preview">${pvInner}</div>
+      </div>
+      <div class="c-meta">
+        <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><span class="v">${c.collection}</span></div>
+        <div class="row ${c.modelsCount===0?"muted":""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="9"/></svg><span class="v">${c.modelsText}</span></div>
+        <div class="row ${c.backdropsCount===0?"muted":""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span class="v">${c.backdropsText}</span></div>
+        <div class="row ${c.patternsCount===0&&c.numberText==='Любой номер'?"muted":""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 10h16M10 4v16"/></svg><span class="v">${c.patternText} · ${c.numberText}</span></div>
+      </div>
+      <div class="c-markets">
+        <div class="grp ${buyDim}">
+          <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2l1 5h10l1-5M3 7h18l-2 11a2 2 0 0 1-2 1H7a2 2 0 0 1-2-1L3 7z"/></svg>
+          ${buyMkHTML}
+        </div>
+        <div class="grp ${notifyDim}">
+          ${notifyIcon}
+          ${notifyMkHTML}
+        </div>
+      </div>
+      <div class="c-foot">
+        <div class="switch ${sw}" onclick="toggleSwitch(${i},event)"></div>
+        <div class="price">
+          <div class="big ${priceBigCls} ${c.buy.on?'':'strike'}">
+            до ${c.buy.price}
+            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="sub ${countCls}">${countLabel}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderGrid(){
+  document.getElementById('grid').innerHTML = CARDS.map((c,i)=>renderCard(c,i)).join('');
+}
+
+/* --- Modal --- */
+function openModal(i, e){
+  if(e){ e.stopPropagation(); }
+  if(document.body.classList.contains('bulk')) return; // bulk mode — no modal
+  const c = CARDS[i];
+  const sheet = document.getElementById('sheet');
+
+  // preview inner (bigger)
+  let pvInner;
+  const lottieSlugs = c.preview.lottie;
+  if(c.preview.type==="chain" && lottieSlugs && lottieSlugs.length){
+    pvInner = lp(lottieSlugs[0], 40);
+  } else if(lottieSlugs && lottieSlugs.length){
+    pvInner = lp(lottieSlugs[0], 40);
+  } else {
+    pvInner = `<img src="${PNG(c.preview.gifts[0])}" alt="">`;
+  }
+
+  // Models
+  let modelsSectHtml = "";
+  if(c.modelsCount===0){
+    modelsSectHtml = `<div class="val-small">Любые модели (коллекция целиком)</div>`;
+  } else if(c.modelsCount===1){
+    modelsSectHtml = `<div class="val">${c.models[0]}</div>`;
+  } else {
+    const list = c.models && c.models.length ? c.models.slice(0,8).join(", ") + (c.modelsCount>c.models.length?`, +${c.modelsCount-c.models.length}`:'') : `${c.modelsCount} моделей`;
+    modelsSectHtml = `<div class="val-small">${list}</div>`;
+  }
+
+  // Backdrops chips
+  let bdSectHtml = "";
+  if(c.backdropsCount===0){
+    bdSectHtml = `<div class="val-small">Любые фоны</div>`;
+  } else {
+    bdSectHtml = `<div class="chips">${c.backdrops.slice(0,8).map(b=>`<span class="c"><span class="dot" style="background:${b.hex==='linear'?'conic-gradient(#7596f9,#a980f3,#ca70c6,#f0b429,#79dd3b)':b.hex}"></span>${b.name}</span>`).join('')}${c.backdropsCount>c.backdrops.length?`<span class="c">+${c.backdropsCount-c.backdrops.length}</span>`:''}</div>`;
+  }
+
+  // Patterns
+  let ptSectHtml = "";
+  if(c.patternsCount===0){
+    ptSectHtml = `<div class="val-small">Любые узоры</div>`;
+  } else if(c.patternsCount===1){
+    ptSectHtml = `<div class="val">${c.patterns[0]}</div>`;
+  } else {
+    ptSectHtml = `<div class="val-small">${c.patterns.join(', ')}</div>`;
+  }
+
+  sheet.innerHTML = `
+    <div class="handle"></div>
+    <div class="sheet-head">
+      <div class="preview-mini">${pvInner}</div>
+      <div class="title">
+        <h2>${c.name}</h2>
+        <div class="sub">${c.collection}</div>
+      </div>
+      <button class="close" onclick="closeModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+    </div>
+    <div class="sheet-body">
+      <div class="sect">
+        <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="9"/></svg>Модели (${c.modelsCount})</div>
+        ${modelsSectHtml}
+      </div>
+      <div class="sect">
+        <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M21 15l-5-5L5 21"/></svg>Фоны (${c.backdropsCount})</div>
+        ${bdSectHtml}
+      </div>
+      <div class="sect">
+        <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 10h16M10 4v16"/></svg>Узоры · Номер</div>
+        <div class="val-small">${c.patternText} · ${c.numberText}</div>
+      </div>
+      <div class="sect-grid">
+        <div class="sect-box ${c.buy.on?'':'off'}">
+          <div class="top">
+            <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2l1 5h10l1-5M3 7h18l-2 11a2 2 0 0 1-2 1H7a2 2 0 0 1-2-1L3 7z"/></svg>Покупка</div>
+          </div>
+          <div class="big ${c.alert?'danger':''}">${c.buy.on?`до ${c.buy.price}`:'—'}
+            ${c.buy.on?`<svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`:''}
+          </div>
+          <div class="sub">${c.buy.on?c.buy.count:'Покупка выключена'}</div>
+          ${c.buy.markets && c.buy.markets.length ? `<div class="ms-row">${c.buy.markets.map(m=>marketChip(m)).join('')}</div>`:''}
+        </div>
+        <div class="sect-box ${c.notify.on?'':'off'}">
+          <div class="top">
+            <div class="h">${c.notify.on?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>`:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.7 21a2 2 0 0 1-3.4 0M18 8a6 6 0 0 0-9.33-5M6 8c0 6-3 9-3 9h13M1 1l22 22"/></svg>`}Нотификации</div>
+          </div>
+          <div class="big">${c.notify.on?`до ${c.notify.price}`:'—'}
+            ${c.notify.on?`<svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`:''}
+          </div>
+          <div class="sub">${c.notify.on?'активны':'Нотификации отключены'}</div>
+          ${c.notify.on && c.notify.markets && c.notify.markets.length ? `<div class="ms-row">${c.notify.markets.map(m=>marketChip(m)).join('')}</div>`:''}
+        </div>
+      </div>
+    </div>
+    <div class="sheet-foot">
+      <button class="b primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Изменить
+      </button>
+      <button class="b danger" aria-label="Удалить">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+      </button>
+    </div>
+  `;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+
+/* --- Bulk mode --- */
+function toggleBulk(){
+  const on = !document.body.classList.contains('bulk');
+  document.body.classList.toggle('bulk', on);
+  document.getElementById('bulkbar').classList.toggle('show', on);
+  document.getElementById('selectionBtn').classList.toggle('on', on);
+  // Clear selections when exiting
+  if(!on){ document.querySelectorAll('.card.selected').forEach(el=>el.classList.remove('selected')); }
+}
+function toggleSelect(i, e){
+  if(e){ e.stopPropagation(); }
+  const card = document.querySelector(`.card[data-idx="${i}"]`);
+  if(card) card.classList.toggle('selected');
+}
+function bulkAction(type){
+  const selected = [...document.querySelectorAll('.card.selected')];
+  alert(`${type}: выбрано ${selected.length} карточек (demo)`);
+}
+
+/* --- Switch (cosmetic) --- */
+function toggleSwitch(i, e){
+  if(e){ e.stopPropagation(); }
+  if(document.body.classList.contains('bulk')) return;
+  const sw = document.querySelector(`.card[data-idx="${i}"] .switch`);
+  if(sw) sw.classList.toggle('on');
+}
+
+/* --- Init --- */
+renderGrid();
+document.getElementById('selectionBtn').addEventListener('click', toggleBulk);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); if(document.body.classList.contains('bulk')) toggleBulk(); }});
+
+// Debug/demo auto-states via URL query: ?m=0 auto-opens modal for card 0, ?bulk=1 auto-enables bulk
+const qp = new URLSearchParams(location.search);
+if(qp.has('m')){ setTimeout(()=>openModal(parseInt(qp.get('m'))), 50); }
+if(qp.get('bulk')==='1'){ setTimeout(()=>{ toggleBulk(); toggleSelect(0); toggleSelect(2); }, 50); }
+</script>
+
+</body>
+</html>
