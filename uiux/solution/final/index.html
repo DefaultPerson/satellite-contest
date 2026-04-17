@@ -416,7 +416,7 @@ body.bulk .info{display:none}
       <div class="head-right">
         <div class="balance">
           <svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-          <span>1.92</span>
+          <span>550.92</span>
           <span class="plus">+</span>
         </div>
         <button class="icon-btn" aria-label="Настройки">
@@ -456,7 +456,7 @@ body.bulk .info{display:none}
         </div>
       </div>
 
-      <div class="counter">Всего <b>9</b> слотов<span class="sep"></span>Создано <b>9</b> ордеров</div>
+      <div class="counter">Всего <b>45</b> слотов<span class="sep"></span>Создано <b>9</b> ордеров</div>
 
       <div class="cta-row">
         <button class="cta primary">Слот за 1
@@ -577,25 +577,26 @@ const BD = {
 };
 
 const CARDS = [
-  // 1. Default — 1 model, 1 backdrop (radial), 3 buy markets + 2 notify
+  // 1. (was card 9) Long prompt — truncation + 5 backdrops split (dark scheme)
   {
-    name:"Ice Cream флип до 12",
-    collection:"Ice Cream",
-    modelsText:"Apple Dip", modelsCount:1, models:["Apple Dip"],
-    backdropsText:"Sapphire", backdropsCount:1, backdrops:[BD.Sapphire],
+    name:"Victory Medal для коллекции чёрных фонов",
+    collection:"Victory Medal",
+    modelsText:"Aegis", modelsCount:1, models:["Aegis"],
+    backdropsText:"5 фонов", backdropsCount:5,
+    backdrops:[BD.Black, {name:"Onyx Black", center:"#1c1b1b", edge:"#0a0a0a", pattern:"#4a4848"}, BD.ElectricPurple, BD.Lavender, BD.ElectricIndigo],
     patternText:"Любые узоры", patterns:[], patternsCount:0,
-    numberText:"Любой номер",
-    preview:{ type:"one", gifts:["5900177027566142759"], lottie:["ice-cream/apple-dip"] },
-    buy:{ on:true, price:"12", count:"1 шт", markets:["portals","fragment","mrkt"] },
-    notify:{ on:true, price:"15", markets:["portals","fragment"] },
+    numberText:"999",
+    preview:{ type:"one", gifts:["5830340739074097859"], lottie:["victory-medal/aegis"] },
+    buy:{ on:true, price:"36", count:"1 шт", markets:["portals","fragment","mrkt","tonnel","getgems"] },
+    notify:{ on:true, price:"42", markets:["portals","fragment","mrkt"] },
   },
-  // 2. 0/3 bought — destructive state, 5 backdrops split
+  // 2. 0/3 bought — destructive state, 2 backdrops split
   {
     name:"Jack-in-the-Box · Aliens",
     collection:"Jack-in-the-Box",
     modelsText:"Aliens", modelsCount:1, models:["Aliens"],
-    backdropsText:"5 фонов", backdropsCount:5,
-    backdrops:[BD.ElectricIndigo, BD.ElectricPurple, BD.CoralRed, BD.Amber, BD.MintGreen],
+    backdropsText:"2 фона", backdropsCount:2,
+    backdrops:[BD.ElectricIndigo, BD.ElectricPurple],
     patternText:"Любые узоры", patterns:[], patternsCount:0,
     numberText:"Любой номер",
     preview:{ type:"one", gifts:["6005659564635063386"], lottie:["jack-in-the-box/aliens"] },
@@ -616,7 +617,19 @@ const CARDS = [
     buy:{ on:true, price:"9.5", count:"5 шт", markets:["portals","fragment","tonnel","getgems"] },
     notify:{ on:true, price:"11", markets:["portals","mrkt","tonnel"] },
   },
-  // 4. 12 models → collection icon, 3 backdrops split
+  // 4. (was card 5) 3 models chain + 1 backdrop (radial)
+  {
+    name:"Light Sword · Samurai trio",
+    collection:"Light Sword",
+    modelsText:"3 модели", modelsCount:3, models:["Absinthe","Andromeda","Bifrost"],
+    backdropsText:"Emerald", backdropsCount:1, backdrops:[BD.Emerald],
+    patternText:"Star", patterns:["Star"], patternsCount:1,
+    numberText:"77x",
+    preview:{ type:"chain", gifts:["5897581235231785485","5897581235231785485","5897581235231785485"], lottie:["light-sword/absinthe","light-sword/andromeda","light-sword/bifrost"] },
+    buy:{ on:true, price:"17", count:"2 шт", markets:["portals","fragment","mrkt","tonnel","getgems"] },
+    notify:{ on:true, price:"19", markets:["portals","fragment","mrkt"] },
+  },
+  // 5. (was card 4) 12 models → collection icon, 3 backdrops split
   {
     name:"Plush Pepe floor hunt",
     collection:"Plush Pepe",
@@ -628,18 +641,6 @@ const CARDS = [
     preview:{ type:"one", gifts:["5936013938331222567"] },
     buy:{ on:true, price:"450", count:"1 шт", markets:["portals","fragment"] },
     notify:{ on:true, price:"500", markets:["portals","fragment","tonnel"] },
-  },
-  // 5. 3 models chain + 1 backdrop (radial)
-  {
-    name:"Light Sword · Samurai trio",
-    collection:"Light Sword",
-    modelsText:"3 модели", modelsCount:3, models:["Absinthe","Andromeda","Bifrost"],
-    backdropsText:"Emerald", backdropsCount:1, backdrops:[BD.Emerald],
-    patternText:"Star", patterns:["Star"], patternsCount:1,
-    numberText:"77x",
-    preview:{ type:"chain", gifts:["5897581235231785485","5897581235231785485","5897581235231785485"], lottie:["light-sword/absinthe","light-sword/andromeda","light-sword/bifrost"] },
-    buy:{ on:true, price:"17", count:"2 шт", markets:["portals","fragment","mrkt","tonnel","getgems"] },
-    notify:{ on:true, price:"19", markets:["portals","fragment","mrkt"] },
   },
   // 6. 25 backdrops → custom conic gradient, 2 models chain
   {
@@ -680,18 +681,17 @@ const CARDS = [
     buy:{ on:true, price:"8", count:"5 шт", markets:["portals","tonnel","getgems"] },
     notify:{ on:false, markets:[] },
   },
-  // 9. Long prompt — truncation + 5 backdrops split (dark scheme)
+  // 9. (was card 1) Default — 1 model, 1 backdrop (radial), 3 buy markets + 2 notify
   {
-    name:"Victory Medal для коллекции чёрных фонов",
-    collection:"Victory Medal",
-    modelsText:"Aegis", modelsCount:1, models:["Aegis"],
-    backdropsText:"5 фонов", backdropsCount:5,
-    backdrops:[BD.Black, {name:"Onyx Black", center:"#1c1b1b", edge:"#0a0a0a", pattern:"#4a4848"}, BD.ElectricPurple, BD.Lavender, BD.ElectricIndigo],
+    name:"Ice Cream флип до 12",
+    collection:"Ice Cream",
+    modelsText:"Apple Dip", modelsCount:1, models:["Apple Dip"],
+    backdropsText:"Sapphire", backdropsCount:1, backdrops:[BD.Sapphire],
     patternText:"Любые узоры", patterns:[], patternsCount:0,
-    numberText:"999",
-    preview:{ type:"one", gifts:["5830340739074097859"], lottie:["victory-medal/aegis"] },
-    buy:{ on:true, price:"36", count:"1 шт", markets:["portals","fragment","mrkt","tonnel","getgems"] },
-    notify:{ on:true, price:"42", markets:["portals","fragment","mrkt"] },
+    numberText:"Любой номер",
+    preview:{ type:"one", gifts:["5900177027566142759"], lottie:["ice-cream/apple-dip"] },
+    buy:{ on:true, price:"12", count:"1 шт", markets:["portals","fragment","mrkt"] },
+    notify:{ on:true, price:"15", markets:["portals","fragment"] },
   },
 ];
 
