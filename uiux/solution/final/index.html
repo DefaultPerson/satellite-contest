@@ -150,9 +150,11 @@ img{display:block}
 .cta .ton{width:13px;height:13px;color:var(--text)}
 .cta svg.ic{width:14px;height:14px}
 
-.grid-wrap{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:10px 12px 88px;position:relative;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-.grid-wrap::-webkit-scrollbar{width:4px}
-.grid-wrap::-webkit-scrollbar-thumb{background:var(--outlines);border-radius:4px}
+.grid-wrap{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:10px 12px 88px;position:relative;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.08) transparent}
+.grid-wrap::-webkit-scrollbar{width:2px}
+.grid-wrap::-webkit-scrollbar-track{background:transparent}
+.grid-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:4px}
+.grid-wrap::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.14)}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 8px}
 
 .card{
@@ -202,14 +204,14 @@ img{display:block}
 .c-preview-bands.none{
   background:radial-gradient(circle at 50% 42%,rgba(85,53,243,0.22) 0%,rgba(85,53,243,0.06) 60%,var(--fg) 100%),var(--secondary);
 }
-.c-preview{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:4px;z-index:4}
-.c-preview img{width:62px;height:62px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.45))}
-.c-preview .chain{display:flex;align-items:center}
+.c-preview{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:3px;z-index:4}
+.c-preview img{max-width:100%;max-height:100%;width:auto;height:100%;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.45))}
+.c-preview .chain{display:flex;align-items:center;max-width:100%;height:100%}
 .c-preview .chain img{
-  width:44px;height:44px;object-fit:contain;
+  width:auto;height:100%;max-height:100%;object-fit:contain;
   filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));
   background:none;border:0;padding:0;
-  margin-left:-12px;box-sizing:border-box;
+  margin-left:-14px;box-sizing:border-box;
 }
 .c-preview .chain img:first-child{margin-left:0}
 
@@ -302,7 +304,7 @@ body.bulk .info{display:none}
 }
 .tab .t .tab-ic svg{width:22px;height:22px}
 .tab .t.active{color:var(--text);font-weight:500}
-.tab .t.active .tab-ic{background:var(--primary);color:var(--text)}
+.tab .t.active .tab-ic{background:var(--primary);color:var(--text);box-shadow:0 0 12px 2px rgba(85,53,243,0.35)}
 
 /* Modal */
 .modal{position:absolute;inset:0;z-index:20;display:none}
@@ -473,11 +475,11 @@ body.bulk .info{display:none}
         <span class="tab-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span>
         <span>Лидеры</span>
       </button>
-      <button class="t">
+      <button class="t active">
         <span class="tab-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg></span>
         <span>Подписки</span>
       </button>
-      <button class="t active">
+      <button class="t">
         <span class="tab-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
         <span>Поиск</span>
       </button>
@@ -592,7 +594,7 @@ const CARDS = [
     patternText:"Все узоры", patterns:[], patternsCount:0,
     numberText:"Любой номер",
     preview:{ type:"one", gifts:["6005659564635063386"], lottie:["jack-in-the-box/aliens"] },
-    buy:{ on:true, price:"14", count:"0 из 3", alert:true, markets:["portals","fragment"] },
+    buy:{ on:true, price:"14", count:"0 из 3 шт", alert:true, markets:["portals","fragment"] },
     notify:{ on:true, price:"14", markets:["portals","fragment"] },
     alert:"0 шт",
   },
