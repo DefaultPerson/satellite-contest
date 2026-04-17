@@ -1,0 +1,34 @@
+/*
+ * Gift Satellite brand tokens.
+ * Source: assets/colors (raw dump from app).
+ */
+
+:root {
+  /* Brand */
+  --primary: #5535f3;
+  --primary-description: #f0f0f080;
+
+  /* Surfaces */
+  --background: #101010;
+  --foreground: #1b1a1d;
+  --secondary: #25242b;
+  --tertiary: #3a3941;
+  --tertiary-bg: #18171c;
+  --color-navbar-bg: #18171cbf;
+  --color-overlays: #10101080;
+
+  /* Text */
+  --accent: #f0f0f0;
+  --color-text: #f0f0f0;
+  --secondary-description: #f0f0f04d;
+  --outlines: #f0f0f026;
+
+  /* Semantic */
+  --destructive: #fc4a2f;
+  --color-success: #79dd3b;
+  --color-success-on-white: #63c129;
+
+  /* Typography */
+  --font-sans: "Hauora", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+}

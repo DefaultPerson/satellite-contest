@@ -1,0 +1,17 @@
+    --primary: #5535f3;
+    --primary-description: #f0f0f080;
+    --secondary: #25242b;
+    --tertiary: #3a3941;
+    --accent: #f0f0f0;
+    --destructive: #fc4a2f;
+    --background: #101010;
+    --foreground: #1b1a1d;
+    --secondary-description: #f0f0f04d;
+    --tertiary-bg: #18171c;
+    --outlines: #f0f0f026;
+    --color-text: #f0f0f0;
+    --color-navbar-bg: #18171cbf;
+    --color-success: #79dd3b;
+    --color-success-on-white: #63c129;
+    --color-overlays: #10101080;
+    --font-sans: "Hauora";

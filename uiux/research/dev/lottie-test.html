@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lottie test</title>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+<style>
+  body { background: #101010; color: #f0f0f0; font-family: system-ui, sans-serif; padding: 40px; }
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  .cell { background: #1b1a1d; border-radius: 16px; padding: 12px; text-align: center; }
+  .cell lottie-player { width: 96px; height: 96px; display: block; margin: 0 auto; }
+  .cell p { font-size: 11px; margin: 6px 0 0; color: #f0f0f080; }
+</style>
+</head>
+<body>
+<h2>Lottie rendering test</h2>
+<div class="grid">
+  <div class="cell"><lottie-player src="../assets/models-lottie/ice-cream/apple-dip.json" background="transparent" speed="1" autoplay loop></lottie-player><p>Ice Cream / Apple Dip</p></div>
+  <div class="cell"><lottie-player src="../assets/models-lottie/light-sword/absinthe.json" background="transparent" speed="1" autoplay loop></lottie-player><p>Light Sword / Absinthe</p></div>
+  <div class="cell"><lottie-player src="../assets/models-lottie/plush-pepe/amalgam.json" background="transparent" speed="1" autoplay loop></lottie-player><p>Plush Pepe / Amalgam</p></div>
+  <div class="cell"><lottie-player src="../assets/models-lottie/jolly-chimp/abubu.json" background="transparent" speed="1" autoplay loop></lottie-player><p>Jolly Chimp / Abubu</p></div>
+  <div class="cell"><lottie-player src="../assets/models-lottie/jack-in-the-box/aliens.json" background="transparent" speed="1" autoplay loop></lottie-player><p>Jack-in-the-Box / Aliens</p></div>
+  <div class="cell"><lottie-player src="../assets/models-lottie/victory-medal/aegis.json" background="transparent" speed="1" autoplay loop></lottie-player><p>Victory Medal / Aegis</p></div>
+</div>
+</body>
+</html>
