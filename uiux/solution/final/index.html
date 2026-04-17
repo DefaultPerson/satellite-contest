@@ -237,6 +237,7 @@ img{display:block}
 .c-markets .grp{display:flex;align-items:center;gap:3px;min-width:0;flex:1}
 .c-markets .grp svg.i{width:12px;height:12px;color:var(--text-sec);flex-shrink:0}
 .c-markets .grp .ms{display:flex;min-width:0;flex-shrink:1}
+.c-markets .grp .pr{font-size:10px;color:var(--text-sec);white-space:nowrap;margin-right:2px}
 .c-markets .grp .mk{
   width:16px;height:16px;border-radius:999px;
   object-fit:cover;margin-left:-4px;flex-shrink:0;
@@ -582,7 +583,7 @@ const CARDS = [
     collection:"Ice Cream",
     modelsText:"Apple Dip", modelsCount:1, models:["Apple Dip"],
     backdropsText:"Sapphire", backdropsCount:1, backdrops:[BD.Sapphire],
-    patternText:"Все узоры", patterns:[], patternsCount:0,
+    patternText:"Любые узоры", patterns:[], patternsCount:0,
     numberText:"Любой номер",
     preview:{ type:"one", gifts:["5900177027566142759"], lottie:["ice-cream/apple-dip"] },
     buy:{ on:true, price:"12", count:"1 шт", markets:["portals","fragment","mrkt"] },
@@ -595,7 +596,7 @@ const CARDS = [
     modelsText:"Aliens", modelsCount:1, models:["Aliens"],
     backdropsText:"5 фонов", backdropsCount:5,
     backdrops:[BD.ElectricIndigo, BD.ElectricPurple, BD.CoralRed, BD.Amber, BD.MintGreen],
-    patternText:"Все узоры", patterns:[], patternsCount:0,
+    patternText:"Любые узоры", patterns:[], patternsCount:0,
     numberText:"Любой номер",
     preview:{ type:"one", gifts:["6005659564635063386"], lottie:["jack-in-the-box/aliens"] },
     buy:{ on:true, price:"14", count:"0 из 3 шт", alert:true, markets:["portals","fragment"] },
@@ -659,7 +660,7 @@ const CARDS = [
     collection:"Homemade Cake",
     modelsText:"Angel Cake", modelsCount:1, models:["Angel Cake"],
     backdropsText:"Lavender", backdropsCount:1, backdrops:[BD.Lavender],
-    patternText:"1 узор", patterns:["Hearts"], patternsCount:1,
+    patternText:"Hearts", patterns:["Hearts"], patternsCount:1,
     numberText:"Любой номер",
     preview:{ type:"one", gifts:["5783075783622787539"], lottie:["homemade-cake/angel-cake"] },
     buy:{ on:false, price:"22", count:"— шт", markets:["portals","fragment","mrkt"] },
@@ -750,7 +751,9 @@ function renderCard(c, i){
     ? `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>`
     : `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.7 21a2 2 0 0 1-3.4 0M18 8a6 6 0 0 0-9.33-5M6 8c0 6-3 9-3 9h13M1 1l22 22"/></svg>`;
   const notifyMkHTML = c.notify.on
-    ? (ntMs ? `<div class="ms">${ntMs}</div>` : `<span class="off">—</span>`)
+    ? (ntMs
+        ? `<span class="pr">до ${c.notify.price}</span><div class="ms">${ntMs}</div>`
+        : `<span class="pr">до ${c.notify.price}</span>`)
     : `<span class="off">выкл</span>`;
 
   // Price
