@@ -233,13 +233,14 @@ img{display:block}
 .c-meta .row .v{flex:1;color:var(--text);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .c-meta .row.muted .v{color:var(--text-sec)}
 
-.c-markets{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;min-height:18px}
-.c-markets .grp{display:flex;align-items:center;gap:3px;min-width:0;flex:1}
+.c-markets{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:6px;min-height:18px;overflow:hidden}
+.c-markets .grp{display:flex;align-items:center;gap:3px;min-width:0;flex:1;overflow:hidden}
 .c-markets .grp svg.i{width:12px;height:12px;color:var(--text-sec);flex-shrink:0}
-.c-markets .grp .ms{display:flex;min-width:0;flex-shrink:1}
-.c-markets .grp .pr{font-size:10px;color:var(--text-sec);white-space:nowrap;margin-right:2px}
+.c-markets .grp .ms{display:flex;min-width:0;flex-shrink:0}
+.c-markets .grp .pr{font-size:10px;color:var(--text-sec);white-space:nowrap;flex-shrink:0}
+.c-markets .grp .mk-more{font-size:9px;color:var(--text-dim);margin-left:3px;font-weight:500;flex-shrink:0}
 .c-markets .grp .mk{
-  width:16px;height:16px;border-radius:999px;
+  width:14px;height:14px;border-radius:999px;
   object-fit:cover;margin-left:-4px;flex-shrink:0;
   background:#fff;
   box-shadow:0 0 0 1.5px var(--fg);
@@ -741,9 +742,12 @@ function renderCard(c, i){
     badgeTop = `<div class="c-badge-top off">${c.offBadge}</div>`;
   }
 
-  // Markets
-  const buyMs = (c.buy.markets||[]).slice(0,5).map(m=>marketChip(m)).join("");
-  const ntMs = c.notify.on ? (c.notify.markets||[]).slice(0,5).map(m=>marketChip(m)).join("") : "";
+  // Markets — show up to 3 on card (modal shows full up-to-5 set)
+  const MAX_MKT_ON_CARD = 3;
+  const buyMs = (c.buy.markets||[]).slice(0,MAX_MKT_ON_CARD).map(m=>marketChip(m)).join("")
+    + ((c.buy.markets||[]).length > MAX_MKT_ON_CARD ? `<span class="mk-more">+${(c.buy.markets||[]).length-MAX_MKT_ON_CARD}</span>` : '');
+  const ntMs = c.notify.on ? (c.notify.markets||[]).slice(0,MAX_MKT_ON_CARD).map(m=>marketChip(m)).join("")
+    + ((c.notify.markets||[]).length > MAX_MKT_ON_CARD ? `<span class="mk-more">+${(c.notify.markets||[]).length-MAX_MKT_ON_CARD}</span>` : '') : "";
   const buyDim = c.buy.on ? "" : "dim";
   const notifyDim = c.notify.on ? "" : "dim";
   const buyMkHTML = (c.buy.markets && c.buy.markets.length) ? `<div class="ms">${buyMs}</div>` : `<span class="off">—</span>`;
