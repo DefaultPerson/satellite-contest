@@ -1,0 +1,2492 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1400" />
+<title>Gift Satellite - Velvet Vault v1</title>
+<!--
+================================================================================
+ VELVET VAULT  -  Gift Satellite subscription card, redesign variant 01
+================================================================================
+ Concept.    An editorial auction catalogue in dark mode. Each subscription is
+             treated as a lot in a private collector's vault - a rare artefact
+             with a medallion portrait, tarnished-gold hairlines, ornament
+             diamonds on dividers and JetBrains Mono numerics in champagne.
+             Reference: Hodinkee / Phillips Watches / Christie's catalogue.
+ Fonts.      Fraunces (display, opsz 9..144, w400-700)
+             Hanken Grotesk (body, w300-700)
+             JetBrains Mono (numerics, w400-500)
+ Palette.    #08080b obsidian   #0a0a0d phone    #14141a s1   #1e1e26 s2
+             #6b5a32 tarnished  #c9a961 champagne #e5cc86 brite gold
+             #f0e9d9 cream      #8d8875 dust      #c73b2f wine  #6b8e5a jade
+ Delta.      Medallion preview inside 1px gold rim, Fraunces serif nameplate
+             with optical sizing, JetBrains Mono champagne price block,
+             ornament-diamond hairline dividers. No purple on foreground.
+ Rationale.  Subscription management is slow, deliberate work - users rarely
+             create 45 subscriptions in a rush. Editorial gravitas rewards
+             patience, makes the "SOLD OUT" state hit like a broken seal,
+             and gives Gift Satellite a visual identity no competitor owns.
+================================================================================
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Hanken+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================================
+   TOKENS
+   ==========================================================================*/
+:root{
+  --bg-page:#08080b;
+  --bg-phone:#0a0a0d;
+  --s0:#0e0e12;
+  --s1:#14141a;
+  --s2:#1e1e26;
+  --s3:#262631;
+  --rim:#6b5a32;         /* tarnished gold 0.5px hairlines */
+  --rim-soft:#463b22;    /* deep tarnish for subtle */
+  --gold:#c9a961;        /* champagne */
+  --gold-bright:#e5cc86; /* hover/active */
+  --gold-deep:#8a7238;   /* pressed */
+  --cream:#f0e9d9;       /* primary text */
+  --cream-soft:#d4cdb9;
+  --dust:#8d8875;        /* secondary */
+  --dust-deep:#5c5849;   /* tertiary */
+  --wine:#c73b2f;        /* destructive / alert */
+  --wine-dim:#82251e;
+  --jade:#6b8e5a;        /* success muted */
+  --purple-accent:#7d5ce0; /* one-off brand touch, <=24px */
+
+  --ease:cubic-bezier(0.16, 1, 0.3, 1);
+  --t-slow:600ms;
+  --t-med:360ms;
+
+  --font-serif:"Fraunces",ui-serif,Georgia,serif;
+  --font-body:"Hanken Grotesk",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg-page);color:var(--cream);font-family:var(--font-body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+body{
+  min-height:100vh;
+  padding:56px 48px 80px;
+  background:
+    radial-gradient(ellipse 1400px 900px at 50% -10%, #12120e 0%, transparent 60%),
+    radial-gradient(ellipse 900px 600px at 90% 90%, #0f0d0a 0%, transparent 60%),
+    var(--bg-page);
+}
+
+/* ============================================================================
+   PAGE CHROME (outside the mockups)
+   ==========================================================================*/
+.page-head{
+  max-width:1320px;
+  margin:0 auto 56px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:48px;
+  padding-bottom:28px;
+  border-bottom:0.5px solid var(--rim-soft);
+  position:relative;
+}
+.page-head::after{
+  content:"";
+  position:absolute;
+  left:50%;top:100%;
+  width:8px;height:8px;
+  background:var(--gold);
+  transform:translate(-50%,-50%) rotate(45deg);
+  box-shadow:0 0 0 0.5px var(--bg-page);
+}
+.page-mark{
+  font-family:var(--font-serif);
+  font-variation-settings:"opsz" 144;
+  font-weight:500;
+  font-size:42px;
+  letter-spacing:-0.02em;
+  line-height:0.95;
+  color:var(--cream);
+}
+.page-mark em{
+  font-style:italic;
+  font-weight:400;
+  color:var(--gold);
+}
+.page-mark small{
+  display:block;
+  font-family:var(--font-body);
+  font-size:10px;
+  font-weight:500;
+  letter-spacing:0.32em;
+  text-transform:uppercase;
+  color:var(--dust);
+  margin-top:14px;
+}
+.page-meta{
+  text-align:right;
+  font-family:var(--font-body);
+  font-size:10px;
+  font-weight:400;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--dust);
+  line-height:1.8;
+}
+.page-meta b{color:var(--gold);font-weight:500;}
+.page-meta .palette{
+  display:inline-flex;gap:4px;margin-top:8px;justify-content:flex-end;
+}
+.page-meta .palette i{
+  display:block;width:14px;height:14px;border-radius:50%;
+  border:0.5px solid var(--rim);
+}
+
+/* ============================================================================
+   MOCKUP ROW
+   ==========================================================================*/
+.stage{
+  max-width:1320px;
+  margin:0 auto;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  gap:44px;
+}
+.mockup{
+  position:relative;
+  flex:0 0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+}
+.mockup-label{
+  font-family:var(--font-body);
+  font-size:9px;
+  letter-spacing:0.34em;
+  text-transform:uppercase;
+  color:var(--dust);
+  display:flex;align-items:center;gap:10px;
+}
+.mockup-label::before,.mockup-label::after{
+  content:"";display:block;width:24px;height:0.5px;background:var(--rim);
+}
+.mockup-label b{color:var(--gold);font-weight:500;}
+
+/* phone frame: 393 wide, height grows to fit content
+   (contest mockup - jury needs to see everything, not scroll) */
+.phone{
+  width:411px;
+  background:var(--bg-phone);
+  border-radius:48px;
+  border:1px solid #1c1b18;
+  position:relative;
+  padding:9px;
+  box-shadow:
+    0 1px 0 0 #2b2a24 inset,
+    0 0 0 1px #05040380,
+    0 40px 80px -30px #00000090,
+    0 20px 60px -20px #00000080;
+}
+.phone-inner{
+  width:100%;
+  background:var(--bg-phone);
+  border-radius:40px;
+  overflow:hidden;
+  position:relative;
+  border:0.5px solid #16150f;
+  min-height:852px;
+}
+/* for mockup B (modal) we keep fixed phone height so sheet positions feel real */
+.phone.has-modal .phone-inner{height:1080px;min-height:1080px;}
+.phone-notch{
+  position:absolute;
+  top:12px;left:50%;transform:translateX(-50%);
+  width:118px;height:34px;
+  background:#000;
+  border-radius:18px;
+  z-index:40;
+}
+
+/* status bar mimic */
+.status-bar{
+  height:44px;
+  padding:14px 28px 0;
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--font-mono);
+  font-size:12px;
+  color:var(--cream);
+  font-weight:500;
+}
+.status-bar .right{display:flex;gap:6px;align-items:center;}
+
+/* ============================================================================
+   SCREEN SHELL (inside phone) - static flow so jury sees every card
+   ==========================================================================*/
+.screen{
+  display:flex;
+  flex-direction:column;
+  padding-top:0;
+}
+/* for mockup B we keep absolute layout so modal sheet overlays cleanly */
+.phone.has-modal .screen{
+  position:absolute;
+  inset:44px 0 0 0;
+  overflow:hidden;
+}
+
+/* --- top app header --- */
+.app-header{
+  padding:14px 20px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:0.5px solid var(--rim-soft);
+  background:linear-gradient(180deg,#0c0c10 0%,var(--bg-phone) 100%);
+  position:relative;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+}
+.brand-mark{
+  width:26px;height:26px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#1e1d18 0%,#0c0b07 70%);
+  border:0.5px solid var(--gold);
+  display:grid;place-items:center;
+  position:relative;
+}
+.brand-mark::before{
+  content:"";position:absolute;inset:-2px;border-radius:50%;
+  border:0.5px solid var(--rim);
+  opacity:0.7;
+}
+.brand-mark img{
+  width:100%;height:100%;border-radius:50%;
+  object-fit:cover;display:block;
+  filter:brightness(0.97) saturate(1.08);
+}
+.brand-name{
+  font-family:var(--font-serif);
+  font-variation-settings:"opsz" 48;
+  font-size:14px;
+  font-weight:500;
+  letter-spacing:0.01em;
+  color:var(--cream);
+  line-height:1;
+}
+.brand-name em{font-style:italic;color:var(--gold);font-weight:400;}
+.brand-name small{
+  display:block;
+  font-family:var(--font-body);
+  font-size:7.5px;
+  font-weight:500;
+  letter-spacing:0.28em;
+  text-transform:uppercase;
+  color:var(--dust);
+  margin-top:4px;
+}
+.header-right{
+  display:flex;align-items:center;gap:10px;
+}
+.ton-balance{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 10px;
+  background:var(--s1);
+  border:0.5px solid var(--rim);
+  border-radius:4px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  font-weight:500;
+  color:var(--gold-bright);
+  letter-spacing:0.02em;
+}
+.ton-balance svg{flex-shrink:0;}
+.icon-btn{
+  width:30px;height:30px;
+  display:grid;place-items:center;
+  border:0.5px solid var(--rim);
+  border-radius:4px;
+  background:transparent;
+  color:var(--cream-soft);
+  cursor:pointer;
+  transition:all var(--t-med) var(--ease);
+}
+.icon-btn:hover{border-color:var(--gold);color:var(--gold-bright);}
+
+/* --- toolbar (filter chips + search) --- */
+.toolbar{
+  padding:14px 20px 10px;
+  display:flex;flex-direction:column;gap:10px;
+  background:var(--bg-phone);
+}
+.chip-row{
+  display:flex;align-items:center;gap:8px;
+  overflow-x:auto;
+}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 10px;
+  background:transparent;
+  border:0.5px solid var(--rim);
+  border-radius:4px;
+  font-family:var(--font-body);
+  font-size:10px;
+  font-weight:500;
+  letter-spacing:0.06em;
+  color:var(--cream-soft);
+  white-space:nowrap;
+  cursor:pointer;
+  transition:all var(--t-med) var(--ease);
+}
+.chip:hover{border-color:var(--gold);color:var(--gold-bright);}
+.chip.is-active{
+  border-color:var(--gold);
+  color:var(--gold-bright);
+  background:#1a170c;
+}
+.chip svg{flex-shrink:0;}
+.chip--search{
+  flex:1;
+  color:var(--dust);
+  font-family:var(--font-serif);
+  font-variation-settings:"opsz" 14;
+  font-style:italic;
+  font-size:11px;
+  letter-spacing:0;
+}
+.toolbar-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;
+}
+.sort-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--font-body);
+  font-size:9px;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:0.18em;
+  color:var(--dust);
+  cursor:pointer;
+}
+.sort-btn b{color:var(--gold);font-weight:500;}
+.density-switch{
+  display:inline-flex;
+  border:0.5px solid var(--rim);
+  border-radius:4px;
+  overflow:hidden;
+}
+.density-switch button{
+  width:26px;height:22px;
+  display:grid;place-items:center;
+  background:transparent;
+  border:none;
+  color:var(--dust);
+  cursor:pointer;
+  border-right:0.5px solid var(--rim);
+  transition:all var(--t-med) var(--ease);
+}
+.density-switch button:last-child{border-right:none;}
+.density-switch button.is-on{background:#1a170c;color:var(--gold-bright);}
+
+/* --- order summary bar --- */
+.summary-bar{
+  padding:10px 20px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;
+  position:relative;
+}
+.summary-bar::before,
+.summary-bar::after{
+  content:"";
+  position:absolute;
+  left:20px;right:20px;height:0.5px;
+  background:linear-gradient(90deg,transparent 0%,var(--rim) 20%,var(--rim) 80%,transparent 100%);
+}
+.summary-bar::before{top:0;}
+.summary-bar::after{bottom:0;}
+.summary-text{
+  font-family:var(--font-body);
+  font-size:9px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--dust);
+}
+.summary-text b{
+  font-family:var(--font-mono);
+  color:var(--gold);
+  font-weight:500;
+  letter-spacing:0.02em;
+  font-size:10px;
+  text-transform:none;
+}
+.summary-diamond{
+  width:8px;height:8px;
+  background:var(--gold);
+  transform:rotate(45deg);
+  display:inline-block;
+  margin:0 6px;
+  vertical-align:middle;
+  opacity:0.6;
+}
+
+/* --- CTA bar (Слот / Добавить) --- */
+.cta-bar{
+  display:flex;gap:10px;
+  padding:12px 20px 16px;
+}
+.btn{
+  flex:1;
+  height:40px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:transparent;
+  border:0.5px solid var(--gold);
+  border-radius:4px;
+  font-family:var(--font-body);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--gold-bright);
+  cursor:pointer;
+  transition:all var(--t-slow) var(--ease);
+  position:relative;
+}
+.btn svg{flex-shrink:0;}
+.btn.btn-primary{
+  background:linear-gradient(180deg,#1a1509 0%,#0e0a04 100%);
+  border-color:var(--gold-bright);
+}
+.btn:hover{background:#1a170c;color:var(--cream);}
+.btn .tiny{
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--gold-bright);
+  letter-spacing:0;
+}
+
+/* --- cards region (natural flow so jury sees every state) --- */
+.cards-scroll{
+  padding:4px 20px 18px;
+  position:relative;
+}
+.cards-grid{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  padding-top:6px;
+}
+/* for bulk mockup we reserve space above for fixed header */
+.cards-scroll.has-bulk-head{padding-top:76px;}
+
+/* ============================================================================
+   THE CARD  (horizontal editorial layout)
+   ==========================================================================*/
+.card{
+  position:relative;
+  background:linear-gradient(180deg,#111015 0%,#0b0a0e 100%);
+  border:0.5px solid var(--rim);
+  border-radius:6px;
+  padding:14px 14px 12px;
+  display:grid;
+  grid-template-columns:86px 1fr;
+  gap:14px;
+  transition:all var(--t-slow) var(--ease);
+  overflow:hidden;
+}
+.card::before{
+  /* faint inner gold luminance */
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse 200px 140px at 18% 28%,#1a160a 0%,transparent 70%);
+  pointer-events:none;
+  opacity:0.7;
+}
+.card:hover{
+  border-color:var(--gold);
+  transform:translateY(-1px);
+}
+.card-ornament{
+  position:absolute;
+  top:0;left:14px;right:14px;
+  height:0.5px;
+  background:linear-gradient(90deg,transparent,var(--rim) 15%,var(--rim) 85%,transparent);
+}
+.card-ornament::after{
+  content:"";
+  position:absolute;
+  left:50%;top:0;
+  width:6px;height:6px;
+  background:var(--gold);
+  transform:translate(-50%,-50%) rotate(45deg);
+  opacity:0.6;
+}
+
+/* --- medallion --- */
+.medallion-wrap{
+  position:relative;
+  width:86px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.medallion{
+  width:86px;height:86px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,var(--s2) 0%,#0a0910 70%);
+  border:1px solid var(--gold);
+  position:relative;
+  overflow:hidden;
+  box-shadow:
+    0 0 0 0.5px #0005 inset,
+    0 0 0 3px #0c0b07,
+    0 0 0 3.5px var(--rim-soft),
+    0 8px 24px -12px #000;
+}
+.medallion::before{
+  /* inner rim */
+  content:"";position:absolute;inset:3px;border-radius:50%;
+  border:0.5px solid var(--rim);
+  z-index:2;
+  pointer-events:none;
+}
+.medallion::after{
+  /* vignette */
+  content:"";position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 50% 120%,#000 0%,transparent 60%);
+  z-index:3;
+  pointer-events:none;
+}
+.medallion .back{
+  position:absolute;inset:0;border-radius:50%;z-index:1;
+}
+.medallion .fig{
+  position:absolute;inset:0;display:grid;place-items:center;
+  z-index:2;
+}
+.medallion .fig img{
+  width:64px;height:64px;object-fit:contain;
+  filter:drop-shadow(0 4px 10px #000a);
+}
+.medallion .fig.three img{width:36px;height:36px;}
+.medallion .fig.three{
+  display:flex;align-items:center;justify-content:center;gap:-10px;
+}
+.medallion .fig.three img{
+  margin:0 -8px;
+}
+/* multi-background split inside medallion */
+.medallion .split{
+  position:absolute;inset:0;border-radius:50%;z-index:1;
+  display:grid;
+}
+.medallion .split.s2{grid-template-columns:1fr 1fr;}
+.medallion .split.s3{grid-template-columns:1fr 1fr 1fr;}
+.medallion .split.s4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+.medallion .split > i{display:block;}
+.medallion .custom{
+  position:absolute;inset:0;border-radius:50%;z-index:1;
+  background:
+    conic-gradient(from 45deg at 50% 50%,
+      #3e2a4a 0deg,#2a3a55 60deg,#1f4a4a 120deg,
+      #4a3a20 180deg,#553020 240deg,#402040 300deg,#3e2a4a 360deg);
+  filter:saturate(0.55) brightness(0.55);
+}
+
+/* medallion stamp label under portrait */
+.lot-stamp{
+  font-family:var(--font-body);
+  font-size:7.5px;
+  font-weight:600;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--gold);
+  display:flex;align-items:center;gap:6px;
+}
+.lot-stamp i{
+  display:block;width:4px;height:4px;
+  background:var(--gold);
+  transform:rotate(45deg);
+  opacity:0.7;
+}
+
+/* --- card body --- */
+.card-body{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+  position:relative;
+  z-index:1;
+}
+.card-kicker{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;
+}
+.kicker{
+  font-family:var(--font-body);
+  font-size:7.5px;
+  font-weight:600;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--dust);
+  display:flex;align-items:center;gap:6px;
+}
+.kicker b{color:var(--gold);font-weight:600;}
+.kicker::before{
+  content:"◂";color:var(--rim);font-size:9px;
+}
+.kicker::after{
+  content:"▸";color:var(--rim);font-size:9px;
+}
+.card-info-btn{
+  width:22px;height:22px;
+  border:0.5px solid var(--rim);
+  border-radius:50%;
+  background:transparent;
+  color:var(--dust);
+  display:grid;place-items:center;
+  cursor:pointer;
+  font-family:var(--font-serif);
+  font-style:italic;
+  font-size:11px;
+  font-weight:500;
+  font-variation-settings:"opsz" 14;
+  padding-top:1px;
+  transition:all var(--t-med) var(--ease);
+}
+.card-info-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+.card-title{
+  font-family:var(--font-serif);
+  font-variation-settings:"opsz" 60;
+  font-size:17px;
+  font-weight:500;
+  line-height:1.1;
+  letter-spacing:-0.012em;
+  color:var(--cream);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  margin-top:-2px;
+}
+.card-title em{
+  font-style:italic;
+  color:var(--gold-bright);
+  font-weight:400;
+}
+
+/* meta list (collection / models / backgrounds / patterns) */
+.card-meta{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding-top:6px;
+  position:relative;
+}
+.card-meta::before{
+  content:"";
+  position:absolute;top:0;left:0;right:0;height:0.5px;
+  background:linear-gradient(90deg,var(--rim) 0%,var(--rim) 30%,transparent 100%);
+}
+.meta-row{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--font-body);
+  font-size:10px;
+  color:var(--cream-soft);
+  font-weight:400;
+  letter-spacing:0.01em;
+  line-height:1.2;
+}
+.meta-row .lbl{
+  color:var(--dust);
+  font-size:8.5px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  font-weight:500;
+  flex-shrink:0;
+  width:38px;
+}
+.meta-row b{color:var(--cream);font-weight:500;}
+.meta-row em{color:var(--dust);font-style:italic;font-family:var(--font-serif);font-variation-settings:"opsz" 14;}
+
+/* action row : price / markets / switch */
+.card-action{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:10px;
+  padding-top:10px;
+  margin-top:4px;
+  position:relative;
+}
+.card-action::before{
+  content:"";
+  position:absolute;top:0;left:0;right:0;height:0.5px;
+  background:linear-gradient(90deg,var(--rim) 0%,var(--rim) 85%,transparent 100%);
+}
+.card-action::after{
+  content:"";
+  position:absolute;top:0;left:50%;
+  width:5px;height:5px;
+  background:var(--gold);
+  transform:translate(-50%,-50%) rotate(45deg);
+  opacity:0.5;
+}
+.price-block{
+  display:flex;flex-direction:column;gap:2px;
+  min-width:0;
+  flex:1;
+}
+.price-lbl{
+  font-family:var(--font-body);
+  font-size:7.5px;
+  font-weight:600;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--dust);
+  display:flex;align-items:center;gap:4px;
+}
+.price-lbl svg{flex-shrink:0;}
+.price{
+  font-family:var(--font-mono);
+  font-size:15px;
+  font-weight:500;
+  letter-spacing:-0.01em;
+  color:var(--gold-bright);
+  display:flex;align-items:center;gap:5px;
+  line-height:1;
+}
+.price .dec{font-size:10px;color:var(--gold);opacity:0.8;}
+.price svg{flex-shrink:0;margin-bottom:1px;}
+.price .qty{
+  font-family:var(--font-body);
+  font-size:9px;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--dust);
+  font-weight:500;
+  margin-left:4px;
+}
+
+/* market pills row */
+.markets{
+  display:flex;align-items:center;gap:3px;
+  margin-top:4px;
+}
+.mkt{
+  width:15px;height:15px;
+  border-radius:50%;
+  display:grid;place-items:center;
+  font-family:var(--font-mono);
+  font-size:7px;
+  font-weight:500;
+  color:#0a0a0d;
+  border:0.5px solid #00000040;
+}
+.mkt-prt{background:linear-gradient(135deg,#e3c36a,#a28235);color:#1a1305;}
+.mkt-frg{background:linear-gradient(135deg,#7f99b8,#38506f);color:#f0e9d9;}
+.mkt-mrk{background:linear-gradient(135deg,#c3b49a,#6b5f4a);color:#1a1305;}
+.mkt-ton{background:linear-gradient(135deg,#89c3e8,#2e6694);color:#f0e9d9;}
+.mkt-gtg{background:linear-gradient(135deg,#c68a5a,#704020);color:#f0e9d9;}
+
+/* inline notification indicator beside markets */
+.notif-inline{
+  display:inline-flex;align-items:center;gap:4px;
+  font-family:var(--font-body);
+  font-size:8px;
+  font-weight:500;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--dust);
+  margin-left:6px;
+  padding-left:6px;
+  border-left:0.5px solid var(--rim);
+}
+.notif-inline svg{color:var(--gold);opacity:0.7;}
+
+/* switch */
+.toggle{
+  width:34px;height:19px;
+  border-radius:10px;
+  background:#0a0a0e;
+  border:0.5px solid var(--rim);
+  position:relative;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:all var(--t-slow) var(--ease);
+}
+.toggle::after{
+  content:"";
+  position:absolute;
+  top:1.5px;left:2px;
+  width:14px;height:14px;
+  border-radius:50%;
+  background:var(--dust);
+  border:0.5px solid var(--rim);
+  transition:all var(--t-slow) var(--ease);
+}
+.toggle.is-on{
+  background:linear-gradient(180deg,#2a2110 0%,#140f06 100%);
+  border-color:var(--gold);
+}
+.toggle.is-on::after{
+  left:17px;
+  background:linear-gradient(180deg,var(--gold-bright) 0%,var(--gold) 100%);
+  border-color:var(--gold-bright);
+  box-shadow:0 0 8px -2px var(--gold);
+}
+
+/* ========== CARD STATES ==========*/
+
+/* state: purchase OFF  --> dimmed */
+.card.is-off{
+  opacity:0.42;
+  filter:saturate(0.4);
+}
+.card.is-off .medallion{border-color:var(--dust-deep);}
+.card.is-off::before{opacity:0.3;}
+
+/* state: sold out 0/3  --> "broken seal" */
+.card.is-empty{
+  border-color:var(--wine);
+  background:
+    radial-gradient(ellipse 300px 200px at 50% 30%,#2a0a08 0%,#110607 60%,#0b0506 100%);
+}
+.card.is-empty::before{
+  background:radial-gradient(ellipse 200px 140px at 50% 30%,#4a0a080f 0%,transparent 70%);
+}
+.card.is-empty .medallion{
+  border-color:var(--wine);
+  box-shadow:
+    0 0 0 0.5px #0005 inset,
+    0 0 0 3px #0c0406,
+    0 0 0 3.5px #3a0f0c,
+    0 0 20px -4px #c73b2f50;
+}
+.card.is-empty .medallion::before{border-color:var(--wine-dim);}
+.card.is-empty .card-ornament{
+  background:linear-gradient(90deg,transparent,#8a2520 15%,#8a2520 85%,transparent);
+}
+.card.is-empty .card-ornament::after{background:var(--wine);}
+.card.is-empty .card-meta::before,
+.card.is-empty .card-action::before{
+  background:linear-gradient(90deg,#8a2520 0%,#8a2520 85%,transparent 100%);
+}
+.card.is-empty .card-action::after{background:var(--wine);}
+.card.is-empty .lot-stamp{color:var(--wine);}
+.card.is-empty .lot-stamp i{background:var(--wine);}
+.card.is-empty .kicker b{color:var(--wine);}
+.card.is-empty .price{color:var(--wine);}
+.card.is-empty .price .dec{color:var(--wine);}
+.card.is-empty .toggle{border-color:var(--wine);}
+.card.is-empty .toggle.is-on{
+  background:linear-gradient(180deg,#320c09 0%,#110506 100%);
+  border-color:var(--wine);
+}
+.card.is-empty .toggle.is-on::after{
+  background:linear-gradient(180deg,#e05848 0%,var(--wine) 100%);
+  border-color:var(--wine);
+  box-shadow:0 0 8px -2px var(--wine);
+}
+.ribbon-soldout{
+  position:absolute;
+  top:48px;left:-8px;
+  transform:rotate(-8deg);
+  background:var(--wine);
+  color:#fceee8;
+  font-family:var(--font-body);
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:0.24em;
+  padding:3px 10px 2px 12px;
+  border:0.5px solid #e05848;
+  box-shadow:
+    0 2px 8px -2px #000,
+    0 0 0 0.5px #00000060 inset;
+  z-index:5;
+  font-style:normal;
+}
+.ribbon-soldout::before{
+  content:"";
+  position:absolute;
+  left:0;top:100%;
+  border:4px solid transparent;
+  border-top:4px solid #66160f;
+  border-right:4px solid #66160f;
+}
+
+/* badge: purchase off tag */
+.off-tag{
+  position:absolute;
+  top:10px;right:12px;
+  font-family:var(--font-body);
+  font-size:7px;
+  font-weight:700;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--dust);
+  padding:3px 6px;
+  border:0.5px solid var(--rim);
+  border-radius:2px;
+  background:#0a0a0e;
+  z-index:3;
+}
+
+/* notifications off indicator - bell silence */
+.bell-off{
+  color:var(--dust-deep);
+}
+.bell-off-txt{color:var(--dust);font-style:italic;font-family:var(--font-serif);font-variation-settings:"opsz" 14;font-size:9px;}
+
+/* ============================================================================
+   BOTTOM NAV BAR
+   ==========================================================================*/
+.tab-bar{
+  height:64px;
+  border-top:0.5px solid var(--rim-soft);
+  background:linear-gradient(180deg,#0a0a0d 0%,#050506 100%);
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  padding:8px 0 10px;
+  position:relative;
+}
+.tab-bar::before{
+  content:"";
+  position:absolute;
+  top:0;left:50%;
+  width:7px;height:7px;
+  background:var(--gold);
+  transform:translate(-50%,-50%) rotate(45deg);
+}
+.tab{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  color:var(--dust-deep);
+  font-family:var(--font-body);
+  font-size:8px;
+  font-weight:500;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all var(--t-med) var(--ease);
+  position:relative;
+}
+.tab.is-active{color:var(--gold);}
+.tab.is-active::after{
+  content:"";
+  position:absolute;
+  bottom:-10px;left:50%;
+  width:3px;height:3px;
+  background:var(--gold);
+  transform:translateX(-50%) rotate(45deg);
+}
+
+/* ============================================================================
+   MOCKUP B - OPEN MODAL (bottom sheet)
+   ==========================================================================*/
+.screen-dim{
+  position:absolute;
+  inset:44px 0 0 0;
+  background:linear-gradient(180deg,#000c 0%,#000e 100%);
+  backdrop-filter:blur(2px);
+  z-index:50;
+}
+/* show a blurred shell behind the modal */
+.modal-shell{
+  position:absolute;
+  inset:44px 0 0 0;
+  overflow:hidden;
+  filter:blur(6px) brightness(0.4);
+  padding:60px 20px 0;
+  display:flex;flex-direction:column;gap:16px;
+}
+.blur-mini{
+  height:140px;
+  animation:none;
+  background:linear-gradient(180deg,#111015 0%,#0b0a0e 100%);
+  border-radius:6px;
+  border:0.5px solid var(--rim);
+  display:grid;
+  grid-template-columns:86px 1fr;
+  gap:14px;
+  padding:14px;
+  align-items:center;
+}
+.blur-mini::before{
+  content:"";
+  width:86px;height:86px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#c9a961 0%,#14120a 70%);
+  border:1px solid var(--gold);
+}
+.blur-mini::after{
+  content:"";
+  height:12px;background:#33302a;border-radius:2px;
+  box-shadow:0 22px 0 0 #262421,0 44px 0 0 #1c1a15;
+}
+.modal-sheet{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:92%;
+  background:linear-gradient(180deg,#14141a 0%,#0b0b10 100%);
+  border-top:1px solid var(--gold);
+  border-radius:18px 18px 0 0;
+  z-index:100;
+  display:flex;flex-direction:column;
+  box-shadow:0 -24px 60px -12px #000;
+}
+.modal-sheet::before{
+  content:"";
+  position:absolute;top:-1px;left:24px;right:24px;height:0.5px;
+  background:linear-gradient(90deg,transparent,var(--gold) 20%,var(--gold) 80%,transparent);
+}
+.modal-handle{
+  width:34px;height:3px;
+  background:var(--gold);
+  border-radius:2px;
+  margin:10px auto 4px;
+  opacity:0.6;
+}
+.modal-head{
+  padding:14px 22px 16px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  border-bottom:0.5px solid var(--rim);
+  position:relative;
+}
+.modal-head::after{
+  content:"";position:absolute;bottom:0;left:50%;
+  width:7px;height:7px;background:var(--gold);
+  transform:translate(-50%,50%) rotate(45deg);
+}
+.modal-head-l{flex:1;min-width:0;}
+.modal-kicker{
+  font-family:var(--font-body);
+  font-size:8px;font-weight:600;
+  letter-spacing:0.32em;text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:6px;
+  display:flex;align-items:center;gap:8px;
+}
+.modal-kicker::before,
+.modal-kicker::after{
+  content:"";display:block;width:14px;height:0.5px;background:var(--rim);
+}
+.modal-title{
+  font-family:var(--font-serif);
+  font-variation-settings:"opsz" 144;
+  font-size:24px;
+  font-weight:500;
+  letter-spacing:-0.02em;
+  line-height:1.05;
+  color:var(--cream);
+}
+.modal-title em{font-style:italic;color:var(--gold-bright);font-weight:400;}
+.modal-sub{
+  font-family:var(--font-body);
+  font-size:9px;
+  font-weight:500;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--dust);
+  margin-top:6px;
+}
+.modal-close{
+  width:28px;height:28px;
+  border:0.5px solid var(--rim);
+  border-radius:50%;
+  background:transparent;color:var(--cream-soft);
+  display:grid;place-items:center;cursor:pointer;
+  font-family:var(--font-serif);font-size:14px;
+  transition:all var(--t-med) var(--ease);
+}
+.modal-close:hover{border-color:var(--gold);color:var(--gold);}
+
+.modal-scroll{
+  flex:1;overflow:hidden;
+  padding:16px 22px 16px;
+  position:relative;
+}
+.modal-sec{
+  padding:14px 0 12px;
+  border-top:0.5px solid var(--rim);
+  position:relative;
+}
+.modal-sec:first-child{border-top:none;padding-top:0;}
+.modal-sec::before{
+  content:"";
+  position:absolute;top:0;left:50%;
+  width:5px;height:5px;background:var(--gold);
+  transform:translate(-50%,-50%) rotate(45deg);
+  opacity:0.5;
+}
+.modal-sec:first-child::before{display:none;}
+.sec-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:8px;
+}
+.sec-label{
+  font-family:var(--font-body);
+  font-size:9px;font-weight:600;
+  letter-spacing:0.28em;text-transform:uppercase;
+  color:var(--dust);
+  display:flex;align-items:center;gap:8px;
+}
+.sec-label b{color:var(--gold);font-weight:600;}
+.sec-label::before{
+  content:"";display:block;width:3px;height:3px;
+  background:var(--gold);transform:rotate(45deg);
+}
+.sec-num{
+  font-family:var(--font-mono);
+  font-size:10px;
+  color:var(--gold-bright);
+  font-weight:500;
+}
+
+/* chip list inside modal */
+.chip-list{
+  display:flex;flex-wrap:wrap;gap:5px;
+}
+.mchip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 8px 4px 5px;
+  background:var(--s1);
+  border:0.5px solid var(--rim);
+  border-radius:3px;
+  font-family:var(--font-body);
+  font-size:9.5px;
+  color:var(--cream-soft);
+  font-weight:500;
+  letter-spacing:0.01em;
+}
+.mchip .dot{
+  width:10px;height:10px;
+  border-radius:50%;
+  border:0.5px solid #0003;
+  flex-shrink:0;
+}
+.mchip .ico{
+  width:14px;height:14px;
+  border-radius:50%;
+  background:var(--s2);
+  display:grid;place-items:center;
+  border:0.5px solid var(--rim);
+  flex-shrink:0;
+  overflow:hidden;
+}
+.mchip .ico img{width:12px;height:12px;object-fit:contain;}
+
+/* pattern / number line */
+.plain-val{
+  font-family:var(--font-serif);
+  font-variation-settings:"opsz" 14;
+  font-style:italic;
+  font-size:12px;
+  color:var(--cream);
+  font-weight:400;
+}
+.num-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--gold-bright);
+  background:#16140c;
+  border:0.5px solid var(--rim);
+  border-radius:3px;
+  padding:3px 7px;
+  font-weight:500;
+}
+
+/* purchase / notif block */
+.txn-block{
+  background:linear-gradient(180deg,#16140c 0%,#0e0c06 100%);
+  border:0.5px solid var(--rim);
+  border-radius:5px;
+  padding:12px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;
+}
+.txn-block + .txn-block{margin-top:8px;}
+.txn-head{
+  display:flex;flex-direction:column;gap:4px;
+}
+.txn-kicker{
+  font-family:var(--font-body);
+  font-size:8px;font-weight:600;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--dust);
+}
+.txn-price{
+  font-family:var(--font-mono);
+  font-size:18px;font-weight:500;
+  color:var(--gold-bright);
+  letter-spacing:-0.01em;
+  display:flex;align-items:center;gap:6px;
+}
+.txn-price svg{margin-bottom:1px;}
+.txn-markets{
+  display:flex;align-items:center;gap:4px;
+  margin-top:2px;
+}
+.txn-markets .mkt{width:17px;height:17px;font-size:8px;}
+
+/* modal action bar */
+.modal-actions{
+  padding:12px 22px 18px;
+  display:flex;gap:10px;
+  border-top:0.5px solid var(--rim);
+  background:linear-gradient(180deg,#0d0d12 0%,#050506 100%);
+}
+.btn-ghost{
+  flex:1;height:42px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:transparent;
+  border:0.5px solid var(--rim);
+  border-radius:4px;
+  font-family:var(--font-body);
+  font-size:9px;
+  font-weight:600;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--cream-soft);
+  cursor:pointer;
+}
+.btn-ghost.edit{border-color:var(--gold);color:var(--gold-bright);}
+.btn-ghost.del{border-color:var(--wine);color:#e89388;}
+
+/* ============================================================================
+   MOCKUP C  -  Bulk select mode
+   ==========================================================================*/
+.bulk-header{
+  background:linear-gradient(180deg,#18150a 0%,#0c0a06 100%);
+  border-bottom:0.5px solid var(--gold);
+  padding:12px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;
+}
+.bulk-header::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:0.5px;
+  background:linear-gradient(90deg,transparent,var(--gold) 20%,var(--gold) 80%,transparent);
+}
+.bulk-count{
+  font-family:var(--font-serif);
+  font-variation-settings:"opsz" 48;
+  font-size:14px;
+  color:var(--cream);
+  font-weight:500;
+  letter-spacing:-0.01em;
+}
+.bulk-count b{
+  font-family:var(--font-mono);
+  color:var(--gold-bright);
+  font-weight:500;
+  letter-spacing:0;
+}
+.bulk-count em{
+  font-family:var(--font-body);
+  font-size:8px;
+  font-weight:500;
+  letter-spacing:0.24em;
+  text-transform:uppercase;
+  color:var(--dust);
+  font-style:normal;
+  display:block;
+  margin-top:2px;
+}
+.bulk-cancel{
+  font-family:var(--font-body);
+  font-size:9px;
+  font-weight:600;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--gold);
+  background:transparent;
+  border:none;
+  cursor:pointer;
+  padding:6px 8px;
+}
+
+.card.is-bulk .card-info-btn{display:none;}
+.card.is-bulk .bulk-check{
+  position:absolute;
+  top:10px;right:12px;
+  width:22px;height:22px;
+  border:0.5px solid var(--rim);
+  border-radius:3px;
+  background:#0a0a0e;
+  display:grid;place-items:center;
+  z-index:10;
+  color:transparent;
+  transition:all var(--t-med) var(--ease);
+}
+.card.is-bulk.is-sel{
+  border-color:var(--gold);
+  background:linear-gradient(180deg,#1a170c 0%,#0c0a05 100%);
+}
+.card.is-bulk.is-sel .bulk-check{
+  background:linear-gradient(180deg,var(--gold-bright) 0%,var(--gold) 100%);
+  border-color:var(--gold-bright);
+  color:#0a0704;
+}
+
+.bulk-bar{
+  background:linear-gradient(180deg,#100f0a 0%,#060503 100%);
+  border-top:0.5px solid var(--gold);
+  padding:12px 14px 14px;
+  display:flex;align-items:stretch;gap:8px;
+  position:relative;
+}
+.bulk-bar::before{
+  content:"";position:absolute;top:-1px;left:24px;right:24px;height:0.5px;
+  background:linear-gradient(90deg,transparent,var(--gold) 20%,var(--gold) 80%,transparent);
+}
+.bulk-btn{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  background:transparent;
+  border:0.5px solid var(--rim);
+  border-radius:4px;
+  padding:8px 4px;
+  font-family:var(--font-body);
+  font-size:7.5px;
+  font-weight:600;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--cream-soft);
+  cursor:pointer;
+  transition:all var(--t-med) var(--ease);
+}
+.bulk-btn svg{flex-shrink:0;}
+.bulk-btn:hover{border-color:var(--gold);color:var(--gold-bright);}
+.bulk-btn.danger{color:#e89388;border-color:#7a2a22;}
+.bulk-btn.danger:hover{border-color:var(--wine);color:#f2b0a6;}
+
+/* ============================================================================
+   UTILITY
+   ==========================================================================*/
+.row{display:flex;align-items:center;gap:6px;}
+.spacer{flex:1;}
+svg{display:block;}
+.stroke{stroke:currentColor;fill:none;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;}
+.fill{fill:currentColor;}
+
+/* small breathing animation for medallions */
+@keyframes breath{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.015);}
+}
+.medallion .fig{animation:breath 4.2s ease-in-out infinite;}
+
+/* stagger hairlines on card entry */
+@keyframes rise{
+  0%{opacity:0;transform:translateY(4px);}
+  100%{opacity:1;transform:translateY(0);}
+}
+.card{animation:rise 700ms var(--ease) both;}
+.card:nth-child(1){animation-delay:40ms;}
+.card:nth-child(2){animation-delay:120ms;}
+.card:nth-child(3){animation-delay:200ms;}
+.card:nth-child(4){animation-delay:280ms;}
+.card:nth-child(5){animation-delay:360ms;}
+.card:nth-child(6){animation-delay:440ms;}
+.card:nth-child(7){animation-delay:520ms;}
+.card:nth-child(8){animation-delay:600ms;}
+.card:nth-child(9){animation-delay:680ms;}
+
+/* ============================================================================
+   RESPONSIVE (page-level only - phones are fixed 393px)
+   ==========================================================================*/
+@media (max-width:1340px){
+  .stage{flex-wrap:wrap;gap:56px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ==========================================================================
+     PAGE HEAD
+     =========================================================================-->
+<header class="page-head">
+  <div>
+    <div class="page-mark"><em>Velvet</em> Vault<small>Gift Satellite - subscription card redesign  -  variant 01</small></div>
+  </div>
+  <div class="page-meta">
+    <div>Edition of <b>01</b> / Three <b>mockups</b></div>
+    <div>Catalogue no. <b>GS-01-2026</b></div>
+    <div class="palette">
+      <i style="background:#08080b"></i>
+      <i style="background:#14141a"></i>
+      <i style="background:#1e1e26"></i>
+      <i style="background:#6b5a32"></i>
+      <i style="background:#c9a961"></i>
+      <i style="background:#e5cc86"></i>
+      <i style="background:#f0e9d9"></i>
+      <i style="background:#c73b2f"></i>
+    </div>
+  </div>
+</header>
+
+<!-- ==========================================================================
+     MOCKUP STAGE
+     =========================================================================-->
+<main class="stage">
+
+<!-- ========= REUSABLE SVG SPRITE ========== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- TON diamond -->
+    <symbol id="ton" viewBox="0 0 16 16">
+      <path d="M2.2 5.6 L8 14 L13.8 5.6 L8 2 Z M8 2 L8 14 M2.2 5.6 L13.8 5.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ton-fill" viewBox="0 0 16 16">
+      <path d="M2.2 5.6 L8 14 L13.8 5.6 L8 2 Z" fill="currentColor" opacity="0.2"/>
+      <path d="M2.2 5.6 L8 14 L13.8 5.6 L8 2 Z M8 2 L8 14 M2.2 5.6 L13.8 5.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+    </symbol>
+    <!-- bell -->
+    <symbol id="bell" viewBox="0 0 16 16">
+      <path d="M3.5 11.5 h9 M5 11.5 v-4 a3 3 0 0 1 6 0 v4 M7 13.5 a1 1 0 0 0 2 0" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="bell-off" viewBox="0 0 16 16">
+      <path d="M3.5 11.5 h9 M5 11.5 v-4 a3 3 0 0 1 6 0 v4 M7 13.5 a1 1 0 0 0 2 0 M2 2 l12 12" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <!-- cart / coin -->
+    <symbol id="cart" viewBox="0 0 16 16">
+      <path d="M2 3 h2 l1.5 7 h7 l1.5 -5 h-9.2 M6 13.5 a1 1 0 1 0 2 0 a1 1 0 1 0 -2 0 M11 13.5 a1 1 0 1 0 2 0 a1 1 0 1 0 -2 0" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <!-- cog -->
+    <symbol id="cog" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="2.2" fill="none" stroke="currentColor" stroke-width="1.1"/>
+      <path d="M8 1.5 v2 M8 12.5 v2 M1.5 8 h2 M12.5 8 h2 M3.2 3.2 l1.4 1.4 M11.4 11.4 l1.4 1.4 M3.2 12.8 l1.4 -1.4 M11.4 4.6 l1.4 -1.4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+    </symbol>
+    <!-- info -->
+    <symbol id="info" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.1"/>
+      <path d="M8 7 v4 M8 5.2 v0.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    </symbol>
+    <!-- chevrons -->
+    <symbol id="chev" viewBox="0 0 10 10"><path d="M2 3.5 L5 6.5 L8 3.5" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <!-- search -->
+    <symbol id="search" viewBox="0 0 16 16">
+      <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.1"/>
+      <path d="M10.5 10.5 L14 14" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+    </symbol>
+    <!-- plus -->
+    <symbol id="plus" viewBox="0 0 16 16"><path d="M8 3 v10 M3 8 h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+    <!-- sort -->
+    <symbol id="sort" viewBox="0 0 16 16"><path d="M3 4 h10 M5 8 h6 M7 12 h2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></symbol>
+    <!-- grid / list density -->
+    <symbol id="grid" viewBox="0 0 16 16"><path d="M3 3 h4 v4 h-4z M9 3 h4 v4 h-4z M3 9 h4 v4 h-4z M9 9 h4 v4 h-4z" fill="none" stroke="currentColor" stroke-width="1"/></symbol>
+    <symbol id="list" viewBox="0 0 16 16"><path d="M3 4 h10 M3 8 h10 M3 12 h10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></symbol>
+    <symbol id="grid2" viewBox="0 0 16 16"><path d="M3 3 h10 v4 h-10z M3 9 h10 v4 h-10z" fill="none" stroke="currentColor" stroke-width="1"/></symbol>
+    <!-- star / trophy (tabs) -->
+    <symbol id="trophy" viewBox="0 0 20 20"><path d="M6 4 h8 v3 a4 4 0 0 1 -8 0 z M4 5 h2 M14 5 h2 M10 11 v3 M7 14 h6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="subs" viewBox="0 0 20 20"><path d="M4 5 h12 v10 h-12z M4 8 h12 M7 11 h6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="stat" viewBox="0 0 20 20"><path d="M4 15 v-4 M8 15 v-7 M12 15 v-10 M16 15 v-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+    <symbol id="prof" viewBox="0 0 20 20"><circle cx="10" cy="7.5" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 16 a6 6 0 0 1 11 0" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+    <!-- check -->
+    <symbol id="check" viewBox="0 0 16 16"><path d="M3.5 8.5 L6.5 11.5 L13 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <!-- trash -->
+    <symbol id="trash" viewBox="0 0 16 16"><path d="M3 5 h10 M5.5 5 v-1.5 h5 v1.5 M4.5 5 v8 h7 v-8 M7 8 v4 M9 8 v4" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <!-- power -->
+    <symbol id="power" viewBox="0 0 16 16"><path d="M8 3 v5 M4.5 5 a5 5 0 1 0 7 0" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+    <!-- copy/dup -->
+    <symbol id="dup" viewBox="0 0 16 16"><path d="M5 5 h7 v8 h-7z M3 3 h7 v2 M3 3 v8 h2" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <!-- x -->
+    <symbol id="x" viewBox="0 0 16 16"><path d="M4 4 L12 12 M12 4 L4 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+    <!-- arrow -->
+    <symbol id="arrow-up" viewBox="0 0 16 16"><path d="M8 3 v10 M4 7 l4 -4 l4 4" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<!-- ==========================================================================
+     MOCKUP A  -  main screen, 9 cards, all states
+     =========================================================================-->
+<div class="mockup">
+  <div class="mockup-label">Mockup <b>A</b> / Главный экран / Подписки</div>
+  <div class="phone">
+    <div class="phone-notch"></div>
+    <div class="phone-inner">
+      <div class="status-bar">
+        <span>9:41</span>
+        <div class="right">
+          <svg width="16" height="10" viewBox="0 0 16 10"><path d="M1 6 a7 7 0 0 1 14 0 M3.5 8 a4.5 4.5 0 0 1 9 0 M6 9.5 a2 2 0 0 1 4 0" fill="none" stroke="#f0e9d9" stroke-width="1"/></svg>
+          <svg width="14" height="10" viewBox="0 0 14 10"><rect x="1" y="1" width="10" height="8" rx="1.5" fill="none" stroke="#f0e9d9"/><rect x="2.5" y="2.5" width="7" height="5" fill="#f0e9d9"/><rect x="12" y="3.5" width="1.5" height="3" fill="#f0e9d9"/></svg>
+        </div>
+      </div>
+
+      <div class="screen">
+
+        <!-- ------- APP HEADER ------- -->
+        <div class="app-header">
+          <div class="brand">
+            <div class="brand-mark">
+              <img src="../../../assets/logo.jpg" alt="Gift Satellite">
+            </div>
+            <div class="brand-name">
+              <span><em>Gift</em> Satellite</span>
+              <small>Private Vault</small>
+            </div>
+          </div>
+          <div class="header-right">
+            <div class="ton-balance">
+              <svg width="10" height="10"><use href="#ton-fill"/></svg>
+              1.92
+            </div>
+            <button class="icon-btn" aria-label="settings">
+              <svg width="14" height="14"><use href="#cog"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ------- TOOLBAR ------- -->
+        <div class="toolbar">
+          <div class="chip-row">
+            <button class="chip is-active">
+              Коллекция
+              <svg width="8" height="8"><use href="#chev"/></svg>
+            </button>
+            <button class="chip">
+              Фон
+              <svg width="8" height="8"><use href="#chev"/></svg>
+            </button>
+            <button class="chip chip--search">
+              <svg width="10" height="10"><use href="#search"/></svg>
+              Поиск по промпту...
+            </button>
+          </div>
+          <div class="toolbar-row">
+            <button class="sort-btn">
+              <svg width="10" height="10"><use href="#sort"/></svg>
+              Сортировка: <b>Сначала новые</b>
+            </button>
+            <div class="density-switch">
+              <button aria-label="list"><svg width="12" height="12"><use href="#list"/></svg></button>
+              <button class="is-on" aria-label="grid"><svg width="12" height="12"><use href="#grid"/></svg></button>
+              <button aria-label="grid2"><svg width="12" height="12"><use href="#grid2"/></svg></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ------- SUMMARY + CTA ------- -->
+        <div class="summary-bar">
+          <span class="summary-text">Всего <b>45</b> слотов<i class="summary-diamond"></i>Создано <b>45</b> ордеров</span>
+          <span class="summary-text" style="color:var(--gold);">Lot <b>01-09</b></span>
+        </div>
+        <div class="cta-bar">
+          <button class="btn btn-primary">
+            <svg width="10" height="10"><use href="#plus"/></svg>
+            Слот за <span class="tiny">1 <svg width="9" height="9" style="display:inline;"><use href="#ton"/></svg></span>
+          </button>
+          <button class="btn">
+            <svg width="10" height="10"><use href="#plus"/></svg>
+            Добавить подписку
+          </button>
+        </div>
+
+        <!-- ------- CARDS GRID ------- -->
+        <div class="cards-scroll">
+          <div class="cards-grid">
+
+            <!-- ==================== CARD 1 : standard ==================== -->
+            <article class="card">
+              <div class="card-ornament"></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <i class="back" style="background:radial-gradient(circle at 50% 45%,#58a3c8 0%,#5379c2 70%,#0d45b6 100%)"></i>
+                  <div class="fig"><img src="../../../assets/originals/5900177027566142759/Original.png" alt="Ice Cream"></div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 01<i></i></div>
+              </div>
+
+              <div class="card-body">
+                <div class="card-kicker">
+                  <span class="kicker">Покупка <b>до 30</b></span>
+                  <button class="card-info-btn"><span style="font-family:var(--font-serif);font-style:italic;font-size:12px;">i</span></button>
+                </div>
+                <h3 class="card-title">Ice Cream <em>флип до 30</em></h3>
+
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Ice Cream</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <b>Ghost Biters</b></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <b>Sapphire</b><em>&nbsp;- 1 фон</em></div>
+                  <div class="meta-row"><span class="lbl">PAT</span> <em>Любые узоры, любой номер</em></div>
+                </div>
+
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl"><svg width="10" height="10"><use href="#cart"/></svg>Цена покупки</div>
+                    <div class="price">
+                      <svg width="11" height="11"><use href="#ton"/></svg>
+                      30<span class="dec">.00</span>
+                      <span class="qty">3 шт</span>
+                    </div>
+                    <div class="markets">
+                      <span class="mkt mkt-prt">P</span>
+                      <span class="mkt mkt-frg">F</span>
+                      <span class="mkt mkt-mrk">M</span>
+                      <span class="notif-inline">
+                        <svg width="9" height="9"><use href="#bell"/></svg>
+                        до 33 PRT FRG
+                      </span>
+                    </div>
+                  </div>
+                  <div class="toggle is-on" aria-label="purchase on"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- ==================== CARD 2 : any models, any backgrounds ==================== -->
+            <article class="card">
+              <div class="card-ornament"></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <i class="custom"></i>
+                  <div class="fig"><img src="../../../assets/originals/5170594532177215681/Original.png" alt="Lol Pop"></div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 02<i></i></div>
+              </div>
+
+              <div class="card-body">
+                <div class="card-kicker">
+                  <span class="kicker">Покупка <b>до 14</b></span>
+                  <button class="card-info-btn"><span style="font-family:var(--font-serif);font-style:italic;font-size:12px;">i</span></button>
+                </div>
+                <h3 class="card-title">Lol Pop <em>охота на Lucifer</em></h3>
+
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Lol Pop</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <em>Любые модели</em></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <em>Любые фоны</em></div>
+                  <div class="meta-row"><span class="lbl">PAT</span> <em>Любые узоры, любой номер</em></div>
+                </div>
+
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl"><svg width="10" height="10"><use href="#cart"/></svg>Цена покупки</div>
+                    <div class="price">
+                      <svg width="11" height="11"><use href="#ton"/></svg>
+                      14<span class="dec">.00</span>
+                      <span class="qty">5 шт</span>
+                    </div>
+                    <div class="markets">
+                      <span class="mkt mkt-prt">P</span>
+                      <span class="mkt mkt-frg">F</span>
+                      <span class="mkt mkt-ton">T</span>
+                      <span class="mkt mkt-gtg">G</span>
+                      <span class="mkt mkt-mrk">M</span>
+                    </div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- ==================== CARD 3 : 3 models chain, 1 bg ==================== -->
+            <article class="card">
+              <div class="card-ornament"></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <i class="back" style="background:radial-gradient(circle at 50% 45%,#78c585 0%,#42a171 70%,#006532 100%)"></i>
+                  <div class="fig three">
+                    <img src="../../../assets/originals/5897581235231785485/Original.png" alt="Light Sword" style="transform:translateX(10px) scale(0.85);">
+                    <img src="../../../assets/originals/5897581235231785485/Original.png" alt="Light Sword" style="transform:scale(0.95);">
+                    <img src="../../../assets/originals/5897581235231785485/Original.png" alt="Light Sword" style="transform:translateX(-10px) scale(0.85);">
+                  </div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 03<i></i></div>
+              </div>
+
+              <div class="card-body">
+                <div class="card-kicker">
+                  <span class="kicker">Покупка <b>до 17</b></span>
+                  <button class="card-info-btn"><span style="font-family:var(--font-serif);font-style:italic;font-size:12px;">i</span></button>
+                </div>
+                <h3 class="card-title">Light Sword <em>триада моделей</em></h3>
+
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Light Sword</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <b>3 модели</b> <em>&nbsp;Love Samurai +2</em></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <b>Emerald</b><em>&nbsp;- 1 фон</em></div>
+                  <div class="meta-row"><span class="lbl">PAT</span> <em>25 узоров, любой номер</em></div>
+                </div>
+
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl"><svg width="10" height="10"><use href="#cart"/></svg>Цена покупки</div>
+                    <div class="price">
+                      <svg width="11" height="11"><use href="#ton"/></svg>
+                      17<span class="dec">.50</span>
+                      <span class="qty">2 шт</span>
+                    </div>
+                    <div class="markets">
+                      <span class="mkt mkt-prt">P</span>
+                      <span class="mkt mkt-mrk">M</span>
+                      <span class="mkt mkt-ton">T</span>
+                    </div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- ==================== CARD 4 : 12 models, 3 bgs split ==================== -->
+            <article class="card">
+              <div class="card-ornament"></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <div class="split s3">
+                    <i style="background:linear-gradient(180deg,#ccab41,#987b32);"></i>
+                    <i style="background:linear-gradient(180deg,#dab345,#b1802a);"></i>
+                    <i style="background:linear-gradient(180deg,#da896b,#c4654f);"></i>
+                  </div>
+                  <div class="fig"><img src="../../../assets/originals/5936013938331222567/Original.png" alt="Plush Pepe"></div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 04<i></i></div>
+              </div>
+
+              <div class="card-body">
+                <div class="card-kicker">
+                  <span class="kicker">Покупка <b>до 45</b></span>
+                  <button class="card-info-btn"><span style="font-family:var(--font-serif);font-style:italic;font-size:12px;">i</span></button>
+                </div>
+                <h3 class="card-title">Plush Pepe <em>расширенная охота</em></h3>
+
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Plush Pepe</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <b>12 моделей</b></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <b>3 фона</b> <em>&nbsp;Pure Gold / Amber / Coral</em></div>
+                  <div class="meta-row"><span class="lbl">PAT</span> <em>4 узора, любой номер</em></div>
+                </div>
+
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl"><svg width="10" height="10"><use href="#cart"/></svg>Цена покупки</div>
+                    <div class="price">
+                      <svg width="11" height="11"><use href="#ton"/></svg>
+                      45<span class="dec">.00</span>
+                      <span class="qty">1 шт</span>
+                    </div>
+                    <div class="markets">
+                      <span class="mkt mkt-prt">P</span>
+                      <span class="mkt mkt-frg">F</span>
+                      <span class="mkt mkt-mrk">M</span>
+                      <span class="mkt mkt-ton">T</span>
+                    </div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- ==================== CARD 5 : 25 bgs (custom gradient), 2 models ==================== -->
+            <article class="card">
+              <div class="card-ornament"></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <i class="custom" style="background:conic-gradient(from 0deg at 50% 50%,#58a3c8 0deg,#ca70c6 60deg,#dab345 120deg,#da896b 180deg,#78c585 240deg,#7596f9 300deg,#58a3c8 360deg);filter:saturate(0.7) brightness(0.7);"></i>
+                  <div class="fig three">
+                    <img src="../../../assets/originals/6005880141270483700/Original.png" alt="Jolly Chimp" style="transform:translateX(7px) scale(0.9);">
+                    <img src="../../../assets/originals/6005880141270483700/Original.png" alt="Jolly Chimp" style="transform:translateX(-7px) scale(0.9);">
+                  </div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 05<i></i></div>
+              </div>
+
+              <div class="card-body">
+                <div class="card-kicker">
+                  <span class="kicker">Покупка <b>до 22</b></span>
+                  <button class="card-info-btn"><span style="font-family:var(--font-serif);font-style:italic;font-size:12px;">i</span></button>
+                </div>
+                <h3 class="card-title">Jolly Chimp <em>broad spectrum</em></h3>
+
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Jolly Chimp</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <b>2 модели</b></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <b>25 фонов</b> <em>&nbsp;кастом-градиент</em></div>
+                  <div class="meta-row"><span class="lbl">PAT</span> <em>Любые узоры, любой номер</em></div>
+                </div>
+
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl"><svg width="10" height="10"><use href="#cart"/></svg>Цена покупки</div>
+                    <div class="price">
+                      <svg width="11" height="11"><use href="#ton"/></svg>
+                      22<span class="dec">.00</span>
+                      <span class="qty">4 шт</span>
+                    </div>
+                    <div class="markets">
+                      <span class="mkt mkt-prt">P</span>
+                      <span class="mkt mkt-frg">F</span>
+                    </div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- ==================== CARD 6 : 0/3 SOLD OUT - CRITICAL STATE ==================== -->
+            <article class="card is-empty">
+              <div class="card-ornament"></div>
+              <div class="ribbon-soldout">SOLD OUT</div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <i class="back" style="background:radial-gradient(circle at 50% 45%,#363738 0%,#0e0f0f 100%)"></i>
+                  <div class="fig"><img src="../../../assets/originals/5900177027566142759/Original.png" alt="Ice Cream" style="filter:saturate(0.7) brightness(0.75) drop-shadow(0 4px 10px #c73b2f40);"></div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 06 / 0 · 3<i></i></div>
+              </div>
+
+              <div class="card-body">
+                <div class="card-kicker">
+                  <span class="kicker">Куплено <b>0 / 3</b></span>
+                  <button class="card-info-btn" style="border-color:#8a2520;color:#e89388;"><span style="font-family:var(--font-serif);font-style:italic;font-size:12px;">i</span></button>
+                </div>
+                <h3 class="card-title">Ice Cream <em>Divine Justice - выкуплено</em></h3>
+
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl" style="color:#e89388;">COL</span> <b>Ice Cream</b></div>
+                  <div class="meta-row"><span class="lbl" style="color:#e89388;">MOD</span> <b>Divine Justice</b></div>
+                  <div class="meta-row"><span class="lbl" style="color:#e89388;">BG</span> <b>Onyx Black</b></div>
+                  <div class="meta-row"><span class="lbl" style="color:#e89388;">!</span> <span style="color:#e89388;font-weight:500;">Количество исчерпано, требуется действие</span></div>
+                </div>
+
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl" style="color:#e89388;"><svg width="10" height="10"><use href="#cart"/></svg>Куплено полностью</div>
+                    <div class="price">
+                      <svg width="11" height="11"><use href="#ton"/></svg>
+                      9<span class="dec">.99</span>
+                      <span class="qty" style="color:#e89388;">0 ИЗ 3 шт</span>
+                    </div>
+                    <div class="markets">
+                      <span class="mkt mkt-prt">P</span>
+                      <span class="mkt mkt-frg">F</span>
+                      <span class="mkt mkt-mrk">M</span>
+                    </div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- ==================== CARD 7 : purchase OFF ==================== -->
+            <article class="card is-off">
+              <div class="card-ornament"></div>
+              <div class="off-tag">Покупка выкл</div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <i class="back" style="background:radial-gradient(circle at 50% 45%,#858ff3 0%,#865fd3 70%,#4318a6 100%)"></i>
+                  <div class="fig"><img src="../../../assets/originals/5783075783622787539/Original.png" alt="Homemade Cake"></div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 07<i></i></div>
+              </div>
+
+              <div class="card-body">
+                <div class="card-kicker">
+                  <span class="kicker">Приостановлено</span>
+                  <button class="card-info-btn"><span style="font-family:var(--font-serif);font-style:italic;font-size:12px;">i</span></button>
+                </div>
+                <h3 class="card-title">Homemade Cake <em>на потом</em></h3>
+
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Homemade Cake</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <em>Любые модели</em></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <b>Cyberpunk</b></div>
+                  <div class="meta-row"><span class="lbl">PAT</span> <em>Любые узоры</em></div>
+                </div>
+
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl"><svg width="10" height="10"><use href="#cart"/></svg>Цена покупки</div>
+                    <div class="price">
+                      <svg width="11" height="11"><use href="#ton"/></svg>
+                      12<span class="dec">.00</span>
+                      <span class="qty">3 шт</span>
+                    </div>
+                    <div class="markets">
+                      <span class="mkt mkt-prt">P</span>
+                      <span class="mkt mkt-frg">F</span>
+                    </div>
+                  </div>
+                  <div class="toggle"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- ==================== CARD 8 : notifications OFF, 4 patterns ==================== -->
+            <article class="card">
+              <div class="card-ornament"></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <i class="back" style="background:radial-gradient(circle at 50% 45%,#b789e4 0%,#8a5abc 70%,#5b10ab 100%)"></i>
+                  <div class="fig"><img src="../../../assets/originals/5782988952268964995/Original.png" alt="Desk Calendar"></div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 08<i></i></div>
+              </div>
+
+              <div class="card-body">
+                <div class="card-kicker">
+                  <span class="kicker">Покупка <b>до 8</b></span>
+                  <button class="card-info-btn"><span style="font-family:var(--font-serif);font-style:italic;font-size:12px;">i</span></button>
+                </div>
+                <h3 class="card-title">Desk Calendar <em>с 4 узорами</em></h3>
+
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Desk Calendar</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <em>Любые модели</em></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <b>Lavender</b></div>
+                  <div class="meta-row"><span class="lbl">PAT</span> <b>4 узора</b><em>&nbsp;- любой номер</em></div>
+                </div>
+
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl bell-off">
+                      <svg width="10" height="10"><use href="#bell-off"/></svg>
+                      <span class="bell-off-txt">Нотификации выкл</span>
+                    </div>
+                    <div class="price">
+                      <svg width="11" height="11"><use href="#ton"/></svg>
+                      8<span class="dec">.00</span>
+                      <span class="qty">5 шт</span>
+                    </div>
+                    <div class="markets">
+                      <span class="mkt mkt-prt">P</span>
+                      <span class="mkt mkt-frg">F</span>
+                      <span class="mkt mkt-gtg">G</span>
+                    </div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- ==================== CARD 9 : long truncated prompt, 5 bgs ==================== -->
+            <article class="card">
+              <div class="card-ornament"></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <div class="split s4">
+                    <i style="background:linear-gradient(135deg,#363738,#0e0f0f);"></i>
+                    <i style="background:linear-gradient(135deg,#ccab41,#987b32);"></i>
+                    <i style="background:linear-gradient(135deg,#4d5254,#313638);"></i>
+                    <i style="background:linear-gradient(135deg,#bab6b1,#a19d97);"></i>
+                  </div>
+                  <div class="fig"><img src="../../../assets/originals/5830340739074097859/Original.png" alt="Victory Medal"></div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 09<i></i></div>
+              </div>
+
+              <div class="card-body">
+                <div class="card-kicker">
+                  <span class="kicker">Покупка <b>до 36</b></span>
+                  <button class="card-info-btn"><span style="font-family:var(--font-serif);font-style:italic;font-size:12px;">i</span></button>
+                </div>
+                <h3 class="card-title"><em>Коллекция редких</em> Victory Medal на черни...</h3>
+
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Victory Medal</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <b>8 моделей</b></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <b>5 фонов</b> <em>&nbsp;Onyx / Gold / Ivory +2</em></div>
+                  <div class="meta-row"><span class="lbl">PAT</span> <em>Любые узоры, номер #-00</em></div>
+                </div>
+
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl"><svg width="10" height="10"><use href="#cart"/></svg>Цена покупки</div>
+                    <div class="price">
+                      <svg width="11" height="11"><use href="#ton"/></svg>
+                      36<span class="dec">.00</span>
+                      <span class="qty">2 шт</span>
+                    </div>
+                    <div class="markets">
+                      <span class="mkt mkt-prt">P</span>
+                      <span class="mkt mkt-frg">F</span>
+                      <span class="mkt mkt-mrk">M</span>
+                      <span class="mkt mkt-ton">T</span>
+                    </div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+          </div>
+        </div>
+
+        <!-- ------- BOTTOM TAB BAR ------- -->
+        <nav class="tab-bar">
+          <div class="tab">
+            <svg width="18" height="18" style="color:currentColor;"><use href="#trophy"/></svg>
+            Лидеры
+          </div>
+          <div class="tab">
+            <svg width="18" height="18"><use href="#subs"/></svg>
+            Подписки
+          </div>
+          <div class="tab is-active">
+            <svg width="18" height="18"><use href="#search"/></svg>
+            Поиск
+          </div>
+          <div class="tab">
+            <svg width="18" height="18"><use href="#stat"/></svg>
+            Статистика
+          </div>
+          <div class="tab">
+            <svg width="18" height="18"><use href="#prof"/></svg>
+            Профиль
+          </div>
+        </nav>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==========================================================================
+     MOCKUP B  -  open info modal (bottom sheet)
+     =========================================================================-->
+<div class="mockup">
+  <div class="mockup-label">Mockup <b>B</b> / Полное описание / Модалка</div>
+  <div class="phone has-modal">
+    <div class="phone-notch"></div>
+    <div class="phone-inner">
+      <div class="status-bar">
+        <span>9:41</span>
+        <div class="right">
+          <svg width="16" height="10" viewBox="0 0 16 10"><path d="M1 6 a7 7 0 0 1 14 0 M3.5 8 a4.5 4.5 0 0 1 9 0 M6 9.5 a2 2 0 0 1 4 0" fill="none" stroke="#f0e9d9" stroke-width="1"/></svg>
+          <svg width="14" height="10" viewBox="0 0 14 10"><rect x="1" y="1" width="10" height="8" rx="1.5" fill="none" stroke="#f0e9d9"/><rect x="2.5" y="2.5" width="7" height="5" fill="#f0e9d9"/><rect x="12" y="3.5" width="1.5" height="3" fill="#f0e9d9"/></svg>
+        </div>
+      </div>
+
+      <!-- dimmed base layer (hint of the underlying subscription grid) -->
+      <div class="modal-shell">
+        <div class="blur-mini"></div>
+        <div class="blur-mini"></div>
+        <div class="blur-mini"></div>
+        <div class="blur-mini"></div>
+      </div>
+      <div class="screen-dim"></div>
+
+      <!-- the sheet -->
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+
+        <!-- head -->
+        <div class="modal-head">
+          <div class="modal-head-l">
+            <div class="modal-kicker">Lot 04 / Subscription</div>
+            <h2 class="modal-title">Plush Pepe <em>охота</em></h2>
+            <div class="modal-sub">Создано 14 апреля 2026  -  активна</div>
+          </div>
+          <button class="modal-close"><svg width="11" height="11"><use href="#x"/></svg></button>
+        </div>
+
+        <!-- sections scroll -->
+        <div class="modal-scroll">
+
+          <!-- collection -->
+          <div class="modal-sec">
+            <div class="sec-head">
+              <span class="sec-label">Коллекция</span>
+              <span class="sec-num">01</span>
+            </div>
+            <div class="chip-list">
+              <div class="mchip">
+                <div class="ico"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>
+                Plush Pepe
+              </div>
+            </div>
+          </div>
+
+          <!-- models -->
+          <div class="modal-sec">
+            <div class="sec-head">
+              <span class="sec-label">Модели <b>/ 12</b></span>
+              <span class="sec-num">12 / 160</span>
+            </div>
+            <div class="chip-list">
+              <div class="mchip"><div class="ico"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>Golden Emperor</div>
+              <div class="mchip"><div class="ico"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>Alpha Drip</div>
+              <div class="mchip"><div class="ico"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>Bronze Medalist</div>
+              <div class="mchip"><div class="ico"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>Cyber Kermit</div>
+              <div class="mchip"><div class="ico"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>Delta Force</div>
+              <div class="mchip"><div class="ico"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>Echo</div>
+              <div class="mchip" style="color:var(--dust);">+6</div>
+            </div>
+          </div>
+
+          <!-- backgrounds -->
+          <div class="modal-sec">
+            <div class="sec-head">
+              <span class="sec-label">Фоны <b>/ 3</b></span>
+              <span class="sec-num">3 / 80</span>
+            </div>
+            <div class="chip-list">
+              <div class="mchip"><span class="dot" style="background:linear-gradient(135deg,#ccab41,#987b32);"></span>Pure Gold</div>
+              <div class="mchip"><span class="dot" style="background:linear-gradient(135deg,#dab345,#b1802a);"></span>Amber</div>
+              <div class="mchip"><span class="dot" style="background:linear-gradient(135deg,#da896b,#c4654f);"></span>Coral Red</div>
+            </div>
+          </div>
+
+          <!-- patterns -->
+          <div class="modal-sec">
+            <div class="sec-head">
+              <span class="sec-label">Узоры <b>/ 4</b></span>
+              <span class="sec-num">4 / 72</span>
+            </div>
+            <div class="chip-list">
+              <div class="mchip">Tangerine</div>
+              <div class="mchip">Sharp Tongue</div>
+              <div class="mchip">Vintage Gem</div>
+              <div class="mchip">Crown</div>
+            </div>
+          </div>
+
+          <!-- numeric pattern -->
+          <div class="modal-sec">
+            <div class="sec-head">
+              <span class="sec-label">Числовой паттерн</span>
+            </div>
+            <div class="row" style="gap:8px;flex-wrap:wrap;">
+              <span class="num-pill">#-00</span>
+              <span class="num-pill">#-999</span>
+              <span class="plain-val" style="margin-left:4px;">или любой из редких</span>
+            </div>
+          </div>
+
+          <!-- purchase block -->
+          <div class="modal-sec">
+            <div class="sec-head">
+              <span class="sec-label">Покупка</span>
+              <span class="sec-num" style="color:var(--jade);">ACTIVE</span>
+            </div>
+            <div class="txn-block">
+              <div class="txn-head">
+                <span class="txn-kicker">До цены  -  1 шт</span>
+                <div class="txn-price">
+                  <svg width="13" height="13"><use href="#ton"/></svg>
+                  45<span style="font-size:11px;opacity:0.7;">.00</span>
+                </div>
+                <div class="txn-markets">
+                  <span class="mkt mkt-prt">P</span>
+                  <span class="mkt mkt-frg">F</span>
+                  <span class="mkt mkt-mrk">M</span>
+                  <span class="mkt mkt-ton">T</span>
+                </div>
+              </div>
+              <div class="toggle is-on"></div>
+            </div>
+          </div>
+
+          <!-- notifications block -->
+          <div class="modal-sec">
+            <div class="sec-head">
+              <span class="sec-label">Нотификации</span>
+              <span class="sec-num" style="color:var(--jade);">ACTIVE</span>
+            </div>
+            <div class="txn-block">
+              <div class="txn-head">
+                <span class="txn-kicker">До цены</span>
+                <div class="txn-price">
+                  <svg width="13" height="13"><use href="#ton"/></svg>
+                  50<span style="font-size:11px;opacity:0.7;">.00</span>
+                </div>
+                <div class="txn-markets">
+                  <span class="mkt mkt-prt">P</span>
+                  <span class="mkt mkt-frg">F</span>
+                </div>
+              </div>
+              <div class="toggle is-on"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- actions -->
+        <div class="modal-actions">
+          <button class="btn-ghost edit">
+            <svg width="12" height="12"><use href="#cog"/></svg>
+            Изменить
+          </button>
+          <button class="btn-ghost del">
+            <svg width="12" height="12"><use href="#trash"/></svg>
+            Удалить
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ==========================================================================
+     MOCKUP C  -  Bulk select mode
+     =========================================================================-->
+<div class="mockup">
+  <div class="mockup-label">Mockup <b>C</b> / Массовый выбор</div>
+  <div class="phone">
+    <div class="phone-notch"></div>
+    <div class="phone-inner">
+      <div class="status-bar">
+        <span>9:41</span>
+        <div class="right">
+          <svg width="16" height="10" viewBox="0 0 16 10"><path d="M1 6 a7 7 0 0 1 14 0 M3.5 8 a4.5 4.5 0 0 1 9 0 M6 9.5 a2 2 0 0 1 4 0" fill="none" stroke="#f0e9d9" stroke-width="1"/></svg>
+          <svg width="14" height="10" viewBox="0 0 14 10"><rect x="1" y="1" width="10" height="8" rx="1.5" fill="none" stroke="#f0e9d9"/><rect x="2.5" y="2.5" width="7" height="5" fill="#f0e9d9"/><rect x="12" y="3.5" width="1.5" height="3" fill="#f0e9d9"/></svg>
+        </div>
+      </div>
+
+      <div class="screen">
+
+        <!-- bulk header (inline with app header replaced in bulk mode) -->
+        <div class="bulk-header">
+          <div class="bulk-count">
+            <span><b>4</b> / 45</span>
+            <em>Выбрано из всех подписок</em>
+          </div>
+          <button class="bulk-cancel">Отмена</button>
+        </div>
+
+        <div class="cards-scroll">
+          <div class="cards-grid">
+
+            <!-- CARD A  -  SELECTED -->
+            <article class="card is-bulk is-sel">
+              <div class="card-ornament"></div>
+              <div class="bulk-check"><svg width="13" height="13"><use href="#check"/></svg></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <i class="back" style="background:radial-gradient(circle at 50% 45%,#58a3c8 0%,#5379c2 70%,#0d45b6 100%)"></i>
+                  <div class="fig"><img src="../../../assets/originals/5900177027566142759/Original.png" alt=""></div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 01<i></i></div>
+              </div>
+              <div class="card-body">
+                <div class="card-kicker"><span class="kicker">Покупка <b>до 30</b></span></div>
+                <h3 class="card-title">Ice Cream <em>флип до 30</em></h3>
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Ice Cream</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <b>Ghost Biters</b></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <b>Sapphire</b></div>
+                </div>
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl"><svg width="10" height="10"><use href="#cart"/></svg>Цена</div>
+                    <div class="price"><svg width="11" height="11"><use href="#ton"/></svg>30<span class="dec">.00</span><span class="qty">3 шт</span></div>
+                    <div class="markets"><span class="mkt mkt-prt">P</span><span class="mkt mkt-frg">F</span><span class="mkt mkt-mrk">M</span></div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- CARD B  -  SELECTED -->
+            <article class="card is-bulk is-sel">
+              <div class="card-ornament"></div>
+              <div class="bulk-check"><svg width="13" height="13"><use href="#check"/></svg></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <i class="custom"></i>
+                  <div class="fig"><img src="../../../assets/originals/5170594532177215681/Original.png" alt=""></div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 02<i></i></div>
+              </div>
+              <div class="card-body">
+                <div class="card-kicker"><span class="kicker">Покупка <b>до 14</b></span></div>
+                <h3 class="card-title">Lol Pop <em>Lucifer</em></h3>
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Lol Pop</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <em>Любые модели</em></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <em>Любые фоны</em></div>
+                </div>
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl"><svg width="10" height="10"><use href="#cart"/></svg>Цена</div>
+                    <div class="price"><svg width="11" height="11"><use href="#ton"/></svg>14<span class="dec">.00</span><span class="qty">5 шт</span></div>
+                    <div class="markets"><span class="mkt mkt-prt">P</span><span class="mkt mkt-frg">F</span><span class="mkt mkt-ton">T</span></div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- CARD C  -  NOT selected -->
+            <article class="card is-bulk">
+              <div class="card-ornament"></div>
+              <div class="bulk-check"></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <i class="back" style="background:radial-gradient(circle at 50% 45%,#78c585 0%,#42a171 70%,#006532 100%)"></i>
+                  <div class="fig three">
+                    <img src="../../../assets/originals/5897581235231785485/Original.png" alt="" style="transform:translateX(10px) scale(0.85);">
+                    <img src="../../../assets/originals/5897581235231785485/Original.png" alt="" style="transform:scale(0.95);">
+                    <img src="../../../assets/originals/5897581235231785485/Original.png" alt="" style="transform:translateX(-10px) scale(0.85);">
+                  </div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 03<i></i></div>
+              </div>
+              <div class="card-body">
+                <div class="card-kicker"><span class="kicker">Покупка <b>до 17</b></span></div>
+                <h3 class="card-title">Light Sword <em>триада</em></h3>
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Light Sword</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <b>3 модели</b></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <b>Emerald</b></div>
+                </div>
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl"><svg width="10" height="10"><use href="#cart"/></svg>Цена</div>
+                    <div class="price"><svg width="11" height="11"><use href="#ton"/></svg>17<span class="dec">.50</span><span class="qty">2 шт</span></div>
+                    <div class="markets"><span class="mkt mkt-prt">P</span><span class="mkt mkt-mrk">M</span></div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- CARD D  -  SELECTED -->
+            <article class="card is-bulk is-sel">
+              <div class="card-ornament"></div>
+              <div class="bulk-check"><svg width="13" height="13"><use href="#check"/></svg></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <div class="split s3">
+                    <i style="background:linear-gradient(180deg,#ccab41,#987b32);"></i>
+                    <i style="background:linear-gradient(180deg,#dab345,#b1802a);"></i>
+                    <i style="background:linear-gradient(180deg,#da896b,#c4654f);"></i>
+                  </div>
+                  <div class="fig"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 04<i></i></div>
+              </div>
+              <div class="card-body">
+                <div class="card-kicker"><span class="kicker">Покупка <b>до 45</b></span></div>
+                <h3 class="card-title">Plush Pepe <em>охота</em></h3>
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Plush Pepe</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <b>12 моделей</b></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <b>3 фона</b></div>
+                </div>
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl"><svg width="10" height="10"><use href="#cart"/></svg>Цена</div>
+                    <div class="price"><svg width="11" height="11"><use href="#ton"/></svg>45<span class="dec">.00</span><span class="qty">1 шт</span></div>
+                    <div class="markets"><span class="mkt mkt-prt">P</span><span class="mkt mkt-frg">F</span><span class="mkt mkt-mrk">M</span><span class="mkt mkt-ton">T</span></div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- CARD E - SELECTED -->
+            <article class="card is-bulk is-sel">
+              <div class="card-ornament"></div>
+              <div class="bulk-check"><svg width="13" height="13"><use href="#check"/></svg></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <i class="custom" style="background:conic-gradient(from 0deg at 50% 50%,#58a3c8 0deg,#ca70c6 60deg,#dab345 120deg,#da896b 180deg,#78c585 240deg,#7596f9 300deg,#58a3c8 360deg);filter:saturate(0.7) brightness(0.7);"></i>
+                  <div class="fig three">
+                    <img src="../../../assets/originals/6005880141270483700/Original.png" alt="" style="transform:translateX(7px) scale(0.9);">
+                    <img src="../../../assets/originals/6005880141270483700/Original.png" alt="" style="transform:translateX(-7px) scale(0.9);">
+                  </div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 05<i></i></div>
+              </div>
+              <div class="card-body">
+                <div class="card-kicker"><span class="kicker">Покупка <b>до 22</b></span></div>
+                <h3 class="card-title">Jolly Chimp <em>broad spectrum</em></h3>
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Jolly Chimp</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <b>2 модели</b></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <b>25 фонов</b></div>
+                </div>
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl"><svg width="10" height="10"><use href="#cart"/></svg>Цена</div>
+                    <div class="price"><svg width="11" height="11"><use href="#ton"/></svg>22<span class="dec">.00</span><span class="qty">4 шт</span></div>
+                    <div class="markets"><span class="mkt mkt-prt">P</span><span class="mkt mkt-frg">F</span></div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- CARD F - NOT selected -->
+            <article class="card is-bulk">
+              <div class="card-ornament"></div>
+              <div class="bulk-check"></div>
+              <div class="medallion-wrap">
+                <div class="medallion">
+                  <i class="back" style="background:radial-gradient(circle at 50% 45%,#b789e4 0%,#8a5abc 70%,#5b10ab 100%)"></i>
+                  <div class="fig"><img src="../../../assets/originals/5782988952268964995/Original.png" alt=""></div>
+                </div>
+                <div class="lot-stamp"><i></i>Lot 08<i></i></div>
+              </div>
+              <div class="card-body">
+                <div class="card-kicker"><span class="kicker">Покупка <b>до 8</b></span></div>
+                <h3 class="card-title">Desk Calendar <em>с 4 узорами</em></h3>
+                <div class="card-meta">
+                  <div class="meta-row"><span class="lbl">COL</span> <b>Desk Calendar</b></div>
+                  <div class="meta-row"><span class="lbl">MOD</span> <em>Любые</em></div>
+                  <div class="meta-row"><span class="lbl">BG</span> <b>Lavender</b></div>
+                </div>
+                <div class="card-action">
+                  <div class="price-block">
+                    <div class="price-lbl bell-off"><svg width="10" height="10"><use href="#bell-off"/></svg><span class="bell-off-txt">Нотиф выкл</span></div>
+                    <div class="price"><svg width="11" height="11"><use href="#ton"/></svg>8<span class="dec">.00</span><span class="qty">5 шт</span></div>
+                    <div class="markets"><span class="mkt mkt-prt">P</span><span class="mkt mkt-frg">F</span></div>
+                  </div>
+                  <div class="toggle is-on"></div>
+                </div>
+              </div>
+            </article>
+
+          </div>
+        </div>
+
+        <!-- bulk action bar -->
+        <div class="bulk-bar">
+          <button class="bulk-btn danger">
+            <svg width="13" height="13"><use href="#trash"/></svg>
+            Удалить
+          </button>
+          <button class="bulk-btn">
+            <svg width="13" height="13"><use href="#power"/></svg>
+            Выкл
+          </button>
+          <button class="bulk-btn">
+            <svg width="13" height="13"><use href="#power"/></svg>
+            Вкл
+          </button>
+          <button class="bulk-btn">
+            <svg width="13" height="13"><use href="#dup"/></svg>
+            Дубль
+          </button>
+        </div>
+
+        <!-- bottom tab bar (muted in bulk mode but still shown) -->
+        <nav class="tab-bar" style="opacity:0.5;">
+          <div class="tab"><svg width="18" height="18"><use href="#trophy"/></svg>Лидеры</div>
+          <div class="tab"><svg width="18" height="18"><use href="#subs"/></svg>Подписки</div>
+          <div class="tab is-active"><svg width="18" height="18"><use href="#search"/></svg>Поиск</div>
+          <div class="tab"><svg width="18" height="18"><use href="#stat"/></svg>Статистика</div>
+          <div class="tab"><svg width="18" height="18"><use href="#prof"/></svg>Профиль</div>
+        </nav>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+/* Minimal vanilla JS: toggle switches, bulk select toggle, modal close -
+   non-essential but makes the single-file demo feel alive. */
+document.addEventListener('click', (e)=>{
+  const t = e.target.closest('.toggle');
+  if(t){ t.classList.toggle('is-on'); return; }
+  const bulk = e.target.closest('.card.is-bulk');
+  if(bulk){ bulk.classList.toggle('is-sel'); return; }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2209 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gift Satellite — v4 · Terrarium Glow</title>
+
+<!--
+  ═══════════════════════════════════════════════════════════════════
+  VARIANT 4 · TERRARIUM GLOW
+  Gift Satellite — Subscription Card Redesign
+
+  CONCEPT
+    Living organic terrarium of subscriptions. Each card is an
+    organism with a colored aura derived from its real backdrop
+    hex (from backdrops.json). Soft bento morphing, warm
+    glassmorphism, spring motion. Dynamic Island meets Arc sidebar
+    meets Studio Ghibli interior light.
+
+  TYPOGRAPHY (Google Fonts)
+    · Unbounded 300/400/500/700  — subscription name (geometric breath)
+    · Manrope    300/400/500/600 — metadata body
+    · DM Serif Display + italic  — warm price numerals
+
+  PALETTE
+    · page          #0f0e0c  (warm charcoal)
+    · phone bg      #1a1915  (warm ink)
+    · glass s1      rgba(255,250,240,.045)
+    · glass s2      rgba(255,250,240,.085)
+    · border glass  rgba(255,250,240,.12)
+    · coral warm    #ff7a6e
+    · sage green    #a8c69f
+    · peach         #ffbe7c
+    · lavender      #c4b4e8
+    · cream         #f5e9d7
+    · dim           #8a8378
+    · deep primary  #c86dff
+
+  DIFFERENTIATOR
+    Live coloured aura (real backdrop hex) + glass morphism
+    + Unbounded display + DM Serif italic numerals + spring
+    elasticity + breathing pulse + 0-count heartbeat bloom.
+  ═══════════════════════════════════════════════════════════════════
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@300;400;500;600;700&family=Unbounded:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ───────────── RESET ───────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+img, svg { display: block; }
+ul { list-style: none; }
+
+:root {
+  /* page */
+  --page-bg:      #0f0e0c;
+  --page-ink:     #f5e9d7;
+  --page-dim:     #8a8378;
+
+  /* phone */
+  --phone-bg:     #1a1915;
+  --phone-stroke: rgba(255,250,240,.08);
+
+  /* glass */
+  --g1:  rgba(255,250,240,.045);
+  --g2:  rgba(255,250,240,.085);
+  --gb:  rgba(255,250,240,.12);
+  --gb2: rgba(255,250,240,.18);
+
+  /* semantic */
+  --coral:   #ff7a6e;
+  --sage:    #a8c69f;
+  --peach:   #ffbe7c;
+  --lav:     #c4b4e8;
+  --cream:   #f5e9d7;
+  --dim:     #8a8378;
+  --deeper:  #c86dff;
+
+  /* type */
+  --f-disp:  "Unbounded", system-ui, sans-serif;
+  --f-body:  "Manrope", system-ui, sans-serif;
+  --f-num:   "DM Serif Display", "Times New Roman", serif;
+
+  /* motion */
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ───────────── PAGE ───────────── */
+body {
+  font-family: var(--f-body);
+  background:
+    radial-gradient(1200px 700px at 12% 10%, rgba(200,109,255,.07), transparent 60%),
+    radial-gradient(1000px 600px at 88% 90%, rgba(255,190,124,.05), transparent 60%),
+    var(--page-bg);
+  color: var(--page-ink);
+  min-height: 100vh;
+  padding: 40px 24px 96px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.stage-head {
+  max-width: 1360px;
+  margin: 0 auto 34px;
+  text-align: center;
+}
+.stage-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 10px;
+  border: 1px solid var(--gb);
+  background: var(--g1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 999px;
+  font-family: var(--f-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 18px;
+}
+.stage-tag::before {
+  content: "";
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--sage);
+  box-shadow: 0 0 12px 2px rgba(168,198,159,.6);
+}
+.stage-head h1 {
+  font-family: var(--f-disp);
+  font-weight: 500;
+  font-size: clamp(30px, 3.6vw, 52px);
+  letter-spacing: -.02em;
+  line-height: 1.02;
+  color: var(--cream);
+}
+.stage-head h1 em {
+  font-family: var(--f-num);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--peach);
+  padding: 0 .04em;
+}
+.stage-head p {
+  margin-top: 14px;
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--dim);
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.55;
+}
+
+/* ───────────── STAGE ───────────── */
+.stage {
+  display: flex;
+  gap: 44px;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  max-width: 1380px;
+  margin: 0 auto;
+}
+
+.mock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.mock-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--f-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.mock-label .badge {
+  font-family: var(--f-disp);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: .04em;
+  color: var(--cream);
+  padding: 3px 9px;
+  border: 1px solid var(--gb);
+  background: var(--g1);
+  border-radius: 999px;
+}
+.mock-label .hint {
+  font-family: var(--f-num);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--peach);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ───────────── PHONE ───────────── */
+.phone {
+  position: relative;
+  width: 393px;
+  height: 852px;
+  background: var(--phone-bg);
+  border-radius: 54px;
+  padding: 8px;
+  box-shadow:
+    0 2px 0 rgba(255,255,255,.04) inset,
+    0 0 0 1.5px rgba(255,255,255,.06),
+    0 40px 120px rgba(0,0,0,.55),
+    0 10px 30px rgba(0,0,0,.35);
+  isolation: isolate;
+}
+.phone::before {
+  /* warm ambient gradient shift */
+  content: "";
+  position: absolute; inset: 8px;
+  border-radius: 46px;
+  background:
+    radial-gradient(55% 45% at 15% 8%, rgba(255,190,124,.10), transparent 70%),
+    radial-gradient(60% 55% at 90% 95%, rgba(200,109,255,.08), transparent 65%),
+    radial-gradient(40% 35% at 50% 50%, rgba(168,198,159,.04), transparent 70%);
+  animation: driftBg 24s ease-in-out infinite alternate;
+  z-index: 0;
+  pointer-events: none;
+}
+@keyframes driftBg {
+  0%   { transform: translate(-2%, -1%) scale(1);   opacity: .9; }
+  50%  { transform: translate(2%,  2%) scale(1.04); opacity: 1;  }
+  100% { transform: translate(-1%, 1%) scale(1);    opacity: .9; }
+}
+.phone::after {
+  /* subtle noise overlay for warmth */
+  content: "";
+  position: absolute; inset: 8px;
+  border-radius: 46px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 0.95 0 0 0 0 0.8 0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  mix-blend-mode: overlay;
+  opacity: .6;
+  pointer-events: none;
+  z-index: 5;
+}
+.phone .notch {
+  position: absolute;
+  top: 18px; left: 50%;
+  transform: translateX(-50%);
+  width: 116px; height: 32px;
+  background: #000;
+  border-radius: 999px;
+  z-index: 6;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.04);
+}
+
+.screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 46px;
+  overflow: hidden;
+  z-index: 1;
+}
+.screen-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 40px 0 0; /* safe area top */
+  z-index: 2;
+}
+
+/* ───────────── STATUS BAR ───────────── */
+.statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 28px 0;
+  font-family: var(--f-body);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--cream);
+  letter-spacing: -.01em;
+}
+.statusbar .time { font-variant-numeric: tabular-nums; }
+.statusbar .icons { display: inline-flex; gap: 6px; align-items: center; }
+.statusbar .icons svg { opacity: .9; }
+
+/* ───────────── HEADER ───────────── */
+.app-header {
+  padding: 14px 20px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.app-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.satellite-logo {
+  width: 40px; height: 40px;
+  border-radius: 14px;
+  background:
+    radial-gradient(120% 120% at 30% 25%, #d8a7ff 0%, #9b5fff 40%, #4d23a9 100%);
+  display: grid; place-items: center;
+  box-shadow:
+    0 0 24px rgba(200,109,255,.35),
+    inset 0 1px 0 rgba(255,255,255,.3);
+  position: relative;
+}
+.satellite-logo::after {
+  content: "";
+  position: absolute; inset: 2px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.2);
+  pointer-events: none;
+}
+.satellite-logo svg { width: 22px; height: 22px; color: #fff9e6; }
+.satellite-logo img {
+  width: 88%; height: 88%;
+  border-radius: 10px;
+  object-fit: cover;
+  display: block;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35));
+  position: relative;
+  z-index: 1;
+}
+.app-title .t {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.app-title .t-lead {
+  font-family: var(--f-body);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 5px;
+}
+.app-title .t-name {
+  font-family: var(--f-disp);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -.01em;
+  color: var(--cream);
+}
+.app-title .t-name em {
+  font-family: var(--f-num);
+  font-style: italic;
+  color: var(--peach);
+  font-weight: 400;
+  padding: 0 .02em;
+}
+
+.header-acts {
+  display: inline-flex;
+  gap: 8px;
+}
+.ibtn {
+  width: 38px; height: 38px;
+  border-radius: 14px;
+  background: var(--g1);
+  border: 1px solid var(--gb);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  display: grid; place-items: center;
+  color: var(--cream);
+  transition: transform .35s var(--spring), background .35s;
+}
+.ibtn:hover { transform: translateY(-1px) scale(1.04); background: var(--g2); }
+.ibtn svg { width: 17px; height: 17px; stroke-width: 1.6; }
+
+/* ───────────── TOOLBAR ───────────── */
+.toolbar {
+  padding: 2px 20px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  padding: 0 14px;
+  background: var(--g1);
+  border: 1px solid var(--gb);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border-radius: 16px;
+  color: var(--dim);
+  font-size: 13px;
+  font-weight: 400;
+}
+.search svg { width: 15px; height: 15px; stroke-width: 1.7; color: var(--dim); }
+.search .placeholder { color: var(--dim); }
+.search .count {
+  margin-left: auto;
+  font-family: var(--f-num);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--peach);
+  letter-spacing: 0;
+}
+.btn-select {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 16px;
+  background: var(--g1);
+  border: 1px solid var(--gb);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--f-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--cream);
+  transition: transform .35s var(--spring);
+}
+.btn-select:hover { transform: translateY(-1px) scale(1.03); }
+.btn-select svg { width: 14px; height: 14px; stroke-width: 1.8; }
+
+/* Mockup C — active bulk mode */
+.screen.bulk .btn-select {
+  background: linear-gradient(140deg, #ffbe7c 0%, #ff7a6e 100%);
+  border-color: rgba(255,255,255,.3);
+  color: #2b1a0a;
+  box-shadow: 0 0 30px -6px rgba(255,190,124,.5);
+}
+.screen.bulk .btn-select::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #2b1a0a;
+}
+
+/* ───────────── GRID ───────────── */
+.grid {
+  padding: 6px 16px 120px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 14px;
+  overflow-y: auto;
+  max-height: calc(100% - 160px);
+  scrollbar-width: none;
+}
+.grid::-webkit-scrollbar { display: none; }
+
+/* ───────────── CARD ───────────── */
+.card {
+  --aura: #c4b4e8;
+  --aura2: #9b5fff;
+  position: relative;
+  padding: 14px 12px 12px;
+  border-radius: 26px;
+  background: var(--g1);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--gb);
+  isolation: isolate;
+  transition: transform .55s var(--spring), border-color .4s;
+  animation: breathe 5.5s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,100% { box-shadow:
+    0 0 40px -6px color-mix(in srgb, var(--aura) 55%, transparent),
+    0 0 0 1px var(--gb),
+    inset 0 1px 0 rgba(255,255,255,.08); }
+  50%     { box-shadow:
+    0 0 62px -2px color-mix(in srgb, var(--aura) 70%, transparent),
+    0 0 0 1px rgba(255,255,255,.14),
+    inset 0 1px 0 rgba(255,255,255,.12); }
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background:
+    radial-gradient(75% 55% at 82% 18%, color-mix(in srgb, var(--aura) 45%, transparent) 0%, transparent 60%),
+    radial-gradient(80% 70% at 12% 95%, color-mix(in srgb, var(--aura2) 38%, transparent) 0%, transparent 65%);
+  opacity: .9;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(2px);
+}
+.card:hover { transform: translateY(-2px) scale(1.012); }
+
+/* ─── card header ─── */
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  min-height: 30px;
+}
+.card-name {
+  font-family: var(--f-disp);
+  font-weight: 500;
+  font-size: 12.5px;
+  line-height: 1.22;
+  letter-spacing: -.01em;
+  color: var(--cream);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+.i-info {
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  border-radius: 8px;
+  background: var(--g1);
+  border: 1px solid var(--gb);
+  display: grid; place-items: center;
+  color: var(--cream);
+  transition: transform .35s var(--spring);
+}
+.i-info:hover { transform: scale(1.1) rotate(-4deg); }
+.i-info svg { width: 11px; height: 11px; stroke-width: 2.1; }
+
+/* ─── preview well ─── */
+.preview {
+  position: relative;
+  height: 96px;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255,255,255,.06);
+  background:
+    radial-gradient(120% 80% at 50% 100%, rgba(0,0,0,.3) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.03) 0%, rgba(0,0,0,.1) 100%);
+}
+.bg-wash {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+}
+.bg-slice { flex: 1; height: 100%; }
+.bg-wash.single .bg-slice {
+  background:
+    radial-gradient(85% 85% at 50% 40%, var(--bgCenter) 0%, var(--bgEdge) 80%);
+}
+.bg-wash.two .bg-slice:nth-child(1) {
+  background: radial-gradient(80% 80% at 50% 40%, var(--bg1c) 0%, var(--bg1e) 80%);
+}
+.bg-wash.two .bg-slice:nth-child(2) {
+  background: radial-gradient(80% 80% at 50% 40%, var(--bg2c) 0%, var(--bg2e) 80%);
+}
+.bg-wash.three .bg-slice:nth-child(1) {
+  background: radial-gradient(90% 90% at 50% 40%, var(--bg1c) 0%, var(--bg1e) 80%);
+}
+.bg-wash.three .bg-slice:nth-child(2) {
+  background: radial-gradient(90% 90% at 50% 40%, var(--bg2c) 0%, var(--bg2e) 80%);
+}
+.bg-wash.three .bg-slice:nth-child(3) {
+  background: radial-gradient(90% 90% at 50% 40%, var(--bg3c) 0%, var(--bg3e) 80%);
+}
+.bg-wash.mesh {
+  background:
+    radial-gradient(circle at 20% 20%, #ca70c6 0%, transparent 45%),
+    radial-gradient(circle at 82% 28%, #7596f9 0%, transparent 45%),
+    radial-gradient(circle at 20% 80%, #dab345 0%, transparent 45%),
+    radial-gradient(circle at 80% 82%, #6fc793 0%, transparent 45%),
+    linear-gradient(120deg, #3a2e4e 0%, #2b3a4e 100%);
+}
+.bg-wash.transparent {
+  background:
+    repeating-conic-gradient(from 0deg,
+      rgba(255,255,255,.08) 0deg 10deg,
+      rgba(255,255,255,.02) 10deg 20deg);
+  opacity: .45;
+}
+.bg-wash.desat {
+  background: radial-gradient(100% 100% at 50% 40%, #6b7572 0%, #3a3f3d 80%);
+  filter: saturate(.25) brightness(.85);
+}
+
+.preview .models {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 2;
+}
+.preview .models img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,.5)) drop-shadow(0 0 18px rgba(255,255,255,.08));
+  animation: breatheMini 4s ease-in-out infinite;
+}
+.preview .models.chain img {
+  width: 46px;
+  height: 46px;
+  margin-left: -14px;
+}
+.preview .models.chain img:first-child { margin-left: 0; }
+.preview .models.chain img:nth-child(2) { animation-delay: .3s; }
+.preview .models.chain img:nth-child(3) { animation-delay: .6s; }
+.preview .models.big img {
+  width: 76px;
+  height: 76px;
+}
+@keyframes breatheMini {
+  0%,100% { transform: scale(1)    translateY(0); }
+  50%     { transform: scale(1.035) translateY(-2px); }
+}
+
+/* preview overlay — state badges */
+.state-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(20,17,13,.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--gb);
+  font-family: var(--f-body);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--cream);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  z-index: 3;
+}
+.state-badge.off {
+  background: rgba(20,17,13,.75);
+  color: var(--dim);
+  border-color: rgba(255,255,255,.06);
+}
+.state-badge svg { width: 9px; height: 9px; stroke-width: 2.2; }
+.state-badge.warn {
+  background: rgba(255,122,110,.2);
+  color: var(--coral);
+  border-color: rgba(255,122,110,.5);
+}
+
+/* ─── meta rows ─── */
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-family: var(--f-body);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--cream);
+  margin-bottom: 10px;
+}
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 14px;
+}
+.meta-row svg {
+  width: 11px; height: 11px;
+  stroke-width: 1.8;
+  color: var(--dim);
+  flex-shrink: 0;
+}
+.meta-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.meta-row .mute { color: var(--dim); font-weight: 400; }
+
+/* ─── markets row ─── */
+.markets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 10px;
+  min-height: 18px;
+}
+.markets .label {
+  font-family: var(--f-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.markets .dots {
+  display: flex;
+  align-items: center;
+}
+.mk {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-size: 8px;
+  margin-left: -4px;
+  border: 1.5px solid rgba(20,17,13,.9);
+  box-shadow: 0 2px 8px rgba(0,0,0,.5);
+}
+.mk:first-child { margin-left: 0; }
+.mk-p { background: linear-gradient(140deg, #7b4bff, #3b1f99); }
+.mk-f { background: linear-gradient(140deg, #46b7ff, #1561b6); }
+.mk-m { background: linear-gradient(140deg, #ff8a59, #d0371b); }
+.mk-t { background: linear-gradient(140deg, #52d1a3, #197055); }
+.mk-g { background: linear-gradient(140deg, #ffce5a, #b8781b); }
+
+/* ─── action bar ─── */
+.action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+.price {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.price-lead {
+  font-family: var(--f-body);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 4px;
+}
+.price-val {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.price-num {
+  font-family: var(--f-num);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -.01em;
+  color: var(--cream);
+  line-height: 1;
+}
+.price-cur {
+  font-family: var(--f-body);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--dim);
+}
+.price-count {
+  font-family: var(--f-body);
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--sage);
+  margin-top: 4px;
+}
+.price-count.zero {
+  color: var(--coral);
+  font-weight: 700;
+}
+
+.swt {
+  width: 48px; height: 28px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid var(--gb);
+  position: relative;
+  transition: all .55s var(--spring);
+  flex-shrink: 0;
+}
+.swt::after {
+  content: "";
+  position: absolute;
+  left: 3px; top: 3px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,.5);
+  transition: all .55s var(--spring);
+}
+.swt.on {
+  background: linear-gradient(135deg, var(--peach) 0%, var(--coral) 100%);
+  border-color: rgba(255,255,255,.3);
+  box-shadow:
+    0 0 18px rgba(255,122,110,.6),
+    0 0 36px -4px rgba(255,190,124,.45);
+}
+.swt.on::after {
+  left: calc(100% - 23px);
+  background: #fff9e6;
+}
+
+/* ─── menu button ─── */
+.ibtn.mini {
+  width: 28px; height: 28px;
+  border-radius: 10px;
+}
+.ibtn.mini svg { width: 13px; height: 13px; stroke-width: 2; }
+
+/* ───────────── CARD STATES ───────────── */
+
+/* Card 6 — heartbeat (0 count) */
+.card.heartbeat {
+  animation: heartBloom .85s ease-in-out infinite;
+  border-color: rgba(255,122,110,.55);
+}
+@keyframes heartBloom {
+  0%,100% { box-shadow:
+    0 0 60px 4px rgba(255,122,110,.55),
+    0 0 0 1px rgba(255,122,110,.5),
+    inset 0 0 0 1px rgba(255,122,110,.25); }
+  50%     { box-shadow:
+    0 0 110px 16px rgba(255,122,110,.75),
+    0 0 0 2px rgba(255,122,110,.7),
+    inset 0 0 0 1px rgba(255,122,110,.4); }
+}
+.card.heartbeat .bg-wash {
+  box-shadow: inset 0 0 50px rgba(255,122,110,.45);
+}
+.card.heartbeat .zero-cta {
+  font-family: var(--f-num);
+  font-style: italic;
+  font-size: 11px;
+  line-height: 1.25;
+  color: var(--coral);
+  margin-bottom: 6px;
+  padding-top: 2px;
+}
+.card.heartbeat .zero-cta b {
+  font-family: var(--f-disp);
+  font-style: normal;
+  font-weight: 500;
+  color: var(--cream);
+}
+
+/* Card 7 — dimmed */
+.card.dimmed {
+  filter: saturate(.4) brightness(.78);
+  animation: breatheDim 7s ease-in-out infinite;
+}
+@keyframes breatheDim {
+  0%,100% { box-shadow:
+    0 0 30px -6px rgba(126,177,180,.25),
+    0 0 0 1px rgba(255,255,255,.06); }
+  50%     { box-shadow:
+    0 0 42px -2px rgba(126,177,180,.35),
+    0 0 0 1px rgba(255,255,255,.1); }
+}
+.card.dimmed .price-num { color: var(--dim); }
+.card.dimmed .swt {
+  background: rgba(255,255,255,.04);
+  box-shadow: none;
+}
+.card.dimmed .swt::after { background: #7a736a; }
+
+/* ───────────── BOTTOM NAV ───────────── */
+.nav {
+  position: absolute;
+  left: 14px; right: 14px;
+  bottom: 14px;
+  height: 64px;
+  border-radius: 22px;
+  background: rgba(26,25,21,.7);
+  backdrop-filter: blur(22px) saturate(200%);
+  -webkit-backdrop-filter: blur(22px) saturate(200%);
+  border: 1px solid var(--gb);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 18px;
+  z-index: 10;
+  box-shadow: 0 10px 40px rgba(0,0,0,.4);
+}
+.nav .tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--dim);
+  font-family: var(--f-body);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  transition: color .35s;
+}
+.nav .tab.active { color: var(--cream); }
+.nav .tab.active svg { color: var(--peach); filter: drop-shadow(0 0 8px rgba(255,190,124,.6)); }
+.nav .tab svg { width: 18px; height: 18px; stroke-width: 1.7; }
+
+/* ───────────── BOTTOM SHEET (MOCKUP B) ───────────── */
+.dim-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(5,4,3,.55);
+  backdrop-filter: blur(3px);
+  z-index: 20;
+}
+.sheet {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 74%;
+  background:
+    radial-gradient(90% 60% at 80% 0%, rgba(200,109,255,.14), transparent 60%),
+    radial-gradient(80% 50% at 10% 0%, rgba(255,190,124,.10), transparent 60%),
+    rgba(24,23,18,.95);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  border-top: 1px solid var(--gb2);
+  z-index: 21;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -20px 80px rgba(0,0,0,.6);
+}
+.sheet-handle {
+  width: 44px; height: 5px;
+  background: rgba(255,255,255,.25);
+  border-radius: 999px;
+  margin: 10px auto 0;
+  flex-shrink: 0;
+}
+.sheet-head {
+  padding: 16px 22px 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.sheet-title {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+.sheet-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px 3px 6px;
+  background: rgba(168,198,159,.14);
+  border: 1px solid rgba(168,198,159,.35);
+  border-radius: 999px;
+  font-family: var(--f-body);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--sage);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+.sheet-tag::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--sage);
+  box-shadow: 0 0 10px 1px rgba(168,198,159,.7);
+}
+.sheet-name {
+  font-family: var(--f-disp);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -.01em;
+  color: var(--cream);
+  line-height: 1.15;
+}
+.sheet-close {
+  width: 34px; height: 34px;
+  border-radius: 12px;
+  background: var(--g1);
+  border: 1px solid var(--gb);
+  color: var(--cream);
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.sheet-close svg { width: 14px; height: 14px; stroke-width: 2; }
+
+.sheet-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 22px 20px;
+  scrollbar-width: none;
+}
+.sheet-scroll::-webkit-scrollbar { display: none; }
+
+.sheet-hero {
+  position: relative;
+  height: 130px;
+  border-radius: 22px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: radial-gradient(80% 80% at 50% 40%, #78c585 0%, #42a171 80%);
+  box-shadow:
+    0 0 50px -10px rgba(120,197,133,.5),
+    inset 0 1px 0 rgba(255,255,255,.12);
+}
+.sheet-hero img {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 108px;
+  filter: drop-shadow(0 12px 30px rgba(0,0,0,.55));
+  animation: breatheMini 4s ease-in-out infinite;
+}
+
+.sect {
+  margin-bottom: 14px;
+}
+.sect-h {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+.sect-h .l {
+  font-family: var(--f-body);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.sect-h .r {
+  font-family: var(--f-num);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--peach);
+}
+.sect-body {
+  font-family: var(--f-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--cream);
+  line-height: 1.35;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 6px;
+  background: var(--g1);
+  border: 1px solid var(--gb);
+  border-radius: 999px;
+  font-family: var(--f-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--cream);
+}
+.chip .sw {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px 1px var(--_c, rgba(255,255,255,.3));
+}
+
+.stat-row {
+  display: flex;
+  gap: 10px;
+  background: var(--g1);
+  border: 1px solid var(--gb);
+  border-radius: 18px;
+  padding: 12px 14px;
+  align-items: center;
+}
+.stat-row + .stat-row { margin-top: 8px; }
+.stat-icn {
+  width: 34px; height: 34px;
+  border-radius: 12px;
+  display: grid; place-items: center;
+  color: var(--cream);
+  flex-shrink: 0;
+}
+.stat-icn.buy {
+  background: linear-gradient(140deg, rgba(255,190,124,.25), rgba(255,122,110,.25));
+  color: var(--peach);
+  box-shadow: 0 0 16px -4px rgba(255,122,110,.4);
+}
+.stat-icn.bell {
+  background: linear-gradient(140deg, rgba(168,198,159,.25), rgba(120,197,133,.2));
+  color: var(--sage);
+  box-shadow: 0 0 16px -4px rgba(168,198,159,.4);
+}
+.stat-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.stat-col .t1 {
+  font-family: var(--f-body);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.stat-col .t2 {
+  font-family: var(--f-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--cream);
+}
+.stat-col .t2 em {
+  font-family: var(--f-num);
+  font-style: italic;
+  color: var(--peach);
+  font-size: 15px;
+  font-weight: 400;
+  padding: 0 2px;
+}
+
+.sheet-ctas {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+.sc-btn {
+  flex: 1;
+  height: 48px;
+  border-radius: 16px;
+  background: var(--g1);
+  border: 1px solid var(--gb);
+  color: var(--cream);
+  font-family: var(--f-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+.sc-btn svg { width: 14px; height: 14px; stroke-width: 2; }
+.sc-btn.primary {
+  background: linear-gradient(140deg, var(--peach) 0%, var(--coral) 100%);
+  color: #2b1a0a;
+  border-color: rgba(255,255,255,.3);
+  box-shadow: 0 10px 30px -10px rgba(255,122,110,.6);
+}
+.sc-btn.danger {
+  background: rgba(255,122,110,.12);
+  color: var(--coral);
+  border-color: rgba(255,122,110,.4);
+}
+
+/* ───────────── BULK OVERLAY (MOCKUP C) ───────────── */
+.screen.bulk .card {
+  transform: scale(.94);
+  transition: transform .55s var(--spring);
+}
+.screen.bulk .card.selected {
+  border-color: rgba(255,190,124,.55);
+  box-shadow:
+    0 0 60px -4px rgba(255,190,124,.5),
+    0 0 0 2px rgba(255,190,124,.6),
+    inset 0 0 0 1px rgba(255,190,124,.25);
+  animation: none;
+}
+
+.cbox {
+  position: absolute;
+  top: 10px; left: 10px;
+  width: 22px; height: 22px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,.4);
+  background: rgba(20,17,13,.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 4;
+  display: grid; place-items: center;
+}
+.cbox.checked {
+  background: linear-gradient(140deg, var(--peach), var(--coral));
+  border-color: rgba(255,255,255,.5);
+  box-shadow: 0 0 18px -2px rgba(255,190,124,.7);
+}
+.cbox.checked svg { width: 12px; height: 12px; color: #2b1a0a; stroke-width: 3; }
+.cbox:not(.checked) svg { display: none; }
+
+.bulk-bar {
+  position: absolute;
+  left: 14px; right: 14px;
+  bottom: 14px;
+  padding: 14px 16px 14px 20px;
+  background:
+    radial-gradient(80% 70% at 50% 0%, rgba(255,190,124,.2), transparent 60%),
+    rgba(26,25,21,.85);
+  backdrop-filter: blur(22px) saturate(200%);
+  -webkit-backdrop-filter: blur(22px) saturate(200%);
+  border: 1px solid var(--gb2);
+  border-radius: 22px;
+  z-index: 10;
+  box-shadow: 0 -10px 60px rgba(0,0,0,.5);
+}
+.bulk-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.bulk-label {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.bulk-label .t1 {
+  font-family: var(--f-body);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 4px;
+}
+.bulk-label .t2 {
+  font-family: var(--f-disp);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--cream);
+}
+.bulk-label .t2 em {
+  font-family: var(--f-num);
+  font-style: italic;
+  color: var(--peach);
+  font-size: 20px;
+  font-weight: 400;
+  padding: 0 2px;
+}
+.bulk-cancel {
+  padding: 8px 14px;
+  background: var(--g1);
+  border: 1px solid var(--gb);
+  border-radius: 999px;
+  font-family: var(--f-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cream);
+}
+.bulk-acts {
+  display: flex;
+  gap: 8px;
+}
+.ba {
+  flex: 1;
+  height: 40px;
+  border-radius: 14px;
+  background: var(--g1);
+  border: 1px solid var(--gb);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-family: var(--f-body);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--cream);
+}
+.ba svg { width: 12px; height: 12px; stroke-width: 2; }
+.ba.danger {
+  background: rgba(255,122,110,.14);
+  color: var(--coral);
+  border-color: rgba(255,122,110,.4);
+}
+
+/* ───────────── FOOTER ───────────── */
+.stage-foot {
+  max-width: 1360px;
+  margin: 56px auto 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+.foot-row {
+  display: inline-flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.foot-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--gb);
+  background: var(--g1);
+  border-radius: 999px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-family: var(--f-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--dim);
+  letter-spacing: .04em;
+}
+.foot-chip b {
+  font-family: var(--f-disp);
+  font-weight: 500;
+  color: var(--cream);
+}
+.foot-chip .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+.stage-foot .credit {
+  margin-top: 14px;
+  font-family: var(--f-body);
+  font-size: 11px;
+  color: var(--dim);
+  opacity: .6;
+}
+.stage-foot .credit em {
+  font-family: var(--f-num);
+  font-style: italic;
+  color: var(--peach);
+  font-size: 12px;
+}
+</style>
+</head>
+<body>
+
+<header class="stage-head">
+  <div class="stage-tag">v4 · terrarium glow</div>
+  <h1>Живой <em>террариум</em> подписок.<br>Каждая с её собственной аурой.</h1>
+  <p>Карточки дышат — glow каждой подписки тянется из реального hex её фона. Glass morphism, Unbounded display, DM&nbsp;Serif italic цифры, spring elasticity, heartbeat для «0 шт».</p>
+</header>
+
+<main class="stage">
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- MOCKUP A · MAIN GRID                             -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="mock">
+    <div class="mock-label">
+      <span class="badge">A</span>
+      Главная — сетка <span class="hint">9 living cards</span>
+    </div>
+
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="screen-inner">
+
+          <div class="statusbar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="10" viewBox="0 0 16 10" fill="currentColor"><rect x="0" y="4" width="3" height="6" rx=".5"/><rect x="4.5" y="2.5" width="3" height="7.5" rx=".5"/><rect x="9" y="1" width="3" height="9" rx=".5"/><rect x="13.5" y="0" width="2.5" height="10" rx=".5"/></svg>
+              <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 3.5a9 9 0 0 1 12 0M3 5.5a6 6 0 0 1 8 0M5 7.5a3 3 0 0 1 4 0"/><circle cx="7" cy="9" r=".7" fill="currentColor"/></svg>
+              <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="20" height="10" rx="2.5" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="16" height="7" rx="1.5" fill="currentColor"/><rect x="21" y="3.5" width="1.5" height="4" rx=".5" fill="currentColor" opacity=".6"/></svg>
+            </span>
+          </div>
+
+          <div class="app-header">
+            <div class="app-title">
+              <div class="satellite-logo">
+                <img src="../../../assets/logo.jpg" alt="Gift Satellite">
+              </div>
+              <div class="t">
+                <span class="t-lead">мои подписки</span>
+                <span class="t-name">Tерра<em>риум</em></span>
+              </div>
+            </div>
+            <div class="header-acts">
+              <button class="ibtn" title="Сортировка"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg></button>
+              <button class="ibtn" title="Добавить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+              <span class="placeholder">Найти подписку…</span>
+              <span class="count">45 ◇</span>
+            </div>
+            <button class="btn-select">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Выбрать
+            </button>
+          </div>
+
+          <div class="grid">
+
+            <!-- ───── CARD 1 · ICE CREAM, SAPPHIRE ───── -->
+            <article class="card" style="--aura:#58a3c8; --aura2:#0d45b6;">
+              <header class="card-head">
+                <h3 class="card-name">Ice Cream флип до 30</h3>
+                <button class="i-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+              </header>
+
+              <div class="preview">
+                <div class="bg-wash single" style="--bgCenter:#58a3c8; --bgEdge:#5379c2;"><span class="bg-slice"></span></div>
+                <div class="models">
+                  <img src="../../../assets/originals/5900177027566142759/Original.png" alt="Ice Cream">
+                </div>
+              </div>
+
+              <div class="meta">
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>Ice Cream</span></div>
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/></svg><span>Sapphire <span class="mute">· Любые узоры · #1–99</span></span></div>
+              </div>
+
+              <div class="markets">
+                <span class="label">Покупка</span>
+                <div class="dots">
+                  <span class="mk mk-p">P</span>
+                  <span class="mk mk-f">F</span>
+                  <span class="mk mk-m">M</span>
+                </div>
+              </div>
+
+              <div class="action">
+                <div class="price">
+                  <span class="price-lead">до цены</span>
+                  <span class="price-val"><span class="price-num">30</span><span class="price-cur">◇</span></span>
+                  <span class="price-count">5 из 12 куплено</span>
+                </div>
+                <button class="swt on" aria-label="toggle"></button>
+              </div>
+            </article>
+
+            <!-- ───── CARD 2 · LOL POP, ANY ───── -->
+            <article class="card" style="--aura:#c4b4e8; --aura2:#9b5fff;">
+              <header class="card-head">
+                <h3 class="card-name">Lol Pop охота</h3>
+                <button class="i-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+              </header>
+
+              <div class="preview">
+                <div class="bg-wash transparent"></div>
+                <div class="models">
+                  <img src="../../../assets/originals/5170594532177215681/Original.png" alt="Lol Pop">
+                </div>
+              </div>
+
+              <div class="meta">
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg><span>Lol Pop <span class="mute">· любые модели</span></span></div>
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/></svg><span class="mute">Любые фоны · любые узоры</span></div>
+              </div>
+
+              <div class="markets">
+                <span class="label">Ноtif</span>
+                <div class="dots">
+                  <span class="mk mk-p">P</span>
+                  <span class="mk mk-f">F</span>
+                  <span class="mk mk-m">M</span>
+                  <span class="mk mk-t">T</span>
+                  <span class="mk mk-g">G</span>
+                </div>
+              </div>
+
+              <div class="action">
+                <div class="price">
+                  <span class="price-lead">до цены</span>
+                  <span class="price-val"><span class="price-num">12</span><span class="price-cur">◇</span></span>
+                  <span class="price-count">без лимита</span>
+                </div>
+                <button class="swt on" aria-label="toggle"></button>
+              </div>
+            </article>
+
+            <!-- ───── CARD 3 · LIGHT SWORD CHAIN, EMERALD ───── -->
+            <article class="card" style="--aura:#78c585; --aura2:#006532;">
+              <header class="card-head">
+                <h3 class="card-name">Три клинка</h3>
+                <button class="i-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+              </header>
+
+              <div class="preview">
+                <div class="bg-wash single" style="--bgCenter:#78c585; --bgEdge:#42a171;"><span class="bg-slice"></span></div>
+                <div class="models chain">
+                  <img src="../../../assets/originals/5897581235231785485/Original.png" alt="Light Sword 1">
+                  <img src="../../../assets/originals/5897581235231785485/Original.png" alt="Light Sword 2">
+                  <img src="../../../assets/originals/5897581235231785485/Original.png" alt="Light Sword 3">
+                </div>
+              </div>
+
+              <div class="meta">
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2l8 8-7 7-8-8z"/><path d="M6 10L2 14l4 4 4-4"/></svg><span>3 модели</span></div>
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/></svg><span>Emerald <span class="mute">· #7, #14</span></span></div>
+              </div>
+
+              <div class="markets">
+                <span class="label">Покупка</span>
+                <div class="dots">
+                  <span class="mk mk-p">P</span>
+                  <span class="mk mk-f">F</span>
+                </div>
+              </div>
+
+              <div class="action">
+                <div class="price">
+                  <span class="price-lead">до цены</span>
+                  <span class="price-val"><span class="price-num">55</span><span class="price-cur">◇</span></span>
+                  <span class="price-count">2 из 6 куплено</span>
+                </div>
+                <button class="swt on" aria-label="toggle"></button>
+              </div>
+            </article>
+
+            <!-- ───── CARD 4 · PLUSH PEPE, 3 BACKDROPS SPLIT ───── -->
+            <article class="card" style="--aura:#ccab41; --aura2:#7a3100;">
+              <header class="card-head">
+                <h3 class="card-name">Pepe — золотой фонд</h3>
+                <button class="i-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+              </header>
+
+              <div class="preview">
+                <div class="bg-wash three"
+                     style="
+                       --bg1c:#ccab41; --bg1e:#703c00;
+                       --bg2c:#dab345; --bg2e:#7a3100;
+                       --bg3c:#da896b; --bg3e:#891200;">
+                  <span class="bg-slice"></span>
+                  <span class="bg-slice"></span>
+                  <span class="bg-slice"></span>
+                </div>
+                <div class="models big">
+                  <img src="../../../assets/originals/5936013938331222567/Original.png" alt="Plush Pepe">
+                </div>
+              </div>
+
+              <div class="meta">
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg><span>12 моделей</span></div>
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/></svg><span>3 фона <span class="mute">· Pure Gold +2</span></span></div>
+              </div>
+
+              <div class="markets">
+                <span class="label">Покупка</span>
+                <div class="dots">
+                  <span class="mk mk-p">P</span>
+                  <span class="mk mk-f">F</span>
+                  <span class="mk mk-m">M</span>
+                  <span class="mk mk-t">T</span>
+                </div>
+              </div>
+
+              <div class="action">
+                <div class="price">
+                  <span class="price-lead">до цены</span>
+                  <span class="price-val"><span class="price-num">420</span><span class="price-cur">◇</span></span>
+                  <span class="price-count">8 из 24 куплено</span>
+                </div>
+                <button class="swt on" aria-label="toggle"></button>
+              </div>
+            </article>
+
+            <!-- ───── CARD 5 · JOLLY CHIMP, 25 BACKDROPS MESH ───── -->
+            <article class="card" style="--aura:#ca70c6; --aura2:#7596f9;">
+              <header class="card-head">
+                <h3 class="card-name">Chimp · 25 фонов</h3>
+                <button class="i-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+              </header>
+
+              <div class="preview">
+                <div class="bg-wash mesh"></div>
+                <div class="models chain">
+                  <img src="../../../assets/originals/6005880141270483700/Original.png" alt="Jolly Chimp 1">
+                  <img src="../../../assets/originals/6005880141270483700/Original.png" alt="Jolly Chimp 2">
+                </div>
+              </div>
+
+              <div class="meta">
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg><span>2 модели</span></div>
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/></svg><span>25 фонов <span class="mute">· mesh</span></span></div>
+              </div>
+
+              <div class="markets">
+                <span class="label">Покупка</span>
+                <div class="dots">
+                  <span class="mk mk-p">P</span>
+                  <span class="mk mk-m">M</span>
+                  <span class="mk mk-g">G</span>
+                </div>
+              </div>
+
+              <div class="action">
+                <div class="price">
+                  <span class="price-lead">до цены</span>
+                  <span class="price-val"><span class="price-num">88</span><span class="price-cur">◇</span></span>
+                  <span class="price-count">1 из 4 куплено</span>
+                </div>
+                <button class="swt on" aria-label="toggle"></button>
+              </div>
+            </article>
+
+            <!-- ───── CARD 6 · HOMEMADE CAKE, 0 STOCK HEARTBEAT ───── -->
+            <article class="card heartbeat" style="--aura:#ff7a6e; --aura2:#c4654f;">
+              <header class="card-head">
+                <h3 class="card-name">Homemade Cake</h3>
+                <button class="i-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+              </header>
+
+              <div class="preview">
+                <div class="bg-wash single" style="--bgCenter:#da896b; --bgEdge:#891200;"><span class="bg-slice"></span></div>
+                <span class="state-badge warn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
+                  0 из 8
+                </span>
+                <div class="models">
+                  <img src="../../../assets/originals/5783075783622787539/Original.png" alt="Homemade Cake">
+                </div>
+              </div>
+
+              <p class="zero-cta"><b>Закончилось.</b> Нажми, чтобы пополнить ↗</p>
+
+              <div class="markets">
+                <span class="label">Покупка</span>
+                <div class="dots">
+                  <span class="mk mk-f">F</span>
+                  <span class="mk mk-m">M</span>
+                </div>
+              </div>
+
+              <div class="action">
+                <div class="price">
+                  <span class="price-lead">было до</span>
+                  <span class="price-val"><span class="price-num">45</span><span class="price-cur">◇</span></span>
+                  <span class="price-count zero">0 из 8 · пополнить</span>
+                </div>
+                <button class="swt on" aria-label="toggle"></button>
+              </div>
+            </article>
+
+            <!-- ───── CARD 7 · DESK CALENDAR, BUY OFF DIMMED ───── -->
+            <article class="card dimmed" style="--aura:#7eb1b4; --aura2:#164552;">
+              <header class="card-head">
+                <h3 class="card-name">Календарь · заморожен</h3>
+                <button class="i-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+              </header>
+
+              <div class="preview">
+                <div class="bg-wash desat"></div>
+                <span class="state-badge off">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 10h18M8 2v4M16 2v4"/><path d="M6 14l12 4M6 18l12-4"/></svg>
+                  Покупка выкл
+                </span>
+                <div class="models">
+                  <img src="../../../assets/originals/5782988952268964995/Original.png" alt="Desk Calendar">
+                </div>
+              </div>
+
+              <div class="meta">
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/></svg><span>Desk Calendar</span></div>
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l10 6-10 6L2 8z"/></svg><span>Moonstone <span class="mute">· 2 узора</span></span></div>
+              </div>
+
+              <div class="markets">
+                <span class="label">Выкл</span>
+                <div class="dots">
+                  <span class="mk mk-p" style="opacity:.45">P</span>
+                  <span class="mk mk-f" style="opacity:.45">F</span>
+                </div>
+              </div>
+
+              <div class="action">
+                <div class="price">
+                  <span class="price-lead">сохранено</span>
+                  <span class="price-val"><span class="price-num">18</span><span class="price-cur">◇</span></span>
+                  <span class="price-count" style="color:var(--dim)">пауза</span>
+                </div>
+                <button class="swt" aria-label="toggle"></button>
+              </div>
+            </article>
+
+            <!-- ───── CARD 8 · DESK CALENDAR 4 PATTERNS, NOTIF OFF ───── -->
+            <article class="card" style="--aura:#b789e4; --aura2:#5b10ab;">
+              <header class="card-head">
+                <h3 class="card-name">Календарь · 4 узора</h3>
+                <button class="i-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+              </header>
+
+              <div class="preview">
+                <div class="bg-wash single" style="--bgCenter:#b789e4; --bgEdge:#5b10ab;"><span class="bg-slice"></span></div>
+                <div class="models">
+                  <img src="../../../assets/originals/5782988952268964995/Original.png" alt="Desk Calendar">
+                </div>
+              </div>
+
+              <div class="meta">
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/></svg><span>Desk Calendar</span></div>
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M4 20L20 4"/></svg><span>Lavender <span class="mute">· 4 узора</span></span></div>
+              </div>
+
+              <div class="markets">
+                <span class="label">Notif</span>
+                <svg style="width:13px;height:13px;stroke:var(--coral)" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.7 3.3a4 4 0 0 1 6.3 3.2v.5M12 2v0M15 17H6l1-1v-3.5M22 2L2 22"/></svg>
+                <span style="font-family:var(--f-body); font-size:9.5px; color:var(--coral); font-weight:600">выкл</span>
+              </div>
+
+              <div class="action">
+                <div class="price">
+                  <span class="price-lead">до цены</span>
+                  <span class="price-val"><span class="price-num">14</span><span class="price-cur">◇</span></span>
+                  <span class="price-count">3 из 9 куплено</span>
+                </div>
+                <button class="swt on" aria-label="toggle"></button>
+              </div>
+            </article>
+
+            <!-- ───── CARD 9 · VICTORY MEDAL, LONG PROMPT, 5 BG ───── -->
+            <article class="card" style="--aura:#e7a75a; --aura2:#ad0e00;">
+              <header class="card-head">
+                <h3 class="card-name">Только топовые медали до десятки с бэкапом</h3>
+                <button class="i-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+              </header>
+
+              <div class="preview">
+                <div class="bg-wash three"
+                     style="
+                       --bg1c:#e7a75a; --bg1e:#ad0e00;
+                       --bg2c:#dd8e6f; --bg2e:#a90c0c;
+                       --bg3c:#e28ab6; --bg3e:#8e054e;">
+                  <span class="bg-slice"></span>
+                  <span class="bg-slice"></span>
+                  <span class="bg-slice"></span>
+                </div>
+                <div class="models">
+                  <img src="../../../assets/originals/5830340739074097859/Original.png" alt="Victory Medal">
+                </div>
+              </div>
+
+              <div class="meta">
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 14l-2 8 5-3 5 3-2-8"/></svg><span>Victory Medal</span></div>
+                <div class="meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/></svg><span>5 фонов <span class="mute">· #10–25</span></span></div>
+              </div>
+
+              <div class="markets">
+                <span class="label">Покупка</span>
+                <div class="dots">
+                  <span class="mk mk-p">P</span>
+                  <span class="mk mk-f">F</span>
+                  <span class="mk mk-g">G</span>
+                </div>
+              </div>
+
+              <div class="action">
+                <div class="price">
+                  <span class="price-lead">до цены</span>
+                  <span class="price-val"><span class="price-num">10</span><span class="price-cur">◇</span></span>
+                  <span class="price-count">4 из 15 куплено</span>
+                </div>
+                <button class="swt on" aria-label="toggle"></button>
+              </div>
+            </article>
+
+          </div>
+
+          <nav class="nav">
+            <a class="tab active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9v9a2 2 0 0 1-2 2h-4v-7H10v7H6a2 2 0 0 1-2-2z"/></svg>
+              Подписки
+            </a>
+            <a class="tab">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>
+              Каталог
+            </a>
+            <a class="tab">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 9 0 1 1-9-9"/><path d="M21 3v7h-7"/></svg>
+              История
+            </a>
+            <a class="tab">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 5-6 8-6s7 2 8 6"/></svg>
+              Профиль
+            </a>
+          </nav>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- MOCKUP B · INFO BOTTOM SHEET                     -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="mock">
+    <div class="mock-label">
+      <span class="badge">B</span>
+      Bottom sheet — <span class="hint">full info</span>
+    </div>
+
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="screen-inner" style="filter: blur(1.4px);">
+
+          <div class="statusbar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="10" viewBox="0 0 16 10" fill="currentColor"><rect x="0" y="4" width="3" height="6" rx=".5"/><rect x="4.5" y="2.5" width="3" height="7.5" rx=".5"/><rect x="9" y="1" width="3" height="9" rx=".5"/><rect x="13.5" y="0" width="2.5" height="10" rx=".5"/></svg>
+              <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 3.5a9 9 0 0 1 12 0M3 5.5a6 6 0 0 1 8 0M5 7.5a3 3 0 0 1 4 0"/><circle cx="7" cy="9" r=".7" fill="currentColor"/></svg>
+              <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="20" height="10" rx="2.5" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="16" height="7" rx="1.5" fill="currentColor"/><rect x="21" y="3.5" width="1.5" height="4" rx=".5" fill="currentColor" opacity=".6"/></svg>
+            </span>
+          </div>
+
+          <div class="app-header">
+            <div class="app-title">
+              <div class="satellite-logo">
+                <img src="../../../assets/logo.jpg" alt="Gift Satellite">
+              </div>
+              <div class="t">
+                <span class="t-lead">мои подписки</span>
+                <span class="t-name">Tерра<em>риум</em></span>
+              </div>
+            </div>
+            <div class="header-acts">
+              <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg></button>
+              <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+              <span class="placeholder">Найти подписку…</span>
+              <span class="count">45 ◇</span>
+            </div>
+            <button class="btn-select">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Выбрать
+            </button>
+          </div>
+
+          <div class="grid" style="pointer-events:none;">
+            <!-- backdrop cards (abstract) -->
+            <article class="card" style="--aura:#58a3c8; --aura2:#0d45b6;"><div class="preview" style="height:60px;"><div class="bg-wash single" style="--bgCenter:#58a3c8; --bgEdge:#5379c2;"><span class="bg-slice"></span></div></div></article>
+            <article class="card" style="--aura:#c4b4e8; --aura2:#9b5fff;"><div class="preview" style="height:60px;"><div class="bg-wash transparent"></div></div></article>
+            <article class="card" style="--aura:#78c585; --aura2:#006532;"><div class="preview" style="height:60px;"><div class="bg-wash single" style="--bgCenter:#78c585; --bgEdge:#42a171;"><span class="bg-slice"></span></div></div></article>
+            <article class="card" style="--aura:#ccab41; --aura2:#7a3100;"><div class="preview" style="height:60px;"><div class="bg-wash single" style="--bgCenter:#ccab41; --bgEdge:#703c00;"><span class="bg-slice"></span></div></div></article>
+          </div>
+
+        </div>
+
+        <div class="dim-bg"></div>
+
+        <div class="sheet">
+          <div class="sheet-handle"></div>
+
+          <div class="sheet-head">
+            <div class="sheet-title">
+              <span class="sheet-tag">активна</span>
+              <span class="sheet-name">Три клинка</span>
+            </div>
+            <button class="sheet-close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+
+          <div class="sheet-scroll">
+
+            <div class="sheet-hero">
+              <img src="../../../assets/originals/5897581235231785485/Original.png" alt="Light Sword">
+            </div>
+
+            <div class="sect">
+              <div class="sect-h"><span class="l">Коллекция</span></div>
+              <div class="sect-body">Light Sword <span style="color:var(--dim)">· 3 модели выбрано</span></div>
+            </div>
+
+            <div class="sect">
+              <div class="sect-h"><span class="l">Модели</span><span class="r">3</span></div>
+              <div class="chips">
+                <span class="chip">Crimson Edge</span>
+                <span class="chip">Viridian Blade</span>
+                <span class="chip">Starlight</span>
+              </div>
+            </div>
+
+            <div class="sect">
+              <div class="sect-h"><span class="l">Фоны</span><span class="r">2</span></div>
+              <div class="chips">
+                <span class="chip"><span class="sw" style="background:#78c585; --_c:rgba(120,197,133,.6)"></span>Emerald</span>
+                <span class="chip"><span class="sw" style="background:#7ecb82; --_c:rgba(126,203,130,.6)"></span>Mint Green</span>
+              </div>
+            </div>
+
+            <div class="sect">
+              <div class="sect-h"><span class="l">Узоры</span><span class="r">любые</span></div>
+              <div class="sect-body" style="color:var(--dim)">Без фильтра по узорам</div>
+            </div>
+
+            <div class="sect">
+              <div class="sect-h"><span class="l">Номер</span></div>
+              <div class="sect-body">#7 · #14 <span style="color:var(--dim)">· 2 позиции</span></div>
+            </div>
+
+            <div class="sect">
+              <div class="sect-h"><span class="l">Статус</span></div>
+              <div class="stat-row">
+                <div class="stat-icn buy">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+                </div>
+                <div class="stat-col">
+                  <span class="t1">Покупка</span>
+                  <span class="t2">до <em>55</em> ◇ · 2 из 6 · P · F</span>
+                </div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-icn bell">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+                </div>
+                <div class="stat-col">
+                  <span class="t1">Нотификации</span>
+                  <span class="t2">до <em>70</em> ◇ · P · F · M</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="sheet-ctas">
+              <button class="sc-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                Изменить
+              </button>
+              <button class="sc-btn primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+                Покупка вкл
+              </button>
+              <button class="sc-btn danger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Удалить
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- MOCKUP C · BULK MODE                             -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="mock">
+    <div class="mock-label">
+      <span class="badge">C</span>
+      Массовый выбор — <span class="hint">bulk ops</span>
+    </div>
+
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen bulk">
+        <div class="screen-inner">
+
+          <div class="statusbar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="10" viewBox="0 0 16 10" fill="currentColor"><rect x="0" y="4" width="3" height="6" rx=".5"/><rect x="4.5" y="2.5" width="3" height="7.5" rx=".5"/><rect x="9" y="1" width="3" height="9" rx=".5"/><rect x="13.5" y="0" width="2.5" height="10" rx=".5"/></svg>
+              <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 3.5a9 9 0 0 1 12 0M3 5.5a6 6 0 0 1 8 0M5 7.5a3 3 0 0 1 4 0"/><circle cx="7" cy="9" r=".7" fill="currentColor"/></svg>
+              <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="20" height="10" rx="2.5" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="16" height="7" rx="1.5" fill="currentColor"/><rect x="21" y="3.5" width="1.5" height="4" rx=".5" fill="currentColor" opacity=".6"/></svg>
+            </span>
+          </div>
+
+          <div class="app-header">
+            <div class="app-title">
+              <div class="satellite-logo">
+                <img src="../../../assets/logo.jpg" alt="Gift Satellite">
+              </div>
+              <div class="t">
+                <span class="t-lead">выбор режима</span>
+                <span class="t-name">Bulk <em>select</em></span>
+              </div>
+            </div>
+            <div class="header-acts">
+              <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg></button>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+              <span class="placeholder">Найти подписку…</span>
+              <span class="count">45 ◇</span>
+            </div>
+            <button class="btn-select">
+              Выбрано
+            </button>
+          </div>
+
+          <div class="grid" style="max-height:calc(100% - 240px); padding-bottom:140px;">
+
+            <!-- C1 selected -->
+            <article class="card selected" style="--aura:#58a3c8; --aura2:#0d45b6;">
+              <span class="cbox checked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>
+              <header class="card-head">
+                <h3 class="card-name">Ice Cream флип до 30</h3>
+              </header>
+              <div class="preview">
+                <div class="bg-wash single" style="--bgCenter:#58a3c8; --bgEdge:#5379c2;"><span class="bg-slice"></span></div>
+                <div class="models"><img src="../../../assets/originals/5900177027566142759/Original.png" alt=""></div>
+              </div>
+              <div class="meta">
+                <div class="meta-row"><span>Ice Cream · Sapphire</span></div>
+              </div>
+            </article>
+
+            <!-- C2 -->
+            <article class="card" style="--aura:#c4b4e8; --aura2:#9b5fff;">
+              <span class="cbox"></span>
+              <header class="card-head">
+                <h3 class="card-name">Lol Pop охота</h3>
+              </header>
+              <div class="preview">
+                <div class="bg-wash transparent"></div>
+                <div class="models"><img src="../../../assets/originals/5170594532177215681/Original.png" alt=""></div>
+              </div>
+              <div class="meta">
+                <div class="meta-row"><span>Любые · любые</span></div>
+              </div>
+            </article>
+
+            <!-- C3 selected -->
+            <article class="card selected" style="--aura:#78c585; --aura2:#006532;">
+              <span class="cbox checked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>
+              <header class="card-head">
+                <h3 class="card-name">Три клинка</h3>
+              </header>
+              <div class="preview">
+                <div class="bg-wash single" style="--bgCenter:#78c585; --bgEdge:#42a171;"><span class="bg-slice"></span></div>
+                <div class="models chain">
+                  <img src="../../../assets/originals/5897581235231785485/Original.png" alt="">
+                  <img src="../../../assets/originals/5897581235231785485/Original.png" alt="">
+                  <img src="../../../assets/originals/5897581235231785485/Original.png" alt="">
+                </div>
+              </div>
+              <div class="meta">
+                <div class="meta-row"><span>3 модели · Emerald</span></div>
+              </div>
+            </article>
+
+            <!-- C4 -->
+            <article class="card" style="--aura:#ccab41; --aura2:#7a3100;">
+              <span class="cbox"></span>
+              <header class="card-head">
+                <h3 class="card-name">Pepe — золотой фонд</h3>
+              </header>
+              <div class="preview">
+                <div class="bg-wash three"
+                     style="--bg1c:#ccab41; --bg1e:#703c00; --bg2c:#dab345; --bg2e:#7a3100; --bg3c:#da896b; --bg3e:#891200;">
+                  <span class="bg-slice"></span>
+                  <span class="bg-slice"></span>
+                  <span class="bg-slice"></span>
+                </div>
+                <div class="models big"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>
+              </div>
+              <div class="meta">
+                <div class="meta-row"><span>12 моделей · 3 фона</span></div>
+              </div>
+            </article>
+
+            <!-- C5 selected -->
+            <article class="card selected" style="--aura:#ca70c6; --aura2:#7596f9;">
+              <span class="cbox checked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>
+              <header class="card-head">
+                <h3 class="card-name">Chimp · 25 фонов</h3>
+              </header>
+              <div class="preview">
+                <div class="bg-wash mesh"></div>
+                <div class="models chain">
+                  <img src="../../../assets/originals/6005880141270483700/Original.png" alt="">
+                  <img src="../../../assets/originals/6005880141270483700/Original.png" alt="">
+                </div>
+              </div>
+              <div class="meta">
+                <div class="meta-row"><span>2 модели · 25 фонов</span></div>
+              </div>
+            </article>
+
+            <!-- C6 -->
+            <article class="card heartbeat" style="--aura:#ff7a6e; --aura2:#c4654f;">
+              <span class="cbox"></span>
+              <header class="card-head">
+                <h3 class="card-name">Homemade Cake</h3>
+              </header>
+              <div class="preview">
+                <div class="bg-wash single" style="--bgCenter:#da896b; --bgEdge:#891200;"><span class="bg-slice"></span></div>
+                <div class="models"><img src="../../../assets/originals/5783075783622787539/Original.png" alt=""></div>
+              </div>
+              <div class="meta">
+                <div class="meta-row"><span style="color:var(--coral)">0 из 8 · пополнить</span></div>
+              </div>
+            </article>
+
+          </div>
+
+          <div class="bulk-bar">
+            <div class="bulk-row">
+              <div class="bulk-label">
+                <span class="t1">массовый режим</span>
+                <span class="t2">Выбрано <em>3</em> из 9</span>
+              </div>
+              <button class="bulk-cancel">Отмена</button>
+            </div>
+            <div class="bulk-acts">
+              <button class="ba">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14M5 8l3-3 3 3M16 19V5M19 16l-3 3-3-3"/></svg>
+                Вкл/Выкл
+              </button>
+              <button class="ba">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Дубль
+              </button>
+              <button class="ba danger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Удалить
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="stage-foot">
+  <div class="foot-row">
+    <span class="foot-chip"><span class="dot" style="background:#58a3c8; box-shadow:0 0 10px #58a3c8"></span>Sapphire</span>
+    <span class="foot-chip"><span class="dot" style="background:#c4b4e8; box-shadow:0 0 10px #c4b4e8"></span>Lavender</span>
+    <span class="foot-chip"><span class="dot" style="background:#78c585; box-shadow:0 0 10px #78c585"></span>Emerald</span>
+    <span class="foot-chip"><span class="dot" style="background:#ccab41; box-shadow:0 0 10px #ccab41"></span>Pure Gold</span>
+    <span class="foot-chip"><span class="dot" style="background:#ca70c6; box-shadow:0 0 10px #ca70c6"></span>Electric Purple</span>
+    <span class="foot-chip"><span class="dot" style="background:#ff7a6e; box-shadow:0 0 10px #ff7a6e"></span>Coral Warn</span>
+    <span class="foot-chip"><span class="dot" style="background:#7eb1b4; box-shadow:0 0 10px #7eb1b4"></span>Moonstone (dim)</span>
+    <span class="foot-chip"><span class="dot" style="background:#e7a75a; box-shadow:0 0 10px #e7a75a"></span>Persimmon</span>
+  </div>
+  <div class="foot-row">
+    <span class="foot-chip"><b>Unbounded</b> display</span>
+    <span class="foot-chip"><b>Manrope</b> body</span>
+    <span class="foot-chip"><b>DM Serif</b> <em style="font-family:'DM Serif Display';font-style:italic">italic</em> numerals</span>
+    <span class="foot-chip">glass · blur(24) · saturate(180%)</span>
+    <span class="foot-chip">spring · cubic-bezier(.34,1.56,.64,1)</span>
+  </div>
+  <p class="credit">Gift Satellite · v4 <em>Terrarium Glow</em> · breathing aura & warm organic elegance</p>
+</footer>
+
+<script>
+/* ───────────── INTERACTIVITY ─────────────
+   Vanilla JS only. Minimal, purposeful.
+   · Click card Switch → toggle .on
+   · Click info button → pulse (visual)
+   · Click checkbox in bulk → toggle .selected
+*/
+
+document.addEventListener('click', (e) => {
+  // Switch toggle
+  const sw = e.target.closest('.swt');
+  if (sw && !sw.closest('.card.dimmed')) {
+    sw.classList.toggle('on');
+    return;
+  }
+
+  // Bulk checkbox
+  const cb = e.target.closest('.cbox');
+  if (cb) {
+    cb.classList.toggle('checked');
+    cb.closest('.card')?.classList.toggle('selected');
+    return;
+  }
+
+  // Info button micro-pulse
+  const info = e.target.closest('.i-info');
+  if (info) {
+    info.animate(
+      [{ transform: 'scale(1)' }, { transform: 'scale(1.25) rotate(-8deg)' }, { transform: 'scale(1)' }],
+      { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' }
+    );
+  }
+});
+</script>
+
+</body>
+</html>

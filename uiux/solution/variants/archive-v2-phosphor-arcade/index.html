@@ -1,0 +1,2359 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gift Satellite // PHOSPHOR_ARCADE v2</title>
+<!--
+  ============================================================
+  GIFT SATELLITE :: SUBSCRIPTION CARD REDESIGN
+  Variant: v2-phosphor-arcade
+  Concept: CRT neon terminal meets 80s arcade cabinet.
+           "Drop the quarter, catch the gift."
+           Each card is a mini HUD: corner brackets,
+           scanlines, phosphor glow, pixel label strips.
+  Fonts:   Silkscreen (pixel labels UPPERCASE),
+           VT323 (large terminal numerals),
+           IBM Plex Mono (body mono).
+  Palette: bg #000000, frame #050807, grid #0b0f14,
+           cyan #00eaff, magenta #ff2bd6, green #39ff14,
+           red #ff3838, phosphor #f6f7f7, dim #1a1f22.
+  Differentiator:
+           CRT scanlines overlay + chroma aberration on
+           hover + pixel L-corner brackets + multi-layer
+           neon glow + phosphor trails + VT323 huge digits.
+  Motion:  flicker load, neon pulse, scan sweep, glitch
+           hover, power-on flash on switches.
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root {
+  --bg: #000000;
+  --frame: #050807;
+  --frame-edge: #0b1216;
+  --grid: #0b0f14;
+  --dim: #1a1f22;
+  --dim-2: #0f1518;
+
+  --cyan: #00eaff;
+  --cyan-deep: #0088a0;
+  --magenta: #ff2bd6;
+  --magenta-deep: #9c0077;
+  --green: #39ff14;
+  --green-deep: #1c8400;
+  --red: #ff3838;
+  --red-deep: #9c0000;
+  --amber: #ffb13b;
+  --phosphor: #f6f7f7;
+  --mute: #5b6b74;
+  --mute-2: #2a353b;
+
+  --font-pixel: 'Silkscreen', monospace;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-term: 'VT323', 'IBM Plex Mono', monospace;
+}
+
+/* ============================================================
+   RESET & PAGE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--phosphor);
+  font-family: var(--font-mono);
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  overflow-x: auto;
+}
+
+body {
+  padding: 56px 48px 72px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,234,255,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 50% 100%, rgba(255,43,214,0.03) 0%, transparent 60%),
+    repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(0,234,255,0.02) 3px, rgba(0,234,255,0.02) 4px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 3px, rgba(0,234,255,0.015) 3px, rgba(0,234,255,0.015) 4px),
+    var(--bg);
+  animation: page-flicker 400ms ease-out 1 both;
+  cursor: crosshair;
+}
+
+@keyframes page-flicker {
+  0%   { opacity: 1; }
+  20%  { opacity: 0.3; }
+  40%  { opacity: 1; }
+  60%  { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* ============================================================
+   GLOBAL HUD CHROME — title bar above mockups
+   ============================================================ */
+.topbar {
+  max-width: 1420px;
+  margin: 0 auto 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border: 2px solid var(--cyan);
+  background: linear-gradient(180deg, #04090c 0%, #02070a 100%);
+  box-shadow: 0 0 8px rgba(0,234,255,0.6), 0 0 24px rgba(0,234,255,0.25), inset 0 0 12px rgba(0,234,255,0.08);
+}
+.topbar .left, .topbar .right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.topbar .brand {
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--cyan);
+  text-shadow: 0 0 4px var(--cyan), 0 0 12px rgba(0,234,255,0.6);
+  letter-spacing: 0.05em;
+  animation: neon-pulse 2.4s ease-in-out infinite;
+}
+.topbar .brand::before {
+  content: '▸ ';
+  color: var(--magenta);
+  text-shadow: 0 0 6px var(--magenta);
+}
+.topbar .brand-img {
+  width: 24px; height: 24px;
+  border-radius: 4px;
+  vertical-align: -7px;
+  margin-right: 10px;
+  filter: drop-shadow(0 0 6px rgba(0,234,255,0.55)) drop-shadow(0 0 14px rgba(255,43,214,0.35));
+  image-rendering: pixelated;
+}
+.topbar .tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--mute);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.topbar .dot {
+  width: 8px; height: 8px;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green), 0 0 12px var(--green);
+  animation: blink 1.2s step-end infinite;
+}
+.topbar .num {
+  font-family: var(--font-term);
+  font-size: 22px;
+  color: var(--cyan);
+  text-shadow: 0 0 6px var(--cyan);
+  line-height: 1;
+}
+
+@keyframes neon-pulse {
+  0%, 100% { text-shadow: 0 0 4px currentColor, 0 0 12px currentColor, 0 0 22px rgba(0,234,255,0.5); }
+  50%      { text-shadow: 0 0 6px currentColor, 0 0 18px currentColor, 0 0 36px rgba(0,234,255,0.8); }
+}
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.15; }
+}
+
+/* ============================================================
+   STAGE — three mockups side by side
+   ============================================================ */
+.stage {
+  display: flex;
+  gap: 48px;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 1420px;
+  margin: 0 auto;
+  flex-wrap: nowrap;
+}
+
+.mockup-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.mockup-label {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  color: var(--magenta);
+  text-shadow: 0 0 6px var(--magenta), 0 0 16px rgba(255,43,214,0.4);
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  border: 2px solid var(--magenta);
+  box-shadow: 0 0 10px rgba(255,43,214,0.4), inset 0 0 6px rgba(255,43,214,0.1);
+  background: #0a0206;
+}
+.mockup-label .code {
+  color: var(--cyan);
+  text-shadow: 0 0 4px var(--cyan);
+}
+
+/* ============================================================
+   PHONE FRAME
+   ============================================================ */
+.phone {
+  width: 393px;
+  height: 852px;
+  position: relative;
+  background: var(--frame);
+  border: 2px solid var(--cyan);
+  box-shadow:
+    0 0 0 1px rgba(0,234,255,0.2),
+    0 0 20px rgba(0,234,255,0.35),
+    0 0 60px rgba(0,234,255,0.15),
+    inset 0 0 40px rgba(0,0,0,0.8);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* CRT scanline overlay */
+.phone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 2px,
+      rgba(255,255,255,0.018) 2px,
+      rgba(255,255,255,0.018) 3px
+    );
+  z-index: 900;
+  mix-blend-mode: screen;
+}
+
+/* Scan sweep */
+.phone::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,220,0.6), transparent);
+  box-shadow: 0 0 12px rgba(255,255,220,0.7);
+  pointer-events: none;
+  z-index: 901;
+  animation: sweep 8s linear infinite;
+  mix-blend-mode: screen;
+}
+@keyframes sweep {
+  0%   { top: -4px; opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { top: 856px; opacity: 0; }
+}
+
+/* Phone interior grid underlay */
+.phone-inner {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 100% 60% at 50% 0%, rgba(0,234,255,0.05) 0%, transparent 70%),
+    repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(0,234,255,0.025) 3px, rgba(0,234,255,0.025) 4px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 3px, rgba(0,234,255,0.02) 3px, rgba(0,234,255,0.02) 4px),
+    var(--frame);
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+}
+
+/* Telegram safe area top */
+.safe-top {
+  height: 40px;
+  flex-shrink: 0;
+  position: relative;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--cyan);
+  text-shadow: 0 0 4px var(--cyan);
+  letter-spacing: 0.1em;
+}
+.safe-top .clock {
+  font-family: var(--font-term);
+  font-size: 16px;
+  color: var(--phosphor);
+  text-shadow: 0 0 4px var(--cyan);
+  line-height: 1;
+}
+.safe-top .sig {
+  display: flex; gap: 3px; align-items: center;
+}
+.safe-top .sig span {
+  display: block;
+  width: 3px;
+  background: var(--cyan);
+  box-shadow: 0 0 4px var(--cyan);
+}
+.safe-top .sig span:nth-child(1) { height: 4px; }
+.safe-top .sig span:nth-child(2) { height: 6px; }
+.safe-top .sig span:nth-child(3) { height: 9px; }
+.safe-top .sig span:nth-child(4) { height: 12px; opacity: 0.4; }
+.safe-top .bat {
+  display: inline-block;
+  width: 18px;
+  height: 9px;
+  border: 1px solid var(--cyan);
+  box-shadow: 0 0 4px rgba(0,234,255,0.6);
+  position: relative;
+  padding: 1px;
+}
+.safe-top .bat::after {
+  content: '';
+  position: absolute;
+  right: -3px; top: 2px;
+  width: 2px; height: 3px;
+  background: var(--cyan);
+  box-shadow: 0 0 4px var(--cyan);
+}
+.safe-top .bat i {
+  display: block;
+  height: 100%;
+  width: 72%;
+  background: var(--cyan);
+  box-shadow: 0 0 4px var(--cyan);
+}
+
+/* Top app header */
+.app-head {
+  padding: 10px 14px 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px dashed rgba(0,234,255,0.25);
+}
+.app-head .title {
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--cyan);
+  text-shadow: 0 0 5px var(--cyan), 0 0 14px rgba(0,234,255,0.5);
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-head .title::before {
+  content: '';
+  display: inline-block;
+  width: 10px; height: 10px;
+  background: var(--magenta);
+  box-shadow: 0 0 6px var(--magenta);
+  clip-path: polygon(0 40%, 40% 40%, 40% 0, 60% 0, 60% 40%, 100% 40%, 100% 60%, 60% 60%, 60% 100%, 40% 100%, 40% 60%, 0 60%);
+}
+.app-head .head-icons {
+  display: flex; gap: 10px;
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: var(--cyan);
+}
+.app-head .head-icons span {
+  width: 22px; height: 22px;
+  border: 1px solid rgba(0,234,255,0.45);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cyan);
+  text-shadow: 0 0 4px var(--cyan);
+  box-shadow: inset 0 0 4px rgba(0,234,255,0.1);
+}
+
+/* Search + toolbar */
+.toolbar {
+  padding: 8px 14px 6px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid rgba(0,234,255,0.45);
+  padding: 6px 10px;
+  background: rgba(0,20,25,0.35);
+  box-shadow: inset 0 0 8px rgba(0,234,255,0.08);
+}
+.search svg { flex-shrink: 0; color: var(--cyan); filter: drop-shadow(0 0 3px var(--cyan)); }
+.search .prompt {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--mute);
+  letter-spacing: 0.05em;
+  flex: 1;
+}
+.search .caret {
+  width: 8px;
+  height: 12px;
+  background: var(--cyan);
+  box-shadow: 0 0 6px var(--cyan);
+  animation: blink 1.1s step-end infinite;
+}
+
+.toolbar .row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.tool-btn {
+  border: 1.5px solid rgba(0,234,255,0.4);
+  padding: 4px 8px 3px;
+  background: rgba(0,10,16,0.6);
+  color: var(--cyan);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-shadow: 0 0 3px rgba(0,234,255,0.8);
+  box-shadow: inset 0 0 6px rgba(0,234,255,0.08);
+}
+.tool-btn.active {
+  border-color: var(--magenta);
+  color: var(--magenta);
+  text-shadow: 0 0 4px var(--magenta), 0 0 10px rgba(255,43,214,0.6);
+  box-shadow: 0 0 8px rgba(255,43,214,0.4), inset 0 0 6px rgba(255,43,214,0.15);
+}
+.tool-btn .n {
+  color: var(--phosphor);
+  font-family: var(--font-term);
+  font-size: 14px;
+  line-height: 1;
+  margin-left: 2px;
+  text-shadow: 0 0 4px var(--cyan);
+}
+.tool-btn.spacer { flex: 1; border: none; background: transparent; box-shadow: none; padding: 0; }
+.density {
+  display: flex;
+  border: 1.5px solid rgba(0,234,255,0.4);
+  background: rgba(0,10,16,0.6);
+}
+.density span {
+  padding: 4px 6px;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--cyan);
+  opacity: 0.55;
+  text-shadow: 0 0 2px var(--cyan);
+}
+.density span.on {
+  background: var(--cyan);
+  color: #001418;
+  opacity: 1;
+  text-shadow: none;
+  box-shadow: 0 0 8px rgba(0,234,255,0.6);
+}
+
+/* Slot counter strip */
+.slot-strip {
+  margin: 0 14px;
+  padding: 5px 10px;
+  border: 1px solid rgba(255,43,214,0.45);
+  background: linear-gradient(90deg, rgba(255,43,214,0.08), transparent 60%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--magenta);
+  text-shadow: 0 0 4px var(--magenta);
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+}
+.slot-strip .bar {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.slot-strip .bar i {
+  display: inline-block;
+  width: 4px; height: 9px;
+  background: var(--magenta);
+  box-shadow: 0 0 4px var(--magenta);
+}
+.slot-strip .bar i.off {
+  background: transparent;
+  border: 1px solid rgba(255,43,214,0.35);
+  box-shadow: none;
+}
+
+/* ============================================================
+   CARD GRID
+   ============================================================ */
+.grid {
+  flex: 1;
+  padding: 10px 14px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-content: start;
+  overflow: hidden;
+}
+
+/* ============================================================
+   CARD — mini HUD
+   ============================================================ */
+.card {
+  position: relative;
+  border: 2px solid var(--cyan);
+  background: linear-gradient(180deg, #02080b 0%, #040a0d 100%);
+  padding: 14px 8px 7px;
+  box-shadow:
+    0 0 6px rgba(0,234,255,0.35),
+    0 0 18px rgba(0,234,255,0.1),
+    inset 0 0 10px rgba(0,234,255,0.05);
+  transition: box-shadow 0.2s ease;
+  isolation: isolate;
+}
+.card:hover {
+  box-shadow:
+    0 0 10px rgba(0,234,255,0.7),
+    0 0 28px rgba(0,234,255,0.25),
+    inset 0 0 12px rgba(0,234,255,0.12);
+}
+.card::before, .card::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  inset: 0;
+  transition: opacity 0.2s;
+  border: 2px solid transparent;
+}
+.card:hover::before {
+  opacity: 0.45;
+  border-color: var(--cyan);
+  transform: translateX(-2px);
+  mix-blend-mode: screen;
+}
+.card:hover::after {
+  opacity: 0.45;
+  border-color: var(--magenta);
+  transform: translateX(2px);
+  mix-blend-mode: screen;
+}
+
+/* Corner brackets */
+.br { position: absolute; width: 8px; height: 8px; pointer-events: none; color: var(--cyan); z-index: 2; filter: drop-shadow(0 0 2px var(--cyan)); }
+.br.tl { top: -1px; left: -1px; border-top: 2px solid currentColor; border-left: 2px solid currentColor; }
+.br.tr { top: -1px; right: -1px; border-top: 2px solid currentColor; border-right: 2px solid currentColor; }
+.br.bl { bottom: -1px; left: -1px; border-bottom: 2px solid currentColor; border-left: 2px solid currentColor; }
+.br.br { bottom: -1px; right: -1px; border-bottom: 2px solid currentColor; border-right: 2px solid currentColor; }
+
+/* Label strip (top) */
+.strip {
+  position: absolute;
+  top: -2px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  color: var(--cyan);
+  text-shadow: 0 0 4px var(--cyan);
+  letter-spacing: 0.08em;
+  z-index: 3;
+}
+.strip > span {
+  background: var(--frame);
+  padding: 0 4px;
+  line-height: 12px;
+}
+.strip .slot { color: var(--magenta); text-shadow: 0 0 4px var(--magenta); }
+.strip .state { color: var(--green); text-shadow: 0 0 4px var(--green); }
+.strip .state.off { color: var(--mute); text-shadow: none; }
+.strip .state.warn { color: var(--red); text-shadow: 0 0 5px var(--red); animation: alert-blink 0.9s step-end infinite; }
+
+@keyframes alert-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.25; }
+}
+
+/* Title row */
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+  padding-top: 2px;
+}
+.title-row .name {
+  font-family: var(--font-term);
+  font-size: 19px;
+  line-height: 1;
+  color: var(--phosphor);
+  text-shadow: 0 0 5px rgba(0,234,255,0.8), 0 0 12px rgba(0,234,255,0.35);
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 135px;
+  flex: 1;
+}
+.title-row .info {
+  width: 14px; height: 14px;
+  border: 1px solid var(--cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--cyan);
+  text-shadow: 0 0 3px var(--cyan);
+  flex-shrink: 0;
+  margin-top: 3px;
+  box-shadow: inset 0 0 3px rgba(0,234,255,0.2);
+}
+
+/* Preview — backdrop bars + gift */
+.preview {
+  position: relative;
+  height: 76px;
+  margin: 6px 0 4px;
+  border: 1px solid rgba(0,234,255,0.35);
+  background: #000306;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.9), 0 0 6px rgba(0,234,255,0.1);
+}
+.bdstack {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+.bdstack > div {
+  flex: 1;
+  position: relative;
+}
+.bdstack > div::before,
+.bdstack > div::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: rgba(0,0,0,0.5);
+}
+.bdstack > div::before { top: 0; }
+.bdstack > div::after  { bottom: 0; }
+.bdstack-custom {
+  position: absolute;
+  inset: 0;
+  background:
+    conic-gradient(from 45deg, #ff2bd6 0%, #00eaff 15%, #39ff14 30%, #ffb13b 45%, #ff2bd6 60%, #7596f9 75%, #a980f3 90%, #ff2bd6 100%);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  filter: saturate(1.3) contrast(1.1);
+}
+.bdstack-custom::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg, transparent 0 4px, rgba(0,0,0,0.35) 4px 5px);
+}
+
+/* Preview gift — centered PNGs */
+.preview .gifts {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.preview .gifts img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter:
+    drop-shadow(0 0 4px rgba(0,234,255,0.8))
+    drop-shadow(0 0 10px rgba(0,234,255,0.35))
+    contrast(1.05)
+    saturate(0.85)
+    brightness(1.05);
+  mix-blend-mode: screen;
+}
+.preview .gifts.chain img { width: 30px; height: 30px; }
+.preview .gifts.chain5 img { width: 22px; height: 22px; }
+.preview .modelcount {
+  position: absolute;
+  right: 3px; bottom: 2px;
+  z-index: 3;
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  color: var(--cyan);
+  background: rgba(0,0,0,0.85);
+  border: 1px solid var(--cyan);
+  padding: 1px 3px;
+  text-shadow: 0 0 3px var(--cyan);
+}
+.preview .scanover {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent 0 1px, rgba(255,255,255,0.04) 1px 2px);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Meta rows */
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 3px 0 5px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  line-height: 1.25;
+  color: var(--phosphor);
+  letter-spacing: 0.02em;
+}
+.meta .r {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.meta .r .k {
+  color: var(--cyan);
+  text-shadow: 0 0 3px var(--cyan);
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  min-width: 26px;
+}
+.meta .r .v { color: var(--phosphor); overflow: hidden; text-overflow: ellipsis; flex: 1; }
+.meta .r .v.muted { color: var(--mute); }
+
+/* Markets row */
+.markets {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 5px;
+}
+.markets .lbl {
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  color: var(--magenta);
+  text-shadow: 0 0 3px var(--magenta);
+  margin-right: 2px;
+}
+.markets .mk {
+  width: 14px; height: 12px;
+  border: 1px solid rgba(0,234,255,0.4);
+  font-family: var(--font-pixel);
+  font-size: 6px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--phosphor);
+  background: #020608;
+  box-shadow: 0 0 3px rgba(0,234,255,0.25);
+  text-shadow: 0 0 2px rgba(0,234,255,0.6);
+}
+.markets .mk.pl { color: #00eaff; border-color: #00eaff; text-shadow: 0 0 3px #00eaff; }
+.markets .mk.fr { color: #ff2bd6; border-color: #ff2bd6; text-shadow: 0 0 3px #ff2bd6; }
+.markets .mk.mr { color: #39ff14; border-color: #39ff14; text-shadow: 0 0 3px #39ff14; }
+.markets .mk.tn { color: #ffb13b; border-color: #ffb13b; text-shadow: 0 0 3px #ffb13b; }
+.markets .mk.gg { color: #a980f3; border-color: #a980f3; text-shadow: 0 0 3px #a980f3; }
+.markets .mk.off { color: var(--mute); border-color: var(--mute-2); text-shadow: none; background: transparent; box-shadow: none; }
+
+/* Price / action row */
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed rgba(0,234,255,0.3);
+}
+.price {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.price .cap {
+  font-family: var(--font-pixel);
+  font-size: 6px;
+  color: var(--cyan);
+  text-shadow: 0 0 3px var(--cyan);
+  letter-spacing: 0.08em;
+}
+.price .val {
+  font-family: var(--font-term);
+  font-size: 26px;
+  line-height: 0.85;
+  color: var(--cyan);
+  text-shadow: 0 0 6px var(--cyan), 0 0 14px rgba(0,234,255,0.6);
+  margin-top: 1px;
+  letter-spacing: 0.01em;
+}
+.price .val.mag { color: var(--magenta); text-shadow: 0 0 6px var(--magenta), 0 0 14px rgba(255,43,214,0.55); }
+.price .val.red { color: var(--red); text-shadow: 0 0 6px var(--red), 0 0 14px rgba(255,56,56,0.6); }
+.price .val .dia::before { content: '◆ '; font-size: 16px; vertical-align: middle; }
+.price .sub {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--phosphor);
+  line-height: 1;
+  display: flex; align-items: center; gap: 3px;
+}
+.price .sub .n { font-family: var(--font-term); font-size: 14px; color: var(--green); text-shadow: 0 0 4px var(--green); line-height: 1; }
+.price .sub .n.red { color: var(--red); text-shadow: 0 0 5px var(--red); }
+.price .sub .slash { color: var(--mute); }
+.price .sub .total { color: var(--mute); font-family: var(--font-term); font-size: 12px; }
+
+/* Power switch */
+.sw {
+  width: 30px; height: 16px;
+  border: 1.5px solid var(--cyan);
+  background: rgba(0,0,0,0.7);
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 6px rgba(0,234,255,0.2), 0 0 6px rgba(0,234,255,0.35);
+}
+.sw::after {
+  content: '';
+  position: absolute;
+  top: 1px; right: 2px;
+  width: 10px; height: 10px;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan), 0 0 14px rgba(0,234,255,0.7);
+  animation: power-pulse 2.1s ease-in-out infinite;
+}
+.sw.off { border-color: var(--mute-2); box-shadow: inset 0 0 3px rgba(255,255,255,0.05); }
+.sw.off::after {
+  left: 2px; right: auto;
+  background: var(--mute);
+  box-shadow: none;
+  animation: none;
+}
+.sw.red { border-color: var(--red); box-shadow: inset 0 0 6px rgba(255,56,56,0.25), 0 0 8px rgba(255,56,56,0.45); }
+.sw.red::after { background: var(--red); box-shadow: 0 0 10px var(--red); animation: alert-blink 0.9s step-end infinite; }
+
+@keyframes power-pulse {
+  0%, 100% { box-shadow: 0 0 6px currentColor, 0 0 12px rgba(0,234,255,0.6); }
+  50%      { box-shadow: 0 0 10px currentColor, 0 0 18px rgba(0,234,255,0.9); }
+}
+
+/* Notifications mini row */
+.notif {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 0 0;
+  margin-top: 3px;
+  border-top: 1px dotted rgba(0,234,255,0.2);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  color: var(--phosphor);
+}
+.notif .i { color: var(--amber); filter: drop-shadow(0 0 3px var(--amber)); flex-shrink: 0; }
+.notif .v { font-family: var(--font-term); font-size: 12px; color: var(--amber); text-shadow: 0 0 4px var(--amber); line-height: 1; }
+.notif.off { color: var(--mute); border-top-color: rgba(255,255,255,0.08); }
+.notif.off .i { color: var(--mute); filter: none; }
+.notif.off .v { color: var(--mute); text-shadow: none; }
+.notif .mks { display: flex; gap: 2px; margin-left: auto; }
+.notif .mks i {
+  width: 10px; height: 9px;
+  font-family: var(--font-pixel); font-size: 5px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--phosphor);
+  border: 1px solid rgba(0,234,255,0.4);
+  font-style: normal;
+  line-height: 1;
+}
+
+/* ============================================================
+   CARD STATE VARIANTS
+   ============================================================ */
+.card.critical {
+  border-color: var(--red);
+  box-shadow: 0 0 10px rgba(255,56,56,0.7), 0 0 28px rgba(255,56,56,0.25), inset 0 0 14px rgba(255,56,56,0.15);
+  animation: critical-pulse 1.8s ease-in-out infinite;
+}
+.card.critical .br { color: var(--red); filter: drop-shadow(0 0 3px var(--red)); }
+.card.critical .name { color: var(--red); text-shadow: 0 0 6px var(--red), 0 0 14px rgba(255,56,56,0.7); }
+.card.critical::before {
+  content: '';
+  position: absolute;
+  top: 20px; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+  box-shadow: 0 0 8px var(--red);
+  z-index: 4;
+  animation: alert-bar 1.2s linear infinite;
+  opacity: 1 !important;
+  border: none;
+  pointer-events: none;
+}
+.card.critical::after { content: none !important; }
+
+@keyframes alert-bar {
+  0%   { top: 22px; opacity: 0.2; }
+  50%  { top: 48px; opacity: 1;   }
+  100% { top: 90px; opacity: 0.2; }
+}
+@keyframes critical-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,56,56,0.7), 0 0 28px rgba(255,56,56,0.25), inset 0 0 14px rgba(255,56,56,0.15); }
+  50%      { box-shadow: 0 0 14px rgba(255,56,56,1), 0 0 40px rgba(255,56,56,0.45), inset 0 0 20px rgba(255,56,56,0.3); }
+}
+
+.card.dim {
+  opacity: 0.55;
+  filter: grayscale(0.35);
+}
+.card.dim .name,
+.card.dim .price .val { text-shadow: none; color: var(--mute); }
+.card.dim::before, .card.dim::after { display: none; }
+
+.card.notif-off .notif {
+  text-decoration: line-through;
+  text-decoration-color: rgba(255,255,255,0.3);
+}
+
+/* Bulk mode */
+.card.bulk {
+  padding-left: 20px;
+}
+.card.bulk .check {
+  position: absolute;
+  left: 4px; top: 18px;
+  width: 12px; height: 12px;
+  border: 1.5px solid var(--cyan);
+  background: #000306;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 6px rgba(0,234,255,0.5);
+}
+.card.bulk.selected {
+  border-color: var(--magenta);
+  box-shadow: 0 0 10px rgba(255,43,214,0.7), 0 0 22px rgba(255,43,214,0.3), inset 0 0 12px rgba(255,43,214,0.15);
+}
+.card.bulk.selected .br { color: var(--magenta); filter: drop-shadow(0 0 3px var(--magenta)); }
+.card.bulk.selected .check {
+  background: var(--magenta);
+  border-color: var(--magenta);
+  color: #000;
+  box-shadow: 0 0 10px var(--magenta), 0 0 18px rgba(255,43,214,0.6);
+}
+.card.bulk.selected .check svg { color: #000; }
+
+/* ============================================================
+   CTA & BOTTOM TAB
+   ============================================================ */
+.cta {
+  margin: 6px 14px 8px;
+  padding: 10px 12px;
+  border: 2px solid var(--magenta);
+  background: linear-gradient(90deg, rgba(255,43,214,0.15), rgba(0,234,255,0.08) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 0 10px rgba(255,43,214,0.5), inset 0 0 8px rgba(255,43,214,0.1);
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: var(--magenta);
+  text-shadow: 0 0 4px var(--magenta);
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+.cta .arr {
+  font-family: var(--font-term);
+  font-size: 20px;
+  color: var(--cyan);
+  text-shadow: 0 0 6px var(--cyan);
+  line-height: 1;
+}
+
+.bottom-tab {
+  height: 64px;
+  flex-shrink: 0;
+  border-top: 2px solid var(--cyan);
+  background: linear-gradient(180deg, rgba(0,234,255,0.08), rgba(0,0,0,0.95));
+  box-shadow: 0 -4px 14px rgba(0,234,255,0.2), inset 0 4px 8px rgba(0,234,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 6px 6px;
+}
+.bottom-tab .t {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  color: var(--mute);
+  letter-spacing: 0.08em;
+  padding-top: 8px;
+}
+.bottom-tab .t.on {
+  color: var(--cyan);
+  text-shadow: 0 0 4px var(--cyan);
+}
+.bottom-tab .t .ico {
+  width: 22px; height: 22px;
+  border: 1.5px solid currentColor;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 4px rgba(0,234,255,0.15);
+}
+.bottom-tab .t.on .ico {
+  box-shadow: 0 0 8px rgba(0,234,255,0.6), inset 0 0 4px rgba(0,234,255,0.2);
+}
+.bottom-tab .t .ico svg { color: currentColor; filter: drop-shadow(0 0 3px currentColor); }
+
+/* ============================================================
+   MODAL (Mockup B) — bottom sheet 85%
+   ============================================================ */
+.backdrop-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 50;
+  pointer-events: none;
+}
+.backdrop-dim::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,234,255,0.025) 2px 3px);
+}
+
+.sheet {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 85%;
+  border-top: 2px solid var(--cyan);
+  background: linear-gradient(180deg, #03090c 0%, #020507 100%);
+  box-shadow: 0 -6px 30px rgba(0,234,255,0.3), 0 -2px 10px rgba(255,43,214,0.2), inset 0 0 40px rgba(0,234,255,0.05);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sheet::before {
+  content: '';
+  position: absolute;
+  top: 7px; left: 50%;
+  transform: translateX(-50%);
+  width: 46px; height: 3px;
+  background: var(--cyan);
+  box-shadow: 0 0 6px var(--cyan);
+}
+.sheet .sheet-head {
+  padding: 20px 14px 10px;
+  border-bottom: 1px dashed rgba(0,234,255,0.3);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.sheet .sheet-head .info-lbl {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--magenta);
+  text-shadow: 0 0 4px var(--magenta);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.sheet .sheet-head h2 {
+  font-family: var(--font-term);
+  font-size: 24px;
+  line-height: 1;
+  color: var(--phosphor);
+  text-shadow: 0 0 6px var(--cyan), 0 0 14px rgba(0,234,255,0.5);
+  letter-spacing: 0.02em;
+  font-weight: 400;
+  margin-bottom: 2px;
+}
+.sheet .sheet-head .id {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--mute);
+  letter-spacing: 0.08em;
+}
+.sheet .sheet-head .x {
+  width: 24px; height: 24px;
+  border: 1.5px solid var(--cyan);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cyan);
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(0,234,255,0.4);
+}
+
+.sheet .sheet-body {
+  flex: 1;
+  overflow: auto;
+  padding: 10px 14px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sheet section {
+  border: 1px solid rgba(0,234,255,0.3);
+  padding: 8px 10px;
+  background: rgba(0,6,10,0.6);
+  box-shadow: inset 0 0 6px rgba(0,234,255,0.06);
+}
+.sheet section .tag {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--cyan);
+  text-shadow: 0 0 4px var(--cyan);
+  letter-spacing: 0.1em;
+  display: flex; align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.sheet section .tag .idx {
+  color: var(--magenta);
+  text-shadow: 0 0 3px var(--magenta);
+}
+.sheet section .val-big {
+  font-family: var(--font-term);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--phosphor);
+  text-shadow: 0 0 5px rgba(0,234,255,0.7);
+}
+.sheet section .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.sheet section .chip {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  padding: 2px 5px;
+  border: 1px solid rgba(0,234,255,0.4);
+  background: #020609;
+  color: var(--phosphor);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.2;
+  text-shadow: 0 0 3px rgba(0,234,255,0.3);
+}
+.sheet section .chip i {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.sheet section .chip.mg { border-color: var(--magenta); color: var(--magenta); text-shadow: 0 0 3px var(--magenta); }
+.sheet section .chip.gr { border-color: var(--green); color: var(--green); text-shadow: 0 0 3px var(--green); }
+
+.sheet .split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.sheet .block {
+  border: 1px solid rgba(0,234,255,0.3);
+  padding: 8px 10px;
+  background: rgba(0,6,10,0.6);
+}
+.sheet .block.purchase { border-color: var(--cyan); box-shadow: 0 0 6px rgba(0,234,255,0.25), inset 0 0 6px rgba(0,234,255,0.1); }
+.sheet .block.notif    { border-color: var(--amber); box-shadow: 0 0 6px rgba(255,177,59,0.25), inset 0 0 6px rgba(255,177,59,0.1); }
+.sheet .block .lbl {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+  display: flex; align-items: center; gap: 4px;
+}
+.sheet .block.purchase .lbl { color: var(--cyan); text-shadow: 0 0 3px var(--cyan); }
+.sheet .block.notif .lbl    { color: var(--amber); text-shadow: 0 0 3px var(--amber); }
+.sheet .block .num {
+  font-family: var(--font-term);
+  font-size: 28px;
+  line-height: 0.9;
+  text-shadow: 0 0 6px currentColor, 0 0 14px rgba(255,255,255,0.2);
+}
+.sheet .block.purchase .num { color: var(--cyan); }
+.sheet .block.notif .num    { color: var(--amber); }
+.sheet .block .sub {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--phosphor);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+.sheet .block .sub .dim { color: var(--mute); }
+.sheet .block .mk-row { display: flex; gap: 3px; margin-top: 5px; }
+.sheet .block .mk-row i {
+  font-style: normal;
+  width: 16px; height: 14px;
+  border: 1px solid rgba(0,234,255,0.4);
+  font-family: var(--font-pixel);
+  font-size: 6px;
+  display: flex;
+  align-items: center; justify-content: center;
+  color: var(--phosphor);
+}
+
+.sheet .actions {
+  display: flex;
+  gap: 6px;
+  padding: 8px 14px 14px;
+  border-top: 1px dashed rgba(0,234,255,0.3);
+  flex-shrink: 0;
+}
+.sheet .actions button {
+  flex: 1;
+  border: 1.5px solid var(--cyan);
+  background: transparent;
+  color: var(--cyan);
+  padding: 8px 6px;
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 4px var(--cyan);
+  box-shadow: 0 0 6px rgba(0,234,255,0.3), inset 0 0 6px rgba(0,234,255,0.08);
+  cursor: pointer;
+}
+.sheet .actions button.del {
+  border-color: var(--red);
+  color: var(--red);
+  text-shadow: 0 0 4px var(--red);
+  box-shadow: 0 0 6px rgba(255,56,56,0.4), inset 0 0 6px rgba(255,56,56,0.1);
+}
+.sheet .actions button.pri {
+  border-color: var(--magenta);
+  color: var(--magenta);
+  text-shadow: 0 0 4px var(--magenta);
+  background: linear-gradient(90deg, rgba(255,43,214,0.15), rgba(255,43,214,0.05));
+  box-shadow: 0 0 8px rgba(255,43,214,0.5);
+}
+
+/* Backdrop chips visual for modal */
+.sheet .bds {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+}
+.sheet .bds .bd {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  padding: 10px 4px 3px;
+  position: relative;
+  color: #fff;
+  text-shadow: 0 0 2px #000, 1px 1px 0 #000;
+  line-height: 1;
+  border: 1px solid rgba(255,255,255,0.15);
+  overflow: hidden;
+}
+.sheet .bds .bd::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent 0 1px, rgba(0,0,0,0.3) 1px 2px);
+}
+
+/* ============================================================
+   BULK MODE action bar (Mockup C)
+   ============================================================ */
+.bulk-head {
+  padding: 8px 14px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px dashed rgba(255,43,214,0.35);
+}
+.bulk-head .lbl {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: var(--magenta);
+  text-shadow: 0 0 4px var(--magenta);
+  letter-spacing: 0.08em;
+}
+.bulk-head .cnt {
+  font-family: var(--font-term);
+  font-size: 22px;
+  line-height: 1;
+  color: var(--phosphor);
+  text-shadow: 0 0 5px var(--magenta);
+}
+.bulk-head .cnt .of { color: var(--mute); font-size: 16px; }
+
+.bulk-bar {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 64px;
+  border-top: 2px solid var(--magenta);
+  background: linear-gradient(180deg, rgba(255,43,214,0.12), #02050a 40%);
+  box-shadow: 0 -4px 16px rgba(255,43,214,0.4), inset 0 0 20px rgba(255,43,214,0.08);
+  padding: 10px 10px 12px;
+  z-index: 40;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+.bulk-bar .bb {
+  border: 1.5px solid rgba(0,234,255,0.5);
+  background: rgba(0,5,9,0.6);
+  color: var(--cyan);
+  padding: 8px 2px;
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  letter-spacing: 0.06em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-shadow: 0 0 3px var(--cyan);
+  box-shadow: inset 0 0 4px rgba(0,234,255,0.1);
+}
+.bulk-bar .bb svg { color: currentColor; filter: drop-shadow(0 0 3px currentColor); }
+.bulk-bar .bb.del    { border-color: var(--red); color: var(--red); text-shadow: 0 0 3px var(--red); box-shadow: 0 0 6px rgba(255,56,56,0.3); }
+.bulk-bar .bb.cancel { border-color: var(--mute); color: var(--mute); text-shadow: none; }
+
+/* ============================================================
+   HELPER — bar segments (health bars for backdrops)
+   ============================================================ */
+.bar-seg {
+  display: flex;
+  width: 100%;
+  height: 4px;
+  gap: 1px;
+  margin-top: 3px;
+}
+.bar-seg i {
+  flex: 1;
+  display: block;
+  box-shadow: 0 0 3px currentColor;
+}
+
+/* ============================================================
+   FOOTNOTE
+   ============================================================ */
+.foot {
+  max-width: 1420px;
+  margin: 40px auto 0;
+  text-align: center;
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--mute);
+  letter-spacing: 0.15em;
+}
+.foot span { color: var(--cyan); text-shadow: 0 0 4px var(--cyan); }
+.foot span.m { color: var(--magenta); text-shadow: 0 0 4px var(--magenta); }
+
+/* IE: rule so fallback chain isn't empty */
+noscript { display: none; }
+
+/* ============================================================
+   PREVIEW LAYOUTS — preview has "rows" of backdrop colour.
+   For cards with 1/3/4/5+ backdrops, we stack divs.
+   ============================================================ */
+.preview[data-bd="1"] .bdstack > div { height: 100%; }
+
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TOP BAR
+     ============================================================ -->
+<header class="topbar">
+  <div class="left">
+    <span class="brand"><img class="brand-img" src="../../../assets/logo.jpg" alt="">GIFT_SATELLITE // PHOSPHOR_ARCADE</span>
+    <span class="tag">V2.REDESIGN :: 2026.04.14</span>
+  </div>
+  <div class="right">
+    <span class="dot"></span>
+    <span class="tag">SIGNAL_OK</span>
+    <span class="num">03</span>
+    <span class="tag">STATES</span>
+  </div>
+</header>
+
+<!-- ============================================================
+     STAGE
+     ============================================================ -->
+<main class="stage">
+
+  <!-- =========================================================
+       MOCKUP A — home grid
+       ========================================================= -->
+  <div class="mockup-wrap">
+    <div class="mockup-label">MOCKUP <span class="code">A</span> :: MAIN_GRID</div>
+    <div class="phone">
+      <div class="phone-inner">
+
+        <!-- status bar -->
+        <div class="safe-top">
+          <span class="clock">21:37</span>
+          <span style="letter-spacing:0.1em">NET_5G</span>
+          <span class="sig"><span></span><span></span><span></span><span></span></span>
+          <span class="bat"><i></i></span>
+        </div>
+
+        <!-- app head -->
+        <div class="app-head">
+          <span class="title">SUBSCRIPTIONS</span>
+          <div class="head-icons">
+            <span>◈</span>
+            <span>⟐</span>
+            <span>≡</span>
+          </div>
+        </div>
+
+        <!-- toolbar -->
+        <div class="toolbar">
+          <div class="search">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="m11 11 3 3"/></svg>
+            <span class="prompt">&gt; SCAN_BY_PROMPT_OR_COLLECTION...</span>
+            <span class="caret"></span>
+          </div>
+          <div class="row">
+            <button class="tool-btn active">FILTER <span class="n">02</span></button>
+            <button class="tool-btn">SORT</button>
+            <button class="tool-btn">SELECT</button>
+            <span class="tool-btn spacer"></span>
+            <div class="density">
+              <span>LIST</span>
+              <span class="on">2×N</span>
+              <span>BIG</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- slot counter strip -->
+        <div class="slot-strip">
+          <span>SLOTS 09 / 45</span>
+          <div class="bar">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i>
+          </div>
+          <span>20%</span>
+        </div>
+
+        <!-- GRID -->
+        <div class="grid">
+
+          <!-- ============ CARD 1 ============ -->
+          <!-- Обычная, промпт Ice Cream флип до 30, 1 модель, 1 фон -->
+          <div class="card">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="strip"><span class="slot">SLOT_01</span><span class="state">ACTIVE</span></div>
+            <div class="title-row">
+              <div class="name">Ice Cream флип до 30</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="1">
+              <div class="bdstack">
+                <div style="background:linear-gradient(180deg,#363738 0%,#0e0f0f 100%)"></div>
+              </div>
+              <div class="gifts">
+                <img src="../../../assets/originals/5900177027566142759/Original.png" alt="Ice Cream">
+              </div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Ice Cream</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v">Vanilla Dream</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">Black</span></div>
+              <div class="r"><span class="k">PAT</span><span class="v muted">Any / #001-999</span></div>
+            </div>
+            <div class="markets">
+              <span class="lbl">MK&gt;</span>
+              <span class="mk pl">PL</span>
+              <span class="mk fr">FR</span>
+              <span class="mk mr">MR</span>
+            </div>
+            <div class="action">
+              <div class="price">
+                <span class="cap">BUY &lt;</span>
+                <span class="val"><span class="dia"></span>30</span>
+                <span class="sub"><span class="n">02</span><span class="slash">/</span><span class="total">05</span></span>
+              </div>
+              <div class="sw"></div>
+            </div>
+            <div class="notif">
+              <svg class="i" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span>ALERT &lt;</span><span class="v">45</span>
+              <div class="mks"><i>PL</i><i>FR</i><i>MR</i><i>TN</i></div>
+            </div>
+          </div>
+
+          <!-- ============ CARD 2 ============ -->
+          <!-- Любые модели + любые фоны. Превью: иконка коллекции Lol Pop -->
+          <div class="card">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="strip"><span class="slot">SLOT_02</span><span class="state">ACTIVE</span></div>
+            <div class="title-row">
+              <div class="name">Lol Pop охота</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="0">
+              <div class="bdstack">
+                <div class="bdstack-custom"></div>
+              </div>
+              <div class="gifts">
+                <img src="../../../assets/originals/5170594532177215681/Original.png" alt="Lol Pop">
+              </div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Lol Pop</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v muted">Any / ∀</span></div>
+              <div class="r"><span class="k">BG </span><span class="v muted">Any / ∀</span></div>
+              <div class="r"><span class="k">PAT</span><span class="v muted">Any / #001-999</span></div>
+            </div>
+            <div class="markets">
+              <span class="lbl">MK&gt;</span>
+              <span class="mk pl">PL</span>
+              <span class="mk fr">FR</span>
+              <span class="mk tn">TN</span>
+              <span class="mk gg">GG</span>
+            </div>
+            <div class="action">
+              <div class="price">
+                <span class="cap">BUY &lt;</span>
+                <span class="val mag"><span class="dia"></span>120</span>
+                <span class="sub"><span class="n">07</span><span class="slash">/</span><span class="total">10</span></span>
+              </div>
+              <div class="sw"></div>
+            </div>
+            <div class="notif">
+              <svg class="i" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span>ALERT &lt;</span><span class="v">200</span>
+              <div class="mks"><i>PL</i><i>FR</i><i>TN</i><i>GG</i></div>
+            </div>
+          </div>
+
+          <!-- ============ CARD 3 ============ -->
+          <!-- 3 модели цепочкой, коллекция Light Sword, 1 фон -->
+          <div class="card">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="strip"><span class="slot">SLOT_03</span><span class="state">ACTIVE</span></div>
+            <div class="title-row">
+              <div class="name">Sword combo</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="1">
+              <div class="bdstack">
+                <div style="background:linear-gradient(180deg,#ca70c6 0%,#9662d4 100%)"></div>
+              </div>
+              <div class="gifts chain">
+                <img src="../../../assets/originals/5897581235231785485/Original.png" alt="Light Sword">
+                <img src="../../../assets/originals/5897581235231785485/Original.png" alt="Light Sword">
+                <img src="../../../assets/originals/5897581235231785485/Original.png" alt="Light Sword">
+              </div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Light Sword</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v">3 models</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">Electric Purple</span></div>
+              <div class="r"><span class="k">PAT</span><span class="v muted">Any / #001-999</span></div>
+            </div>
+            <div class="markets">
+              <span class="lbl">MK&gt;</span>
+              <span class="mk pl">PL</span>
+              <span class="mk mr">MR</span>
+            </div>
+            <div class="action">
+              <div class="price">
+                <span class="cap">BUY &lt;</span>
+                <span class="val"><span class="dia"></span>75</span>
+                <span class="sub"><span class="n">01</span><span class="slash">/</span><span class="total">03</span></span>
+              </div>
+              <div class="sw"></div>
+            </div>
+            <div class="notif">
+              <svg class="i" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span>ALERT &lt;</span><span class="v">90</span>
+              <div class="mks"><i>PL</i><i>MR</i></div>
+            </div>
+          </div>
+
+          <!-- ============ CARD 4 ============ -->
+          <!-- 12 моделей, иконка Plush Pepe, 3 фона делением -->
+          <div class="card">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="strip"><span class="slot">SLOT_04</span><span class="state">ACTIVE</span></div>
+            <div class="title-row">
+              <div class="name">Pepe whale hunt</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="3">
+              <div class="bdstack">
+                <div style="background:linear-gradient(180deg,#ffd700 0%,#e5b100 100%)"></div>
+                <div style="background:linear-gradient(180deg,#ffb13b 0%,#c97e1a 100%)"></div>
+                <div style="background:linear-gradient(180deg,#ff6b6b 0%,#c23030 100%)"></div>
+              </div>
+              <div class="gifts">
+                <img src="../../../assets/originals/5936013938331222567/Original.png" alt="Plush Pepe">
+              </div>
+              <div class="modelcount">×12 MOD</div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Plush Pepe</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v">12 models</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">3 bgs</span></div>
+              <div class="r"><span class="k">PAT</span><span class="v muted">Any / #001-999</span></div>
+            </div>
+            <div class="markets">
+              <span class="lbl">MK&gt;</span>
+              <span class="mk pl">PL</span>
+              <span class="mk fr">FR</span>
+              <span class="mk mr">MR</span>
+              <span class="mk tn">TN</span>
+              <span class="mk gg">GG</span>
+            </div>
+            <div class="action">
+              <div class="price">
+                <span class="cap">BUY &lt;</span>
+                <span class="val mag"><span class="dia"></span>8k</span>
+                <span class="sub"><span class="n">01</span><span class="slash">/</span><span class="total">02</span></span>
+              </div>
+              <div class="sw"></div>
+            </div>
+            <div class="notif">
+              <svg class="i" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span>ALERT &lt;</span><span class="v">12k</span>
+              <div class="mks"><i>PL</i><i>FR</i><i>MR</i><i>TN</i><i>GG</i></div>
+            </div>
+          </div>
+
+          <!-- ============ CARD 5 ============ -->
+          <!-- 25 фонов — кастомный градиент, 2 модели Jolly Chimp -->
+          <div class="card">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="strip"><span class="slot">SLOT_05</span><span class="state">ACTIVE</span></div>
+            <div class="title-row">
+              <div class="name">Chimp safari v2</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="25">
+              <div class="bdstack">
+                <div class="bdstack-custom"></div>
+              </div>
+              <div class="gifts chain">
+                <img src="../../../assets/originals/6005880141270483700/Original.png" alt="Jolly Chimp">
+                <img src="../../../assets/originals/6005880141270483700/Original.png" alt="Jolly Chimp">
+              </div>
+              <div class="modelcount">BG ×25</div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Jolly Chimp</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v">2 models</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">25 bgs</span></div>
+              <div class="r"><span class="k">PAT</span><span class="v">#042-088</span></div>
+            </div>
+            <div class="markets">
+              <span class="lbl">MK&gt;</span>
+              <span class="mk pl">PL</span>
+              <span class="mk fr">FR</span>
+              <span class="mk gg">GG</span>
+            </div>
+            <div class="action">
+              <div class="price">
+                <span class="cap">BUY &lt;</span>
+                <span class="val"><span class="dia"></span>55</span>
+                <span class="sub"><span class="n">04</span><span class="slash">/</span><span class="total">04</span></span>
+              </div>
+              <div class="sw"></div>
+            </div>
+            <div class="notif">
+              <svg class="i" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span>ALERT &lt;</span><span class="v">80</span>
+              <div class="mks"><i>PL</i><i>FR</i><i>GG</i></div>
+            </div>
+          </div>
+
+          <!-- ============ CARD 6 — CRITICAL 0 STOCK ============ -->
+          <div class="card critical">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="strip"><span class="slot">SLOT_06</span><span class="state warn">CRIT_00</span></div>
+            <div class="title-row">
+              <div class="name">Cap daily drop</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="1">
+              <div class="bdstack">
+                <div style="background:linear-gradient(180deg,#a980f3 0%,#5b62d8 100%)"></div>
+              </div>
+              <div class="gifts">
+                <img src="../../../assets/originals/5915521180483191380/Original.png" alt="Durov's Cap">
+              </div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Durov's Cap</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v">Grand Grandpa</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">Electric Indigo</span></div>
+              <div class="r"><span class="k">PAT</span><span class="v muted">Any / #001-999</span></div>
+            </div>
+            <div class="markets">
+              <span class="lbl" style="color:var(--red);text-shadow:0 0 3px var(--red)">MK&gt;</span>
+              <span class="mk pl">PL</span>
+              <span class="mk fr">FR</span>
+              <span class="mk mr">MR</span>
+            </div>
+            <div class="action">
+              <div class="price">
+                <span class="cap" style="color:var(--red);text-shadow:0 0 4px var(--red)">STOCK_ZERO</span>
+                <span class="val red">00<span style="font-size:14px;color:var(--mute)">/03</span></span>
+                <span class="sub" style="color:var(--red)">BUY &lt; <span class="n red">1.2k</span></span>
+              </div>
+              <div class="sw red"></div>
+            </div>
+            <div class="notif">
+              <svg class="i" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span style="color:var(--red);text-shadow:0 0 3px var(--red)">⚠ SOLD_OUT :: REFRESH</span>
+            </div>
+          </div>
+
+          <!-- ============ CARD 7 — Purchase OFF / dimmed ============ -->
+          <div class="card dim">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="strip"><span class="slot">SLOT_07</span><span class="state off">STANDBY</span></div>
+            <div class="title-row">
+              <div class="name">Cake farm wait</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="1">
+              <div class="bdstack">
+                <div style="background:linear-gradient(180deg,#7596f9 0%,#4a6bdc 100%)"></div>
+              </div>
+              <div class="gifts">
+                <img src="../../../assets/originals/5783075783622787539/Original.png" alt="Homemade Cake">
+              </div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Homemade Cake</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v muted">Any / ∀</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">Neon Blue</span></div>
+              <div class="r"><span class="k">PAT</span><span class="v muted">Any / #001-999</span></div>
+            </div>
+            <div class="markets">
+              <span class="lbl">MK&gt;</span>
+              <span class="mk off">PL</span>
+              <span class="mk off">FR</span>
+              <span class="mk off">MR</span>
+            </div>
+            <div class="action">
+              <div class="price">
+                <span class="cap" style="color:var(--mute);text-shadow:none">BUY_OFF</span>
+                <span class="val" style="color:var(--mute);text-shadow:none">-- --</span>
+                <span class="sub" style="color:var(--mute)">disabled</span>
+              </div>
+              <div class="sw off"></div>
+            </div>
+            <div class="notif off">
+              <svg class="i" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/><path d="M2 2l20 20"/></svg>
+              <span>ALERT &lt;</span><span class="v">60</span>
+              <div class="mks"><i>PL</i><i>FR</i></div>
+            </div>
+          </div>
+
+          <!-- ============ CARD 8 — Notif OFF, 4 узоров, Desk Calendar ============ -->
+          <div class="card notif-off">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="strip"><span class="slot">SLOT_08</span><span class="state">ACTIVE</span></div>
+            <div class="title-row">
+              <div class="name">Calendar blackout</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="1">
+              <div class="bdstack">
+                <div style="background:linear-gradient(180deg,#858ff3 0%,#4318a6 100%)"></div>
+              </div>
+              <div class="gifts">
+                <img src="../../../assets/originals/5782988952268964995/Original.png" alt="Desk Calendar">
+              </div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Desk Calendar</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v">Leap Year</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">Cyberpunk</span></div>
+              <div class="r"><span class="k">PAT</span><span class="v">4 patterns</span></div>
+            </div>
+            <div class="markets">
+              <span class="lbl">MK&gt;</span>
+              <span class="mk pl">PL</span>
+              <span class="mk fr">FR</span>
+              <span class="mk tn">TN</span>
+            </div>
+            <div class="action">
+              <div class="price">
+                <span class="cap">BUY &lt;</span>
+                <span class="val"><span class="dia"></span>40</span>
+                <span class="sub"><span class="n">03</span><span class="slash">/</span><span class="total">05</span></span>
+              </div>
+              <div class="sw"></div>
+            </div>
+            <div class="notif off">
+              <svg class="i" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/><path d="M2 2l20 20"/></svg>
+              <span style="text-decoration:line-through">ALERT_MUTED</span>
+            </div>
+          </div>
+
+          <!-- ============ CARD 9 — Long prompt, 5 фонов, Victory Medal ============ -->
+          <div class="card">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="strip"><span class="slot">SLOT_09</span><span class="state">ACTIVE</span></div>
+            <div class="title-row">
+              <div class="name">Victory Medal для ко…</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="5">
+              <div class="bdstack">
+                <div style="background:#363738"></div>
+                <div style="background:#ca70c6"></div>
+                <div style="background:#b789e4"></div>
+                <div style="background:#858ff3"></div>
+                <div style="background:#7596f9"></div>
+              </div>
+              <div class="gifts">
+                <img src="../../../assets/originals/5830340739074097859/Original.png" alt="Victory Medal">
+              </div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Victory Medal</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v">Gold Laurel</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">5 bgs</span></div>
+              <div class="r"><span class="k">PAT</span><span class="v">#100-200</span></div>
+            </div>
+            <div class="markets">
+              <span class="lbl">MK&gt;</span>
+              <span class="mk pl">PL</span>
+              <span class="mk fr">FR</span>
+              <span class="mk mr">MR</span>
+              <span class="mk tn">TN</span>
+            </div>
+            <div class="action">
+              <div class="price">
+                <span class="cap">BUY &lt;</span>
+                <span class="val mag"><span class="dia"></span>210</span>
+                <span class="sub"><span class="n">05</span><span class="slash">/</span><span class="total">05</span></span>
+              </div>
+              <div class="sw"></div>
+            </div>
+            <div class="notif">
+              <svg class="i" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span>ALERT &lt;</span><span class="v">250</span>
+              <div class="mks"><i>PL</i><i>FR</i><i>MR</i><i>TN</i></div>
+            </div>
+          </div>
+
+        </div><!-- /grid -->
+
+        <!-- CTA -->
+        <div class="cta">
+          <span>&gt; INSERT_COIN // NEW_SLOT</span>
+          <span class="arr">▶</span>
+        </div>
+
+        <!-- bottom tab -->
+        <div class="bottom-tab">
+          <div class="t on">
+            <div class="ico">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </div>
+            SUBS
+          </div>
+          <div class="t">
+            <div class="ico">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m17 17 4 4"/></svg>
+            </div>
+            SCAN
+          </div>
+          <div class="t">
+            <div class="ico">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 3.8 6 3.8 9S14.5 21 12 21 8.2 18 8.2 15s1.3-6 3.8-9"/></svg>
+            </div>
+            MKTS
+          </div>
+          <div class="t">
+            <div class="ico">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+            </div>
+            DROP
+          </div>
+          <div class="t">
+            <div class="ico">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+            </div>
+            ME
+          </div>
+        </div>
+
+      </div><!-- /.phone-inner -->
+    </div><!-- /.phone -->
+  </div><!-- /.mockup-wrap -->
+
+  <!-- =========================================================
+       MOCKUP B — modal open
+       ========================================================= -->
+  <div class="mockup-wrap">
+    <div class="mockup-label">MOCKUP <span class="code">B</span> :: INFO_MODAL</div>
+    <div class="phone">
+      <div class="phone-inner">
+
+        <div class="safe-top">
+          <span class="clock">21:37</span>
+          <span style="letter-spacing:0.1em">NET_5G</span>
+          <span class="sig"><span></span><span></span><span></span><span></span></span>
+          <span class="bat"><i></i></span>
+        </div>
+
+        <div class="app-head">
+          <span class="title">SUBSCRIPTIONS</span>
+          <div class="head-icons">
+            <span>◈</span><span>⟐</span><span>≡</span>
+          </div>
+        </div>
+
+        <!-- faded context -->
+        <div class="toolbar" style="opacity:0.25">
+          <div class="search">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="m11 11 3 3"/></svg>
+            <span class="prompt">&gt; SCAN_BY_PROMPT...</span>
+          </div>
+        </div>
+
+        <div class="grid" style="opacity:0.12;filter:blur(0.4px);flex:1"></div>
+
+        <!-- dim -->
+        <div class="backdrop-dim"></div>
+
+        <!-- SHEET -->
+        <div class="sheet">
+          <div class="sheet-head">
+            <div>
+              <div class="info-lbl">&gt; INFO_DUMP :: SLOT_04</div>
+              <h2>Pepe whale hunt</h2>
+              <div class="id">ID::0x04A9 // CREATED 12.03.2026</div>
+            </div>
+            <div class="x">✕</div>
+          </div>
+          <div class="sheet-body">
+
+            <section>
+              <div class="tag"><span class="idx">01</span>COLLECTION</div>
+              <div class="val-big">Plush Pepe</div>
+            </section>
+
+            <section>
+              <div class="tag"><span class="idx">02</span>MODELS :: 12 / 100</div>
+              <div class="chips">
+                <span class="chip">Swamp Shaman</span>
+                <span class="chip">Neon Dream</span>
+                <span class="chip">Chrome Bro</span>
+                <span class="chip">Gold Meme</span>
+                <span class="chip">Void Pepe</span>
+                <span class="chip">Cyber Stare</span>
+                <span class="chip">Lazer Eyes</span>
+                <span class="chip">Crypto Lord</span>
+                <span class="chip">Wojak Soul</span>
+                <span class="chip">Red Alert</span>
+                <span class="chip">Galaxy Brain</span>
+                <span class="chip">Grandpa Pepe</span>
+              </div>
+            </section>
+
+            <section>
+              <div class="tag"><span class="idx">03</span>BACKDROPS :: 03 / 80</div>
+              <div class="bds">
+                <div class="bd" style="background:linear-gradient(180deg,#ffd700 0%,#e5b100 100%)">Pure Gold</div>
+                <div class="bd" style="background:linear-gradient(180deg,#ffb13b 0%,#c97e1a 100%)">Amber</div>
+                <div class="bd" style="background:linear-gradient(180deg,#ff6b6b 0%,#c23030 100%)">Coral Red</div>
+              </div>
+            </section>
+
+            <section>
+              <div class="tag"><span class="idx">04</span>PATTERNS :: 02</div>
+              <div class="chips">
+                <span class="chip">Dollar Rain</span>
+                <span class="chip">Stars Grid</span>
+              </div>
+            </section>
+
+            <section>
+              <div class="tag"><span class="idx">05</span>NUMBER_PATTERN</div>
+              <div class="val-big">#042 — #999</div>
+            </section>
+
+            <div class="split">
+              <div class="block purchase">
+                <div class="lbl">▸ BUY :: ON</div>
+                <div class="num">◆ 8k</div>
+                <div class="sub">MAX PRICE &nbsp; <span class="dim">01/02 LEFT</span></div>
+                <div class="mk-row"><i>PL</i><i>FR</i><i>MR</i><i>TN</i><i>GG</i></div>
+              </div>
+              <div class="block notif">
+                <div class="lbl">▸ ALERT :: ON</div>
+                <div class="num">◆ 12k</div>
+                <div class="sub">THRESHOLD &nbsp; <span class="dim">4 MARKETS</span></div>
+                <div class="mk-row"><i>PL</i><i>FR</i><i>MR</i><i>TN</i></div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="actions">
+            <button class="del">DELETE</button>
+            <button>EDIT</button>
+            <button class="pri">TOGGLE ▸</button>
+          </div>
+        </div>
+
+      </div><!-- /.phone-inner -->
+    </div><!-- /.phone -->
+  </div><!-- /.mockup-wrap -->
+
+  <!-- =========================================================
+       MOCKUP C — bulk select
+       ========================================================= -->
+  <div class="mockup-wrap">
+    <div class="mockup-label">MOCKUP <span class="code">C</span> :: BULK_SELECT</div>
+    <div class="phone">
+      <div class="phone-inner">
+
+        <div class="safe-top">
+          <span class="clock">21:37</span>
+          <span style="letter-spacing:0.1em">NET_5G</span>
+          <span class="sig"><span></span><span></span><span></span><span></span></span>
+          <span class="bat"><i></i></span>
+        </div>
+
+        <!-- Bulk mode header replaces app head -->
+        <div class="app-head" style="border-color:rgba(255,43,214,0.4)">
+          <span class="title" style="color:var(--magenta);text-shadow:0 0 5px var(--magenta),0 0 14px rgba(255,43,214,0.5)">BULK :: SELECT_MODE</span>
+          <div class="head-icons">
+            <span style="border-color:var(--magenta);color:var(--magenta);text-shadow:0 0 4px var(--magenta)">✕</span>
+          </div>
+        </div>
+
+        <div class="bulk-head">
+          <span class="lbl">&gt; SELECTED</span>
+          <span class="cnt">04 <span class="of">/ 09</span></span>
+          <span class="lbl" style="color:var(--cyan);text-shadow:0 0 3px var(--cyan)">ALL ▢</span>
+        </div>
+
+        <div class="slot-strip">
+          <span>SLOTS 09 / 45</span>
+          <div class="bar">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i>
+          </div>
+          <span>20%</span>
+        </div>
+
+        <div class="grid">
+
+          <!-- C1 bulk selected -->
+          <div class="card bulk selected">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="check">
+              <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 6l3 3 5-6"/></svg>
+            </div>
+            <div class="strip"><span class="slot" style="color:var(--magenta)">SLOT_01</span><span class="state">ACTIVE</span></div>
+            <div class="title-row">
+              <div class="name">Ice Cream флип до 30</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="1">
+              <div class="bdstack"><div style="background:linear-gradient(180deg,#363738 0%,#0e0f0f 100%)"></div></div>
+              <div class="gifts"><img src="../../../assets/originals/5900177027566142759/Original.png" alt=""></div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Ice Cream</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v">Vanilla Dream</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">Black</span></div>
+            </div>
+            <div class="markets"><span class="lbl">MK&gt;</span><span class="mk pl">PL</span><span class="mk fr">FR</span><span class="mk mr">MR</span></div>
+            <div class="action">
+              <div class="price"><span class="cap">BUY &lt;</span><span class="val"><span class="dia"></span>30</span></div>
+              <div class="sw"></div>
+            </div>
+          </div>
+
+          <!-- C2 bulk unselected -->
+          <div class="card bulk">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="check"></div>
+            <div class="strip"><span class="slot">SLOT_02</span><span class="state">ACTIVE</span></div>
+            <div class="title-row">
+              <div class="name">Lol Pop охота</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="0">
+              <div class="bdstack"><div class="bdstack-custom"></div></div>
+              <div class="gifts"><img src="../../../assets/originals/5170594532177215681/Original.png" alt=""></div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Lol Pop</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v muted">Any / ∀</span></div>
+              <div class="r"><span class="k">BG </span><span class="v muted">Any / ∀</span></div>
+            </div>
+            <div class="markets"><span class="lbl">MK&gt;</span><span class="mk pl">PL</span><span class="mk fr">FR</span><span class="mk tn">TN</span><span class="mk gg">GG</span></div>
+            <div class="action">
+              <div class="price"><span class="cap">BUY &lt;</span><span class="val mag"><span class="dia"></span>120</span></div>
+              <div class="sw"></div>
+            </div>
+          </div>
+
+          <!-- C3 bulk selected -->
+          <div class="card bulk selected">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="check">
+              <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 6l3 3 5-6"/></svg>
+            </div>
+            <div class="strip"><span class="slot" style="color:var(--magenta)">SLOT_03</span><span class="state">ACTIVE</span></div>
+            <div class="title-row">
+              <div class="name">Sword combo</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="1">
+              <div class="bdstack"><div style="background:linear-gradient(180deg,#ca70c6 0%,#9662d4 100%)"></div></div>
+              <div class="gifts chain">
+                <img src="../../../assets/originals/5897581235231785485/Original.png" alt="">
+                <img src="../../../assets/originals/5897581235231785485/Original.png" alt="">
+                <img src="../../../assets/originals/5897581235231785485/Original.png" alt="">
+              </div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Light Sword</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v">3 models</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">Electric Purple</span></div>
+            </div>
+            <div class="markets"><span class="lbl">MK&gt;</span><span class="mk pl">PL</span><span class="mk mr">MR</span></div>
+            <div class="action">
+              <div class="price"><span class="cap">BUY &lt;</span><span class="val"><span class="dia"></span>75</span></div>
+              <div class="sw"></div>
+            </div>
+          </div>
+
+          <!-- C4 bulk selected -->
+          <div class="card bulk selected">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="check">
+              <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 6l3 3 5-6"/></svg>
+            </div>
+            <div class="strip"><span class="slot" style="color:var(--magenta)">SLOT_04</span><span class="state">ACTIVE</span></div>
+            <div class="title-row">
+              <div class="name">Pepe whale hunt</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="3">
+              <div class="bdstack">
+                <div style="background:linear-gradient(180deg,#ffd700 0%,#e5b100 100%)"></div>
+                <div style="background:linear-gradient(180deg,#ffb13b 0%,#c97e1a 100%)"></div>
+                <div style="background:linear-gradient(180deg,#ff6b6b 0%,#c23030 100%)"></div>
+              </div>
+              <div class="gifts"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>
+              <div class="modelcount">×12 MOD</div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Plush Pepe</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v">12 models</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">3 bgs</span></div>
+            </div>
+            <div class="markets"><span class="lbl">MK&gt;</span><span class="mk pl">PL</span><span class="mk fr">FR</span><span class="mk mr">MR</span><span class="mk tn">TN</span><span class="mk gg">GG</span></div>
+            <div class="action">
+              <div class="price"><span class="cap">BUY &lt;</span><span class="val mag"><span class="dia"></span>8k</span></div>
+              <div class="sw"></div>
+            </div>
+          </div>
+
+          <!-- C5 bulk unselected -->
+          <div class="card bulk">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="check"></div>
+            <div class="strip"><span class="slot">SLOT_05</span><span class="state">ACTIVE</span></div>
+            <div class="title-row">
+              <div class="name">Chimp safari v2</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="25">
+              <div class="bdstack"><div class="bdstack-custom"></div></div>
+              <div class="gifts chain">
+                <img src="../../../assets/originals/6005880141270483700/Original.png" alt="">
+                <img src="../../../assets/originals/6005880141270483700/Original.png" alt="">
+              </div>
+              <div class="modelcount">BG ×25</div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Jolly Chimp</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v">2 models</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">25 bgs</span></div>
+            </div>
+            <div class="markets"><span class="lbl">MK&gt;</span><span class="mk pl">PL</span><span class="mk fr">FR</span><span class="mk gg">GG</span></div>
+            <div class="action">
+              <div class="price"><span class="cap">BUY &lt;</span><span class="val"><span class="dia"></span>55</span></div>
+              <div class="sw"></div>
+            </div>
+          </div>
+
+          <!-- C6 bulk unselected (critical style preserved) -->
+          <div class="card bulk critical">
+            <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br br"></i>
+            <div class="check"></div>
+            <div class="strip"><span class="slot">SLOT_06</span><span class="state warn">CRIT_00</span></div>
+            <div class="title-row">
+              <div class="name">Cap daily drop</div>
+              <div class="info">i</div>
+            </div>
+            <div class="preview" data-bd="1">
+              <div class="bdstack"><div style="background:linear-gradient(180deg,#a980f3 0%,#5b62d8 100%)"></div></div>
+              <div class="gifts"><img src="../../../assets/originals/5915521180483191380/Original.png" alt=""></div>
+              <div class="scanover"></div>
+            </div>
+            <div class="meta">
+              <div class="r"><span class="k">COL</span><span class="v">Durov's Cap</span></div>
+              <div class="r"><span class="k">MOD</span><span class="v">Grand Grandpa</span></div>
+              <div class="r"><span class="k">BG </span><span class="v">Electric Indigo</span></div>
+            </div>
+            <div class="markets">
+              <span class="lbl" style="color:var(--red);text-shadow:0 0 3px var(--red)">MK&gt;</span>
+              <span class="mk pl">PL</span><span class="mk fr">FR</span><span class="mk mr">MR</span>
+            </div>
+            <div class="action">
+              <div class="price">
+                <span class="cap" style="color:var(--red)">STOCK_ZERO</span>
+                <span class="val red">00<span style="font-size:14px;color:var(--mute)">/03</span></span>
+              </div>
+              <div class="sw red"></div>
+            </div>
+          </div>
+
+        </div><!-- /grid -->
+
+        <!-- Bulk sticky bar -->
+        <div class="bulk-bar">
+          <button class="bb del">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>
+            DELETE
+          </button>
+          <button class="bb">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v9"/></svg>
+            PWR_OFF
+          </button>
+          <button class="bb">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 3l-9 12h7l-1 6 9-12h-7l1-6z"/></svg>
+            PWR_ON
+          </button>
+          <button class="bb">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="13" height="13"/><path d="M16 8V3H3v13h5"/></svg>
+            CLONE
+          </button>
+          <button class="bb cancel">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            CANCEL
+          </button>
+        </div>
+
+        <!-- bottom tab -->
+        <div class="bottom-tab">
+          <div class="t on">
+            <div class="ico">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </div>
+            SUBS
+          </div>
+          <div class="t">
+            <div class="ico">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m17 17 4 4"/></svg>
+            </div>
+            SCAN
+          </div>
+          <div class="t">
+            <div class="ico">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
+            </div>
+            MKTS
+          </div>
+          <div class="t">
+            <div class="ico">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+            </div>
+            DROP
+          </div>
+          <div class="t">
+            <div class="ico">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+            </div>
+            ME
+          </div>
+        </div>
+
+      </div><!-- /.phone-inner -->
+    </div><!-- /.phone -->
+  </div><!-- /.mockup-wrap -->
+
+</main>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="foot">
+  <span>GIFT_SATELLITE</span> / PHOSPHOR_ARCADE / V2 // 9 CARDS × 3 SCREENS / <span class="m">DROP_THE_QUARTER</span> · <span class="m">CATCH_THE_GIFT</span>
+</footer>
+
+<script>
+// Minimal vanilla JS for small interactions (bulk toggle on click, modal close)
+document.querySelectorAll('.card.bulk').forEach(c => {
+  c.addEventListener('click', e => {
+    if (e.target.closest('.info')) return;
+    c.classList.toggle('selected');
+  });
+});
+document.querySelectorAll('.sheet .x').forEach(x => {
+  x.addEventListener('click', () => x.closest('.phone-inner')?.querySelector('.sheet')?.remove() );
+});
+</script>
+
+</body>
+</html>

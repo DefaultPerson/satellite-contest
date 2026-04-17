@@ -1,0 +1,2004 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1280" />
+<title>Gift Satellite — v5 GLYPH TERMINAL</title>
+
+<!--
+==============================================================================
+  v5 — GLYPH TERMINAL
+==============================================================================
+  Concept
+    Bloomberg-adjacent fintech terminal for Telegram NFT subscriptions.
+    Rigid 1ch monospace grid. ASCII/Unicode box-drawing. Trading-floor seriousness.
+    Every subscription = an order book row in a virtual exchange.
+
+  Typography (one family only)
+    JetBrains Mono (Google Fonts) weights 100-800, italic + regular.
+    Hierarchy by weight / size / uppercase / letter-spacing. No fallback serif.
+
+  Palette
+    #000000  true black                 (canvas)
+    #060806  phone bg
+    #0a0e0a  surface
+    #121812  inset
+    #162216  grid 1px dotted / ascii
+    #e8fce8  phosphor white
+    #6b8e5a  ghost dim
+    #00ff88  terminal green (ACTIVE / prices / prompts)
+    #ffb800  amber warn  (notify pending / nth partial / purchase off)
+    #ff3838  red alert   (destructive / 0 stock / critical)
+    #00d4ff  cyan data   (IDs / links / keyword highlights)
+    0-2px radius. No gradients, no blur, no glow, no shadow, no emoji.
+
+  Differentiator
+    Real Unicode box-drawing borders (not CSS) + every glyph on an exact 1ch
+    grid + order-book style price/market rows + blinking terminal cursor +
+    typewriter reveal + terminal command bar. All sharp 1px edges.
+    Totally distinct from the 4 previous variants (velvet / phosphor-arcade /
+    broadsheet / terrarium) because it treats the product as data-terminal.
+
+  Three mockups
+    A  Home screen with 9 slot cards (cover all 16 states)
+    B  Detail view (bottom-sheet) as "expanded terminal session"
+    C  Bulk mode as "batch mode" / login-style checkbox selection
+
+  Layout notes
+    Phone 393x852, safe top 40px, single-file HTML, inline CSS, inline SVG,
+    vanilla JS only to support typewriter reveal on load. No external JS.
+
+  Preview asset paths (root: /assets/originals/{id}/Original.png)
+    used relative ../../../assets/originals/{id}/Original.png
+==============================================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
+<style>
+  /* ============ RESET ============ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  img, svg { display: block; max-width: 100%; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+  /* ============ TOKENS ============ */
+  :root {
+    --bg0: #000000;
+    --phone: #060806;
+    --surface: #0a0e0a;
+    --inset: #121812;
+    --grid: #162216;
+    --rule: #223322;
+
+    --fg: #e8fce8;          /* phosphor */
+    --dim: #6b8e5a;         /* ghost */
+    --mute: #3a5235;        /* deep ghost */
+
+    --g: #00ff88;           /* terminal green */
+    --a: #ffb800;           /* amber */
+    --r: #ff3838;           /* red alert */
+    --c: #00d4ff;           /* cyan data */
+
+    --sel: rgba(0,255,136,.15);
+    --sel-b: rgba(0,255,136,.45);
+
+    --ff: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  /* ============ PAGE SHELL ============ */
+  body {
+    background: var(--bg0);
+    color: var(--fg);
+    font-family: var(--ff);
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    background-image:
+      linear-gradient(rgba(20, 34, 20, .45) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(20, 34, 20, .45) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .page {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 28px 80px;
+  }
+
+  /* ============ PAGE HEADER (ascii banner) ============ */
+  .banner {
+    white-space: pre;
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--dim);
+    margin-bottom: 10px;
+    letter-spacing: 0;
+  }
+  .banner .hl { color: var(--g); }
+  .banner .cy { color: var(--c); }
+  .banner .am { color: var(--a); }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 26px;
+    font-size: 11px;
+    color: var(--dim);
+    border-top: 1px dashed var(--grid);
+    border-bottom: 1px dashed var(--grid);
+    padding: 9px 0;
+    margin: 10px 0 32px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 500;
+  }
+  .legend b { font-weight: 700; color: var(--fg); margin-right: 6px; }
+  .legend .g { color: var(--g); }
+  .legend .a { color: var(--a); }
+  .legend .r { color: var(--r); }
+  .legend .c { color: var(--c); }
+  .legend .d { color: var(--dim); }
+
+  /* ============ PHONES ROW ============ */
+  .phones {
+    display: grid;
+    grid-template-columns: repeat(3, 393px);
+    gap: 40px;
+    justify-content: center;
+    align-items: start;
+  }
+
+  .phone {
+    width: 393px;
+    height: 852px;
+    background: var(--phone);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    outline: 1px solid #000;
+    outline-offset: -2px;
+    box-shadow: 0 0 0 1px rgba(0,255,136,.08);
+  }
+  .phone::before {
+    /* dotted scanline grid */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(to bottom, transparent 0, transparent 19px, rgba(0,255,136,.025) 19px, rgba(0,255,136,.025) 20px);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .phone::after {
+    /* faint vignette scanline */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(0,255,136,.04), transparent 60%);
+    pointer-events: none;
+    mix-blend-mode: screen;
+    z-index: 4;
+  }
+
+  /* safe area (status bar 40px) */
+  .statusbar {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 40px;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    color: var(--fg);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .06em;
+  }
+  .statusbar .sb-l { color: var(--g); }
+  .statusbar .sb-r { display: flex; gap: 6px; align-items: center; color: var(--dim); }
+  .statusbar .sb-r .wifi { color: var(--g); }
+  .statusbar .sb-r .bat { color: var(--fg); }
+
+  /* viewport = area below statusbar */
+  .vp {
+    position: absolute;
+    top: 40px; left: 0; right: 0; bottom: 0;
+    z-index: 5;
+    padding: 5px 8px 0 8px;
+    overflow: hidden;
+  }
+
+  /* ============ TERMINAL HEADER BLOCK inside phone ============ */
+  .term-head {
+    white-space: pre;
+    font-size: 9px;
+    line-height: 1.28;
+    color: var(--dim);
+    border: 0;
+    padding: 0 2px;
+    letter-spacing: 0;
+  }
+  .term-head .g { color: var(--g); font-weight: 700; }
+  .term-head .c { color: var(--c); }
+  .term-head .a { color: var(--a); }
+  .term-head .fg { color: var(--fg); font-weight: 600; }
+
+  /* command bar row under header */
+  .cmdbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    font-size: 8.5px;
+    line-height: 1.2;
+    margin-top: 1px;
+    padding: 2px 4px 3px;
+    border-top: 1px dashed var(--grid);
+    border-bottom: 1px dashed var(--grid);
+    color: var(--dim);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .cmdbar span.k { color: var(--fg); }
+  .cmdbar span.on { color: var(--g); }
+  .cmdbar span.am { color: var(--a); }
+  .cmdbar .g { color: var(--g); }
+  .cmdbar .lft, .cmdbar .rgt { display: flex; gap: 10px; }
+
+  /* ============ CARD GRID ============ */
+  .grid {
+    margin-top: 3px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 5px;
+    row-gap: 0;
+    padding: 0 2px 4px;
+  }
+
+  /* ============ SINGLE CARD ============ */
+  .card {
+    --accent: var(--g);
+    position: relative;
+    padding: 2px 4px 2px;
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    margin-bottom: 2px;
+    font-size: 9px;
+    line-height: 1.18;
+    color: var(--fg);
+    overflow: hidden;
+  }
+  .card.cr::before,
+  .card.cr::after {
+    /* ascii corner glyphs via content */
+  }
+
+  /* top header line of card */
+  .card .hd {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 9px;
+    letter-spacing: .04em;
+    line-height: 1.2;
+  }
+  .card .hd .slot { color: var(--dim); font-weight: 600; }
+  .card .hd .slot b { color: var(--fg); font-weight: 700; }
+  .card .hd .stat { color: var(--accent); }
+  .card .hd .hash { color: var(--c); font-weight: 500; }
+  .card .hd .cur { color: var(--accent); animation: blink 1s step-end infinite; }
+
+  .card .rule {
+    border-top: 1px dashed var(--grid);
+    margin: 3px 0 3px;
+    height: 0;
+    font-size: 0;
+  }
+
+  /* preview ASCII box with real color strip */
+  .card .preview {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    margin: 3px 0;
+  }
+  .card .asciibox {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    font-size: 10px;
+    line-height: 1.1;
+    color: var(--dim);
+    white-space: pre;
+    letter-spacing: 0;
+    align-items: stretch;
+  }
+  .card .asciibox .l, .card .asciibox .r {
+    font-weight: 400;
+    color: var(--mute);
+    white-space: pre;
+    font-size: 10px;
+    line-height: 1.2;
+  }
+  .card .asciibox .mid {
+    position: relative;
+    min-height: 22px;
+    border-top: 1px dashed var(--mute);
+    border-bottom: 1px dashed var(--mute);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--inset);
+    overflow: hidden;
+  }
+  /* backdrop stripes behind preview */
+  .card .bg-strips {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    z-index: 0;
+  }
+  .card .bg-strips > div { flex: 1; }
+  /* scan overlay on preview */
+  .card .mid::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 3px, rgba(0,255,136,.05) 3px, rgba(0,255,136,.05) 4px);
+    z-index: 2;
+    pointer-events: none;
+  }
+  /* coll preview image centered */
+  .card .mid img.gift {
+    position: relative;
+    z-index: 1;
+    height: 18px;
+    width: 18px;
+    object-fit: contain;
+    filter: grayscale(.15) brightness(1.05) contrast(1.08);
+    mix-blend-mode: screen;
+  }
+  .card .mid .chain {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 1px;
+    align-items: center;
+  }
+  .card .mid .chain img.gift {
+    height: 16px;
+    width: 16px;
+  }
+  .card .mid .ovl {
+    position: absolute;
+    inset: auto 2px 1px 3px;
+    z-index: 3;
+    font-size: 7.5px;
+    color: var(--dim);
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    line-height: 1;
+  }
+  .card .mid .ovl .cy { color: var(--c); }
+  .card .mid .ovl .g { color: var(--g); }
+  .card .mid .ovl .a { color: var(--a); }
+  .card .mid .ovl .r { color: var(--r); }
+
+  /* ascii top/bot lines of preview box */
+  .card .box-top, .card .box-bot {
+    white-space: pre;
+    color: var(--mute);
+    font-size: 8px;
+    line-height: 1;
+    height: 7px;
+    overflow: hidden;
+  }
+
+  /* property rows */
+  .card .rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 1px 0 0;
+  }
+  .card .rw {
+    display: flex;
+    gap: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    color: var(--fg);
+    font-size: 8.5px;
+    line-height: 1.15;
+  }
+  .card .rw .k {
+    color: var(--dim);
+    font-weight: 600;
+    width: 2.7em;
+    flex-shrink: 0;
+    letter-spacing: .02em;
+  }
+  .card .rw .v {
+    color: var(--fg);
+    font-weight: 500;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card .rw .any { color: var(--c); font-weight: 600; letter-spacing: .04em; }
+  .card .rw .cnt { color: var(--a); }
+  .card .rw .bit { color: var(--g); }
+
+  /* order book style buy/ntf block */
+  .card .book {
+    margin-top: 1px;
+    border-top: 1px dashed var(--grid);
+    padding-top: 1px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .card .book .line {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    white-space: nowrap;
+    font-size: 8.5px;
+    line-height: 1.15;
+  }
+  .card .book .lbl { color: var(--dim); font-weight: 700; width: 2.7em; letter-spacing: .04em; flex-shrink: 0; }
+  .card .book .st-on  { color: var(--g); font-weight: 700; width: 2.2em; flex-shrink: 0; }
+  .card .book .st-off { color: var(--r); font-weight: 700; width: 2.2em; flex-shrink: 0; }
+  .card .book .st-am  { color: var(--a); font-weight: 700; width: 2.2em; flex-shrink: 0; }
+  .card .book .px { color: var(--fg); font-weight: 600; width: 4.4em; flex-shrink: 0; text-align: right; }
+  .card .book .px .d { color: var(--c); }
+  .card .book .mkts { color: var(--dim); font-weight: 500; letter-spacing: 0; overflow: hidden; text-overflow: ellipsis; }
+  .card .book .mkts .m { color: var(--fg); }
+  .card .book .mkts .off { color: var(--mute); }
+
+  /* fill status row */
+  .card .fill {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 8px;
+    margin-top: 1px;
+    padding-top: 1px;
+    border-top: 1px dashed var(--grid);
+    color: var(--dim);
+    font-weight: 600;
+    letter-spacing: .03em;
+    line-height: 1.2;
+  }
+  .card .fill .st { color: var(--g); }
+  .card .fill .st.r { color: var(--r); }
+  .card .fill .st.a { color: var(--a); }
+
+  .card .actions {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+    font-size: 8.5px;
+    color: var(--dim);
+    font-weight: 700;
+  }
+  .card .actions b { color: var(--g); }
+  .card .actions .sw {
+    color: var(--g);
+    font-weight: 700;
+  }
+  .card .actions .sw.off { color: var(--r); }
+  .card .actions .sw.am { color: var(--a); }
+
+  /* state variants */
+  .card.st-any { --accent: var(--c); }
+  .card.st-pend { --accent: var(--a); }
+  .card.st-off {
+    --accent: var(--mute);
+    color: var(--mute);
+  }
+  .card.st-off .rw .v { color: var(--dim); }
+  .card.st-off .mid img.gift { filter: grayscale(1) brightness(.55); }
+  .card.st-off .hd .stat { color: var(--mute); }
+  .card.st-off .book .st-off { color: var(--mute); }
+  .card.st-off .book .mkts { color: var(--mute); }
+  .card.st-off::after {
+    content: "PURCHASE :: HALT";
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: 8px;
+    color: var(--r);
+    font-weight: 700;
+    letter-spacing: .05em;
+  }
+
+  .card.st-nonotif {
+    --accent: var(--a);
+  }
+  .card.st-nonotif .hd .stat { color: var(--a); }
+
+  /* CRITICAL 0/N */
+  .card.st-crit {
+    border-color: var(--r);
+    outline: 1px dashed var(--r);
+    outline-offset: -3px;
+    --accent: var(--r);
+    animation: redpulse 1.6s step-end infinite;
+  }
+  .card.st-crit .hd .stat { color: var(--r); }
+  .card.st-crit .hd .slot b { color: var(--r); }
+  .card.st-crit::before {
+    content: "!!";
+    position: absolute;
+    top: 3px;
+    right: 6px;
+    color: var(--r);
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: .06em;
+    animation: blink 0.6s step-end infinite;
+  }
+  .card.st-crit .fill .st { color: var(--r); font-weight: 800; }
+  .card.st-crit .fill {
+    border-top: 1px solid var(--r);
+    padding-top: 4px;
+  }
+
+  @keyframes redpulse {
+    0%, 60%, 100% { box-shadow: inset 0 0 0 1px transparent; }
+    20%, 40%      { box-shadow: inset 0 0 0 1px var(--r); }
+  }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  /* bulk mode checkbox */
+  .card .chk {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 13px;
+    height: 13px;
+    border: 1px solid var(--g);
+    background: var(--bg0);
+    color: var(--g);
+    font-weight: 800;
+    font-size: 11px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    z-index: 2;
+  }
+  .phone.bulk .card { padding-left: 22px; }
+  .phone.bulk .card .chk { display: flex; }
+  .phone.bulk .card.sel {
+    background: var(--sel);
+    outline: 1px solid var(--sel-b);
+    outline-offset: -1px;
+  }
+  .phone.bulk .card.sel .chk { background: var(--g); color: var(--bg0); }
+
+  /* bulk header takeover */
+  .phone.bulk .term-head {
+    color: var(--a);
+  }
+  .phone.bulk .term-head .g { color: var(--a); }
+  .phone.bulk .cmdbar {
+    background: rgba(255,184,0,.05);
+    border-color: var(--a);
+    color: var(--a);
+  }
+  .phone.bulk .cmdbar span.k { color: var(--a); }
+
+  /* ============ MODAL (Mockup B) ============ */
+  .dim-grid {
+    filter: brightness(.32) grayscale(.4) contrast(.85);
+  }
+  .dim-grid .card {
+    pointer-events: none;
+  }
+  .phone.modal .vp::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    z-index: 5;
+    backdrop-filter: none;
+  }
+  .sheet {
+    position: absolute;
+    left: 6px; right: 6px; bottom: 6px;
+    background: var(--phone);
+    border: 1px solid var(--g);
+    outline: 1px dashed var(--rule);
+    outline-offset: -4px;
+    z-index: 6;
+    color: var(--fg);
+    padding: 7px 10px 8px;
+    font-size: 10.5px;
+    line-height: 1.5;
+    max-height: calc(100% - 30px);
+    overflow: hidden;
+  }
+  .sheet .sheet-head {
+    white-space: pre;
+    font-size: 10px;
+    line-height: 1.35;
+    color: var(--dim);
+    margin-bottom: 2px;
+  }
+  .sheet .sheet-head .g { color: var(--g); font-weight: 700; }
+  .sheet .sheet-head .c { color: var(--c); }
+  .sheet .sheet-head .fg { color: var(--fg); font-weight: 700; }
+  .sheet h3 {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--g);
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    margin: 8px 0 2px;
+    border-bottom: 1px dashed var(--rule);
+    padding-bottom: 1px;
+  }
+  .sheet h3 .n { color: var(--dim); font-weight: 500; }
+  .sheet .kv {
+    display: grid;
+    grid-template-columns: 7em 1fr;
+    font-size: 10.5px;
+    line-height: 1.45;
+    gap: 0 8px;
+  }
+  .sheet .kv .k { color: var(--dim); font-weight: 600; letter-spacing: .03em; }
+  .sheet .kv .v { color: var(--fg); font-weight: 500; }
+  .sheet .kv .v .c { color: var(--c); }
+  .sheet .kv .v .g { color: var(--g); }
+  .sheet .kv .v .a { color: var(--a); }
+  .sheet .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px 4px;
+    font-size: 9.5px;
+    margin-top: 3px;
+  }
+  .sheet .chip {
+    border: 1px solid var(--rule);
+    padding: 1px 4px;
+    color: var(--fg);
+    letter-spacing: .02em;
+    background: var(--inset);
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .sheet .chip .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border: 1px solid var(--rule);
+  }
+  .sheet .chip.g { color: var(--g); border-color: rgba(0,255,136,.35); }
+  .sheet .chip.a { color: var(--a); border-color: rgba(255,184,0,.35); }
+  .sheet .chip.c { color: var(--c); border-color: rgba(0,212,255,.3); }
+  .sheet .book-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    padding: 1px 0;
+  }
+  .sheet .book-row .lbl { color: var(--dim); font-weight: 700; width: 3.5em; letter-spacing: .04em; }
+  .sheet .book-row .st-on { color: var(--g); font-weight: 700; width: 2.6em; }
+  .sheet .book-row .st-on.am { color: var(--a); }
+  .sheet .book-row .px { color: var(--fg); font-weight: 600; width: 5em; }
+  .sheet .book-row .px .d { color: var(--c); }
+  .sheet .book-row .mkts { color: var(--fg); letter-spacing: 0; }
+  .sheet .sheet-actions {
+    display: flex;
+    gap: 5px;
+    border-top: 1px dashed var(--rule);
+    padding-top: 6px;
+    margin-top: 7px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .05em;
+  }
+  .sheet .sheet-actions .btn {
+    flex: 1;
+    border: 1px solid var(--rule);
+    padding: 4px 6px;
+    text-align: center;
+    color: var(--fg);
+    background: var(--inset);
+  }
+  .sheet .sheet-actions .btn.pri {
+    color: var(--bg0);
+    background: var(--g);
+    border-color: var(--g);
+    font-weight: 800;
+  }
+  .sheet .sheet-actions .btn.dng {
+    color: var(--r);
+    border-color: var(--r);
+  }
+  .sheet .sheet-actions .btn small { display: block; font-weight: 500; color: var(--dim); font-size: 8px; letter-spacing: 0; margin-top: 1px; }
+  .sheet .sheet-actions .btn.pri small { color: var(--bg0); opacity: .7; }
+  .sheet .sheet-actions .btn.dng small { color: var(--r); opacity: .7; }
+
+  /* bulk banner */
+  .bulk-banner {
+    background: var(--phone);
+    border-bottom: 1px solid var(--a);
+    border-top: 1px solid var(--a);
+    padding: 4px 10px;
+    font-size: 10px;
+    color: var(--a);
+    letter-spacing: .06em;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    text-transform: uppercase;
+    white-space: pre;
+  }
+  .bulk-banner .seq { color: var(--fg); font-weight: 800; }
+  .bulk-banner .sep { color: var(--dim); }
+
+  /* mockup captions under phones */
+  .captions {
+    display: grid;
+    grid-template-columns: repeat(3, 393px);
+    gap: 40px;
+    justify-content: center;
+    margin-top: 20px;
+    font-size: 11px;
+    color: var(--dim);
+  }
+  .cap {
+    border: 1px dashed var(--grid);
+    padding: 10px 12px;
+    text-align: left;
+    line-height: 1.45;
+  }
+  .cap h4 {
+    color: var(--g);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .cap h4 small { color: var(--dim); font-weight: 500; margin-left: 6px; letter-spacing: .04em; }
+  .cap p { font-weight: 400; color: var(--dim); }
+  .cap ul {
+    list-style: none;
+    margin-top: 5px;
+    padding: 0;
+    font-size: 10px;
+    color: var(--dim);
+  }
+  .cap ul li { padding: 1px 0; }
+  .cap ul li::before { content: "::"; color: var(--g); margin-right: 6px; font-weight: 700; }
+
+  /* empty "new slot" placeholder card */
+  .card.empty {
+    border: 1px dashed var(--rule);
+    background: transparent;
+    color: var(--dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 150px;
+    font-weight: 500;
+  }
+  .card.empty .lp {
+    white-space: pre;
+    font-size: 10px;
+    line-height: 1.4;
+    color: var(--dim);
+  }
+  .card.empty .lp b {
+    color: var(--g);
+    font-weight: 700;
+    letter-spacing: .1em;
+  }
+
+  /* state-matrix footer strip under captions */
+  .matrix {
+    max-width: calc(3 * 393px + 2 * 40px);
+    margin: 28px auto 0;
+    border: 1px dashed var(--rule);
+    padding: 12px 16px 14px;
+    color: var(--dim);
+    font-size: 10px;
+  }
+  .matrix h5 {
+    color: var(--g);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .matrix .cols {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0 16px;
+    font-size: 10px;
+  }
+  .matrix .cols div { line-height: 1.55; }
+  .matrix .k { color: var(--fg); font-weight: 700; }
+  .matrix .g { color: var(--g); }
+  .matrix .a { color: var(--a); }
+  .matrix .r { color: var(--r); }
+  .matrix .c { color: var(--c); }
+
+  /* page top header ascii banner */
+  .title {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    margin-bottom: 18px;
+  }
+  .title h1 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    color: var(--fg);
+    text-transform: uppercase;
+  }
+  .title h1 em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--g);
+    letter-spacing: .04em;
+  }
+  .title .meta {
+    font-size: 10px;
+    color: var(--dim);
+    text-align: right;
+    font-weight: 500;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+  .title .meta b { color: var(--g); font-weight: 700; }
+  .title .meta i { color: var(--c); font-style: normal; font-weight: 600; }
+
+  /* data flash animation on any row marked .flash */
+  @keyframes flashgreen {
+    0% { background: transparent; }
+    10% { background: rgba(0,255,136,.18); }
+    100% { background: transparent; }
+  }
+  .flash { animation: flashgreen 1.6s step-end infinite; }
+
+  /* typewriter marker for card 9 long prompt */
+  .tw {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+
+  /* bulk label over card */
+  .phone.bulk .cmdbar::before {
+    content: "BATCH";
+    color: var(--bg0);
+    background: var(--a);
+    padding: 0 5px;
+    margin-right: 6px;
+    font-weight: 800;
+    letter-spacing: .12em;
+  }
+
+  .page-logo{
+    width:64px;height:64px;
+    display:block;margin:0 auto 14px;
+    image-rendering:pixelated;
+    filter:hue-rotate(100deg) saturate(1.4) brightness(1.15) contrast(1.15);
+    border:1px solid #00ff88;
+    box-shadow:0 0 14px rgba(0,255,136,0.45),inset 0 0 6px rgba(0,255,136,0.2);
+  }
+
+</style>
+</head>
+<body>
+
+<main class="page">
+
+  <!-- page title -->
+  <div class="title">
+    <img class="page-logo" src="../../../assets/logo.jpg" alt="">
+    <h1>GIFT SATELLITE <em>/ glyph terminal</em></h1>
+    <div class="meta">
+      V5 :: THREE-MOCKUP PRESS<br>
+      <b>JETBRAINS MONO</b> 100-800 ITALIC + REGULAR<br>
+      <i>TRADING&nbsp;FLOOR&nbsp;FOR&nbsp;TELEGRAM&nbsp;NFT&nbsp;SUBSCRIPTIONS</i>
+    </div>
+  </div>
+
+  <pre class="banner">
+<span class="hl">╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗</span>
+<span class="hl">║</span>  GIFT SATELLITE TERMINAL <span class="cy">v2.1.5</span>   <span class="am">#</span> OPERATOR:: @m1stervlad   <span class="am">#</span> 45 SLOTS ACTIVE   <span class="am">#</span> 01:47 UTC   <span class="am">#</span> BAL <span class="hl">1.92 ◇</span>   <span class="am">#</span>  <span class="hl">█</span>  <span class="hl">║</span>
+<span class="hl">╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝</span>
+  </pre>
+
+  <div class="legend">
+    <span><b class="g">● ACTV</b>SUBSCRIPTION LIVE</span>
+    <span><b class="a">● PEND</b>NOTIFY PARTIAL</span>
+    <span><b class="r">● HALT</b>PURCHASE PAUSED</span>
+    <span><b class="r">● CRIT</b>STOCK 00/NN</span>
+    <span><b class="c">● ANY </b>UNFILTERED MODELS / BG</span>
+    <span><b class="d">DOTTED RULE = ASCII GRID 1ch · NO GRADIENTS · NO EMOJI · UNICODE BOX-DRAW ONLY</b></span>
+  </div>
+
+  <!-- ============ PHONES ============ -->
+  <section class="phones">
+
+    <!-- =================================================================
+         MOCKUP A — HOME (9 cards)
+         ================================================================= -->
+    <div class="phone" id="phA">
+      <div class="statusbar">
+        <div class="sb-l">01:47</div>
+        <div class="sb-r">
+          <span class="wifi">▮▮▮▮</span>
+          <span class="bat">⚡ 92%</span>
+        </div>
+      </div>
+      <div class="vp">
+
+        <pre class="term-head"
+><span class="g">╔══════════════════════════════════════════╗</span>
+<span class="g">║</span> <span class="fg">GIFT SATELLITE</span> :: <span class="c">SUB/45</span> <span class="a">01:47Z</span> BAL <span class="fg">1.92◇</span> <span class="g">▲</span> <span class="g">█</span><span class="g">║</span>
+<span class="g">╚══════════════════════════════════════════╝</span></pre>
+
+        <div class="cmdbar">
+          <div class="lft">
+            <span><span class="k">:BULK</span></span>
+            <span><span class="k">:SORT</span> <span class="g">LIVE</span></span>
+            <span><span class="k">:FILT</span></span>
+          </div>
+          <div class="rgt">
+            <span><span class="k">:ADD</span></span>
+            <span>[?]</span>
+          </div>
+        </div>
+
+        <div class="grid">
+
+          <!-- ============ CARD 1 :: NORMAL :: 1 model + 1 bg + markets ============ -->
+          <div class="card">
+            <div class="hd">
+              <span class="slot">#<b>01</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0x5bf2</span>
+              <span class="cur">█</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips"><div style="background:linear-gradient(180deg,#7ecb82,#459e5a)"></div></div>
+                  <img class="gift" src="../../../assets/originals/5900177027566142759/Original.png" alt="Ice Cream" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="g">MDL 1</span><span class="g">BG 1</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Ice Cream flip 30</span></div>
+              <div class="rw"><span class="k">:COL</span><span class="v">Ice Cream</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">Pink Scoop</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">Mint Green</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">12.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">M</span>]</span></div>
+              <div class="line"><span class="lbl">NTF</span><span class="st-on">ON</span><span class="px">30.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">M</span>]</span></div>
+            </div>
+            <div class="fill">
+              <span class="st">01/03 FILLED</span>
+              <span class="actions"><b>:EDIT</b> <b>:DEL</b> <span class="sw">[·─●]</span></span>
+            </div>
+          </div>
+
+          <!-- ============ CARD 2 :: ANY/ANY (0 models + 0 bg) :: Lol Pop ============ -->
+          <div class="card st-any">
+            <div class="hd">
+              <span class="slot">#<b>02</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0x7a91</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips"><div style="background:repeating-linear-gradient(45deg,#121812 0 6px,#162216 6px 12px)"></div></div>
+                  <img class="gift" src="../../../assets/originals/5170594532177215681/Original.png" alt="Lol Pop" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="cy">MDL ANY</span><span class="cy">BG ANY</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Lol Pop collector</span></div>
+              <div class="rw"><span class="k">:COL</span><span class="v">Lol Pop</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v any">ANY MODEL</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v any">ANY BACKDROP</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">&nbsp;8.50<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">T</span>][<span class="m">G</span>]</span></div>
+              <div class="line"><span class="lbl">NTF</span><span class="st-on">ON</span><span class="px">12.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">M</span>][<span class="m">T</span>][<span class="m">G</span>]</span></div>
+            </div>
+            <div class="fill">
+              <span class="st">07/12 FILLED</span>
+              <span class="actions"><b>:EDIT</b> <b>:DEL</b> <span class="sw">[·─●]</span></span>
+            </div>
+          </div>
+
+          <!-- ============ CARD 3 :: 3 MODEL CHAIN :: Light Sword + 1 bg ============ -->
+          <div class="card">
+            <div class="hd">
+              <span class="slot">#<b>03</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0x91c0</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips"><div style="background:linear-gradient(180deg,#537991,#031b29)"></div></div>
+                  <div class="chain">
+                    <img class="gift" src="../../../assets/originals/5897581235231785485/Original.png" alt="" onerror="this.style.display='none'">
+                    <img class="gift" src="../../../assets/originals/5897581235231785485/Original.png" alt="" onerror="this.style.display='none'">
+                    <img class="gift" src="../../../assets/originals/5897581235231785485/Original.png" alt="" onerror="this.style.display='none'">
+                  </div>
+                  <div class="ovl"><span class="g">MDL 3/3</span><span class="g">BG 1</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Light Sword cheap</span></div>
+              <div class="rw"><span class="k">:COL</span><span class="v">Light Sword</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v"><span class="bit">3</span> MODELS</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">Indigo Dye</span></div>
+              <div class="rw"><span class="k">:NUM</span><span class="v">#777, #888</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">22.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>]</span></div>
+              <div class="line"><span class="lbl">NTF</span><span class="st-on">ON</span><span class="px">45.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">M</span>]</span></div>
+            </div>
+            <div class="fill">
+              <span class="st">12/15 FILLED</span>
+              <span class="actions"><b>:EDIT</b> <b>:DEL</b> <span class="sw">[·─●]</span></span>
+            </div>
+          </div>
+
+          <!-- ============ CARD 4 :: 12 MODELS + 3 BG DIVIDE :: Plush Pepe ============ -->
+          <div class="card">
+            <div class="hd">
+              <span class="slot">#<b>04</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0xe203</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips">
+                    <div style="background:#5b10ab"></div>
+                    <div style="background:#621a9f"></div>
+                    <div style="background:#2828bc"></div>
+                  </div>
+                  <img class="gift" src="../../../assets/originals/5936013938331222567/Original.png" alt="Plush Pepe" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="g">MDL 12</span><span class="g">BG 3</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Pepe legendary set</span></div>
+              <div class="rw"><span class="k">:COL</span><span class="v">Plush Pepe</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v"><span class="cnt">12</span> MODELS</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v"><span class="bit">3</span> Lav/Cyb/Nvy</span></div>
+              <div class="rw"><span class="k">:PTN</span><span class="v">Cyberpunk</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">540.0<span class="d">◇</span></span><span class="mkts">[<span class="m">F</span>][<span class="m">P</span>]</span></div>
+              <div class="line"><span class="lbl">NTF</span><span class="st-on">ON</span><span class="px">900.0<span class="d">◇</span></span><span class="mkts">[<span class="m">F</span>][<span class="m">P</span>][<span class="m">M</span>]</span></div>
+            </div>
+            <div class="fill">
+              <span class="st">02/05 FILLED</span>
+              <span class="actions"><b>:EDIT</b> <b>:DEL</b> <span class="sw">[·─●]</span></span>
+            </div>
+          </div>
+
+          <!-- ============ CARD 5 :: 25 BG CUSTOM GRADIENT + 2 MODELS :: Jolly Chimp ============ -->
+          <div class="card">
+            <div class="hd">
+              <span class="slot">#<b>05</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0x4fc8</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips">
+                    <div style="background:#620fb4"></div>
+                    <div style="background:#9662d4"></div>
+                    <div style="background:#5b62d8"></div>
+                    <div style="background:#6862e4"></div>
+                    <div style="background:#2828bc"></div>
+                    <div style="background:#0d45b6"></div>
+                    <div style="background:#07609b"></div>
+                    <div style="background:#046b06"></div>
+                  </div>
+                  <div class="chain">
+                    <img class="gift" src="../../../assets/originals/6005880141270483700/Original.png" alt="" onerror="this.style.display='none'">
+                    <img class="gift" src="../../../assets/originals/6005880141270483700/Original.png" alt="" onerror="this.style.display='none'">
+                  </div>
+                  <div class="ovl"><span class="g">MDL 2</span><span class="cy">BG 25 CSTM</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Jolly wide spread</span></div>
+              <div class="rw"><span class="k">:COL</span><span class="v">Jolly Chimp</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v"><span class="bit">2</span> MODELS</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v"><span class="cnt">25</span> BGD CSTM</span></div>
+              <div class="rw"><span class="k">:PTN</span><span class="v"><span class="bit">4</span> PATTERNS</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">18.50<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">M</span>][<span class="m">G</span>]</span></div>
+              <div class="line"><span class="lbl">NTF</span><span class="st-on">ON</span><span class="px">35.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">M</span>]</span></div>
+            </div>
+            <div class="fill">
+              <span class="st">18/20 FILLED</span>
+              <span class="actions"><b>:EDIT</b> <b>:DEL</b> <span class="sw">[·─●]</span></span>
+            </div>
+          </div>
+
+          <!-- ============ CARD 6 :: CRITICAL :: 0/03 STOCK :: Jack-in-the-Box ============ -->
+          <div class="card st-crit">
+            <div class="hd">
+              <span class="slot">#<b>06</b> CRIT</span>
+              <span class="stat">● HALT</span>
+              <span class="hash">0xdead</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips"><div style="background:linear-gradient(180deg,#50000a,#180006)"></div></div>
+                  <img class="gift" src="../../../assets/originals/6005659564635063386/Original.png" alt="" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="r">STOCK</span><span class="r">00/03</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Jack scalping alert</span></div>
+              <div class="rw"><span class="k">:COL</span><span class="v">Jack-in-the-Box</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">Cursed Clown</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">Raspberry</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">14.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">M</span>]</span></div>
+              <div class="line"><span class="lbl">NTF</span><span class="st-on">ON</span><span class="px">28.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>]</span></div>
+            </div>
+            <div class="fill">
+              <span class="st r">00/03 ▼ DEPLETED · REFILL?</span>
+              <span class="actions"><b>:RESUPPLY</b></span>
+            </div>
+          </div>
+
+          <!-- ============ CARD 7 :: PURCHASE OFF :: Homemade Cake ============ -->
+          <div class="card st-off">
+            <div class="hd">
+              <span class="slot">#<b>07</b> HALT</span>
+              <span class="stat">◌ OFF</span>
+              <span class="hash">0x0311</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips"><div style="background:#302820"></div></div>
+                  <img class="gift" src="../../../assets/originals/5783075783622787539/Original.png" alt="" onerror="this.style.display='none'">
+                  <div class="ovl"><span>BUY</span><span class="r">:: HALT</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Cake stash paused</span></div>
+              <div class="rw"><span class="k">:COL</span><span class="v">Homemade Cake</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">Cherry Top</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">Satin Gold</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-off">OFF</span><span class="px">—.—<span class="d">◇</span></span><span class="mkts"><span class="off">[─][─][─]</span></span></div>
+              <div class="line"><span class="lbl">NTF</span><span class="st-on">ON</span><span class="px">25.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">M</span>]</span></div>
+            </div>
+            <div class="fill">
+              <span class="st">BUY DISABLED BY USER</span>
+              <span class="actions"><b>:RESUME</b> <span class="sw off">[●─·]</span></span>
+            </div>
+          </div>
+
+          <!-- ============ CARD 8 :: NOTIF OFF + 4 PATTERNS :: Desk Calendar ============ -->
+          <div class="card st-nonotif">
+            <div class="hd">
+              <span class="slot">#<b>08</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0xb7d4</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips"><div style="background:linear-gradient(180deg,#dab345,#7a3100)"></div></div>
+                  <img class="gift" src="../../../assets/originals/5782988952268964995/Original.png" alt="" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="a">NTF :: MUTE</span><span class="a">PTN 4</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Date hunter silent</span></div>
+              <div class="rw"><span class="k">:COL</span><span class="v">Desk Calendar</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">Friday 13</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">Amber</span></div>
+              <div class="rw"><span class="k">:PTN</span><span class="v"><span class="bit">4</span> PATT · #013</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">&nbsp;4.50<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">M</span>][<span class="m">G</span>]</span></div>
+              <div class="line"><span class="lbl">NTF</span><span class="st-am">OFF</span><span class="px">—.—<span class="d">◇</span></span><span class="mkts"><span class="off">MUTED</span></span></div>
+            </div>
+            <div class="fill">
+              <span class="st a">NTF MUTED · BUY ACTIVE</span>
+              <span class="actions"><b>:EDIT</b> <b>:DEL</b> <span class="sw">[·─●]</span></span>
+            </div>
+          </div>
+
+          <!-- ============ CARD 9 :: LONG PROMPT + 5 BG :: Victory Medal ============ -->
+          <div class="card">
+            <div class="hd">
+              <span class="slot">#<b>09</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0xac90</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips">
+                    <div style="background:#703c00"></div>
+                    <div style="background:#7a3100"></div>
+                    <div style="background:#5d3b00"></div>
+                    <div style="background:#4a3226"></div>
+                    <div style="background:#594c04"></div>
+                  </div>
+                  <img class="gift" src="../../../assets/originals/5830340739074097859/Original.png" alt="" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="g">MDL 1</span><span class="g">BG 5/5</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Medal flip 40ch demo …</span></div>
+              <div class="rw"><span class="k">:COL</span><span class="v">Victory Medal</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">Golden Wreath</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v"><span class="bit">5</span> warm · #111</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">&nbsp;6.25<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">M</span>]</span></div>
+              <div class="line"><span class="lbl">NTF</span><span class="st-on">ON</span><span class="px">11.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">M</span>][<span class="m">T</span>]</span></div>
+            </div>
+            <div class="fill">
+              <span class="st">22/25 FILLED</span>
+              <span class="actions"><b>:EDIT</b> <b>:DEL</b> <span class="sw">[·─●]</span></span>
+            </div>
+          </div>
+
+          <!-- ============ EMPTY SLOT 10 ============ -->
+          <div class="card empty">
+            <pre class="lp">┌────────────────┐
+│                │
+│   <b>+  NEW SLOT</b>  │
+│  PRESS :ADD    │
+│                │
+└────────────────┘</pre>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- =================================================================
+         MOCKUP B — DETAIL VIEW (bottom-sheet, "expanded terminal session")
+         ================================================================= -->
+    <div class="phone modal" id="phB">
+      <div class="statusbar">
+        <div class="sb-l">01:47</div>
+        <div class="sb-r">
+          <span class="wifi">▮▮▮▮</span>
+          <span class="bat">⚡ 92%</span>
+        </div>
+      </div>
+      <div class="vp">
+        <pre class="term-head"
+><span class="g">╔══════════════════════════════════════════╗</span>
+<span class="g">║</span> <span class="fg">GIFT SATELLITE</span> :: <span class="c">SUB/45</span> <span class="a">01:47Z</span> BAL <span class="fg">1.92◇</span> <span class="g">▲</span> <span class="g">█</span><span class="g">║</span>
+<span class="g">╚══════════════════════════════════════════╝</span></pre>
+
+        <div class="cmdbar">
+          <div class="lft">
+            <span><span class="k">:BULK</span></span>
+            <span><span class="k">:SORT</span> <span class="g">LIVE</span></span>
+            <span><span class="k">:FILT</span></span>
+          </div>
+          <div class="rgt">
+            <span><span class="k">:ADD</span></span>
+            <span>[?]</span>
+          </div>
+        </div>
+
+        <!-- background dim faux cards — full home grid behind the sheet -->
+        <div class="grid dim-grid">
+          <div class="card">
+            <div class="hd"><span class="slot">#<b>01</b> <span class="stat">● LIVE</span></span><span class="hash">0x5bf2</span></div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid"><div class="bg-strips"><div style="background:linear-gradient(180deg,#7ecb82,#459e5a)"></div></div></div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Ice Cream flip 30</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">Pink Scoop</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">Mint Green</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">12.00<span class="d">◇</span></span><span class="mkts">[P][F][M]</span></div>
+            </div>
+            <div class="fill"><span class="st">01/03 FILLED</span><span class="actions"></span></div>
+          </div>
+          <div class="card">
+            <div class="hd"><span class="slot">#<b>02</b> <span class="stat">● LIVE</span></span><span class="hash">0x7a91</span></div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid"><div class="bg-strips"><div style="background:repeating-linear-gradient(45deg,#121812 0 6px,#162216 6px 12px)"></div></div></div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Lol Pop collector</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v any">ANY</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v any">ANY</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">&nbsp;8.50<span class="d">◇</span></span><span class="mkts">[P][F][T][G]</span></div>
+            </div>
+            <div class="fill"><span class="st">07/12 FILLED</span><span class="actions"></span></div>
+          </div>
+          <div class="card">
+            <div class="hd"><span class="slot">#<b>03</b> <span class="stat">● LIVE</span></span><span class="hash">0x91c0</span></div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid"><div class="bg-strips"><div style="background:linear-gradient(180deg,#537991,#031b29)"></div></div></div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Light Sword cheap</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">3 MODELS</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">Indigo Dye</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">22.00<span class="d">◇</span></span><span class="mkts">[P][F]</span></div>
+            </div>
+            <div class="fill"><span class="st">12/15 FILLED</span><span class="actions"></span></div>
+          </div>
+          <div class="card">
+            <div class="hd"><span class="slot">#<b>04</b> <span class="stat">● LIVE</span></span><span class="hash">0xe203</span></div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid"><div class="bg-strips"><div style="background:#5b10ab"></div><div style="background:#621a9f"></div><div style="background:#2828bc"></div></div></div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Pepe legendary set</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">12 MODELS</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">3 LAV/CYB/NVY</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">540.0<span class="d">◇</span></span><span class="mkts">[F][P]</span></div>
+            </div>
+            <div class="fill"><span class="st">02/05 FILLED</span><span class="actions"></span></div>
+          </div>
+        </div>
+
+        <!-- BOTTOM SHEET MODAL -->
+        <div class="sheet">
+          <pre class="sheet-head"
+><span class="g">╔══════════════════════════════════════╗</span>
+<span class="g">║</span>  <span class="fg">SESSION 0x5bf2</span>  ::  <span class="c">ICE CREAM FLIP 30</span>  <span class="g">║</span>
+<span class="g">║</span>  <span class="g">● LIVE</span>  01/03 FILLED   <span class="fg">HELD 12m</span>   <span class="g">║</span>
+<span class="g">╚══════════════════════════════════════╝</span></pre>
+
+          <h3>META <span class="n">// 06 fields</span></h3>
+          <div class="kv">
+            <div class="k">:NAME</div><div class="v">Ice Cream flip 30</div>
+            <div class="k">:COLLECTION</div><div class="v">Ice Cream <span class="c">// 108 total</span></div>
+            <div class="k">:CREATED</div><div class="v">2026-04-03 19:11Z</div>
+            <div class="k">:OWNER</div><div class="v c">@m1stervlad</div>
+            <div class="k">:PATTERN</div><div class="v a">ANY</div>
+            <div class="k">:NUMBER</div><div class="v a">ANY</div>
+          </div>
+
+          <h3>MODELS <span class="n">// 1 SEL</span></h3>
+          <div class="chips">
+            <span class="chip g"><span class="dot" style="background:#ff8fb6"></span>Pink Scoop</span>
+            <span class="chip">Vanilla</span>
+            <span class="chip">Pistachio</span>
+            <span class="chip">Choco Crunch</span>
+            <span class="chip">+24</span>
+          </div>
+
+          <h3>BACKDROPS <span class="n">// 1 SEL · 80 avail</span></h3>
+          <div class="chips">
+            <span class="chip g"><span class="dot" style="background:#7ecb82"></span>Mint Green</span>
+            <span class="chip"><span class="dot" style="background:#363738"></span>Black</span>
+            <span class="chip"><span class="dot" style="background:#ca70c6"></span>Electric Purple</span>
+            <span class="chip"><span class="dot" style="background:#78c585"></span>Emerald</span>
+            <span class="chip"><span class="dot" style="background:#d09932"></span>Caramel</span>
+            <span class="chip">+75</span>
+          </div>
+
+          <h3>ORDER BOOK <span class="n">// BUY &amp; NOTIFY</span></h3>
+          <div class="book-row"><span class="lbl">BUY</span><span class="st-on">ON </span><span class="px">12.00 <span class="d">◇</span></span><span class="mkts">PRT · FRG · MRKT</span></div>
+          <div class="book-row"><span class="lbl">NTF</span><span class="st-on">ON </span><span class="px">30.00 <span class="d">◇</span></span><span class="mkts">PRT · MRKT</span></div>
+          <div class="book-row"><span class="lbl">STK</span><span class="st-on am">1/3</span><span class="px">&nbsp;</span><span class="mkts">2 REMAIN · <span style="color:var(--g)">▲ +1 (24h)</span></span></div>
+
+          <div class="sheet-actions">
+            <button class="btn">:EDIT<small>update filter</small></button>
+            <button class="btn pri">:RESUME<small>switch ON</small></button>
+            <button class="btn dng">:DEL<small>drop slot</small></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================================================================
+         MOCKUP C — BULK MODE / "BATCH MODE" LOGIN-STYLE SELECTION
+         ================================================================= -->
+    <div class="phone bulk" id="phC">
+      <div class="statusbar">
+        <div class="sb-l">01:47</div>
+        <div class="sb-r">
+          <span class="wifi">▮▮▮▮</span>
+          <span class="bat">⚡ 92%</span>
+        </div>
+      </div>
+      <div class="vp">
+        <pre class="term-head"
+><span class="g">╔══════════════════════════════════════════╗</span>
+<span class="g">║</span> <span class="a">BATCH MODE</span> :: <span class="fg">SEL 05/45</span>  <span class="a">SUM 71.00◇</span> <span class="a">█</span><span class="g">║</span>
+<span class="g">╚══════════════════════════════════════════╝</span></pre>
+
+        <div class="cmdbar">
+          <div class="lft">
+            <span><span class="k">:DEL</span></span>
+            <span><span class="k">:PAUSE</span></span>
+            <span><span class="k">:RESUME</span></span>
+            <span><span class="k">:DUP</span></span>
+          </div>
+          <div class="rgt">
+            <span><span class="k">:ALL</span></span>
+            <span><span class="k">:NONE</span></span>
+            <span>[ESC]</span>
+          </div>
+        </div>
+
+        <!-- login-prompt banner -->
+        <div class="bulk-banner">
+          <span><span class="seq">&gt; batch</span> <span class="sep">::</span> pick slots</span>
+          <span><span class="seq">05</span> <span class="sep">/</span> 45 <span class="sep">·</span> 71.00◇</span>
+        </div>
+
+        <div class="grid">
+
+          <!-- C-1 selected -->
+          <div class="card sel">
+            <div class="chk">■</div>
+            <div class="hd">
+              <span class="slot">#<b>01</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0x5bf2</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips"><div style="background:linear-gradient(180deg,#7ecb82,#459e5a)"></div></div>
+                  <img class="gift" src="../../../assets/originals/5900177027566142759/Original.png" alt="" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="g">MDL 1</span><span class="g">BG 1</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Ice Cream flip 30</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">Pink Scoop</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">Mint Green</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">12.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">M</span>]</span></div>
+            </div>
+            <div class="fill">
+              <span class="st">01/03 FILLED</span>
+              <span class="actions"><b>SEL</b></span>
+            </div>
+          </div>
+
+          <!-- C-2 not selected -->
+          <div class="card st-any">
+            <div class="chk"> </div>
+            <div class="hd">
+              <span class="slot">#<b>02</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0x7a91</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips"><div style="background:repeating-linear-gradient(45deg,#121812 0 6px,#162216 6px 12px)"></div></div>
+                  <img class="gift" src="../../../assets/originals/5170594532177215681/Original.png" alt="" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="cy">MDL ANY</span><span class="cy">BG ANY</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Lol Pop collector</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v any">ANY</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v any">ANY</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">&nbsp;8.50<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">T</span>][<span class="m">G</span>]</span></div>
+            </div>
+            <div class="fill"><span class="st">07/12 FILLED</span><span class="actions"></span></div>
+          </div>
+
+          <!-- C-3 selected -->
+          <div class="card sel">
+            <div class="chk">■</div>
+            <div class="hd">
+              <span class="slot">#<b>03</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0x91c0</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips"><div style="background:linear-gradient(180deg,#537991,#031b29)"></div></div>
+                  <div class="chain">
+                    <img class="gift" src="../../../assets/originals/5897581235231785485/Original.png" alt="" onerror="this.style.display='none'">
+                    <img class="gift" src="../../../assets/originals/5897581235231785485/Original.png" alt="" onerror="this.style.display='none'">
+                    <img class="gift" src="../../../assets/originals/5897581235231785485/Original.png" alt="" onerror="this.style.display='none'">
+                  </div>
+                  <div class="ovl"><span class="g">MDL 3/3</span><span class="g">BG 1</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Light Sword cheap</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v"><span class="bit">3</span> MODELS</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">Indigo Dye</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">22.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>]</span></div>
+            </div>
+            <div class="fill">
+              <span class="st">12/15 FILLED</span>
+              <span class="actions"><b>SEL</b></span>
+            </div>
+          </div>
+
+          <!-- C-4 not selected -->
+          <div class="card">
+            <div class="chk"> </div>
+            <div class="hd">
+              <span class="slot">#<b>04</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0xe203</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips">
+                    <div style="background:#5b10ab"></div>
+                    <div style="background:#621a9f"></div>
+                    <div style="background:#2828bc"></div>
+                  </div>
+                  <img class="gift" src="../../../assets/originals/5936013938331222567/Original.png" alt="" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="g">MDL 12</span><span class="g">BG 3</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Pepe legendary set</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v"><span class="cnt">12</span> MODELS</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v"><span class="bit">3</span> Lav/Cyb/Nvy</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">540.0<span class="d">◇</span></span><span class="mkts">[<span class="m">F</span>][<span class="m">P</span>]</span></div>
+            </div>
+            <div class="fill"><span class="st">02/05 FILLED</span><span class="actions"></span></div>
+          </div>
+
+          <!-- C-5 selected -->
+          <div class="card sel">
+            <div class="chk">■</div>
+            <div class="hd">
+              <span class="slot">#<b>05</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0x4fc8</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips">
+                    <div style="background:#620fb4"></div>
+                    <div style="background:#9662d4"></div>
+                    <div style="background:#5b62d8"></div>
+                    <div style="background:#6862e4"></div>
+                    <div style="background:#2828bc"></div>
+                  </div>
+                  <div class="chain">
+                    <img class="gift" src="../../../assets/originals/6005880141270483700/Original.png" alt="" onerror="this.style.display='none'">
+                    <img class="gift" src="../../../assets/originals/6005880141270483700/Original.png" alt="" onerror="this.style.display='none'">
+                  </div>
+                  <div class="ovl"><span class="g">MDL 2</span><span class="cy">BG 25</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Jolly wide spread</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v"><span class="bit">2</span> MODELS</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v"><span class="cnt">25</span> CSTM</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">18.50<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">M</span>][<span class="m">G</span>]</span></div>
+            </div>
+            <div class="fill">
+              <span class="st">18/20 FILLED</span>
+              <span class="actions"><b>SEL</b></span>
+            </div>
+          </div>
+
+          <!-- C-6 selected (critical still eligible to batch) -->
+          <div class="card st-crit sel">
+            <div class="chk">■</div>
+            <div class="hd">
+              <span class="slot">#<b>06</b> CRIT</span>
+              <span class="stat">● HALT</span>
+              <span class="hash">0xdead</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips"><div style="background:linear-gradient(180deg,#50000a,#180006)"></div></div>
+                  <img class="gift" src="../../../assets/originals/6005659564635063386/Original.png" alt="" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="r">STOCK</span><span class="r">00/03</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Jack scalping alert</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">Cursed Clown</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">Raspberry</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">14.00<span class="d">◇</span></span><span class="mkts">[<span class="m">P</span>][<span class="m">F</span>][<span class="m">M</span>]</span></div>
+            </div>
+            <div class="fill"><span class="st r">00/03 · REFILL?</span><span class="actions"><b>SEL</b></span></div>
+          </div>
+
+          <!-- C-7 purchase off, not selected -->
+          <div class="card st-off">
+            <div class="chk"> </div>
+            <div class="hd">
+              <span class="slot">#<b>07</b> HALT</span>
+              <span class="stat">◌ OFF</span>
+              <span class="hash">0x0311</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips"><div style="background:#302820"></div></div>
+                  <img class="gift" src="../../../assets/originals/5783075783622787539/Original.png" alt="" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="r">BUY HALT</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Cake stash paused</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">Cherry Top</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">Satin Gold</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-off">OFF</span><span class="px">—.—<span class="d">◇</span></span><span class="mkts"><span class="off">MUTED</span></span></div>
+            </div>
+            <div class="fill"><span class="st">BUY DISABLED</span><span class="actions"></span></div>
+          </div>
+
+          <!-- C-8 NTF mute, selected -->
+          <div class="card st-nonotif sel">
+            <div class="chk">■</div>
+            <div class="hd">
+              <span class="slot">#<b>08</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0xb7d4</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips"><div style="background:linear-gradient(180deg,#dab345,#7a3100)"></div></div>
+                  <img class="gift" src="../../../assets/originals/5782988952268964995/Original.png" alt="" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="a">NTF MUTE</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Date hunter silent</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">Friday 13</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v">Amber · 4PTN</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">&nbsp;4.50<span class="d">◇</span></span><span class="mkts">[P][F][M][G]</span></div>
+            </div>
+            <div class="fill"><span class="st a">NTF MUTED</span><span class="actions"><b>SEL</b></span></div>
+          </div>
+
+          <!-- C-9 long prompt, not selected -->
+          <div class="card">
+            <div class="chk"> </div>
+            <div class="hd">
+              <span class="slot">#<b>09</b> ACTV</span>
+              <span class="stat">● LIVE</span>
+              <span class="hash">0xac90</span>
+            </div>
+            <div class="preview">
+              <div class="box-top">┌──────────────────┐</div>
+              <div class="asciibox">
+                <div class="l">│</div>
+                <div class="mid">
+                  <div class="bg-strips">
+                    <div style="background:#703c00"></div>
+                    <div style="background:#7a3100"></div>
+                    <div style="background:#5d3b00"></div>
+                    <div style="background:#4a3226"></div>
+                    <div style="background:#594c04"></div>
+                  </div>
+                  <img class="gift" src="../../../assets/originals/5830340739074097859/Original.png" alt="" onerror="this.style.display='none'">
+                  <div class="ovl"><span class="g">BG 5/5</span></div>
+                </div>
+                <div class="r">│</div>
+              </div>
+              <div class="box-bot">└──────────────────┘</div>
+            </div>
+            <div class="rows">
+              <div class="rw"><span class="k">:NAM</span><span class="v">Medal flip 40ch demo</span></div>
+              <div class="rw"><span class="k">:MDL</span><span class="v">Golden Wreath</span></div>
+              <div class="rw"><span class="k">:BGD</span><span class="v"><span class="bit">5</span> warm tones</span></div>
+            </div>
+            <div class="book">
+              <div class="line"><span class="lbl">BUY</span><span class="st-on">ON</span><span class="px">&nbsp;6.25<span class="d">◇</span></span><span class="mkts">[P][F][M]</span></div>
+            </div>
+            <div class="fill"><span class="st">22/25 FILLED</span><span class="actions"></span></div>
+          </div>
+
+          <!-- C-10 empty slot -->
+          <div class="card empty">
+            <pre class="lp">┌────────────────┐
+│                │
+│   <b>+  NEW SLOT</b>  │
+│  PRESS :ADD    │
+│                │
+└────────────────┘</pre>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- captions -->
+  <div class="captions">
+    <div class="cap">
+      <h4>MOCKUP A <small>home /home</small></h4>
+      <p>Grid 2-cards-wide, 9 slots + empty add slot. Every card = one exchange session.</p>
+      <ul>
+        <li>#01 normal / 1 model / 1 bg / 3 markets</li>
+        <li>#02 ANY/ANY unfiltered (cyan)</li>
+        <li>#03 3-model chain preview</li>
+        <li>#04 12 models + 3 bg split</li>
+        <li>#05 25 bg custom gradient + 2 models</li>
+        <li>#06 CRITICAL stock 00/03 (red flash)</li>
+        <li>#07 purchase HALT dimmed</li>
+        <li>#08 notify MUTED amber + 4 patterns</li>
+        <li>#09 long prompt 40ch + 5 bg</li>
+      </ul>
+    </div>
+    <div class="cap">
+      <h4>MOCKUP B <small>detail / expanded session</small></h4>
+      <p>Bottom-sheet modal opens like an expanded terminal session. Metadata table, chip clouds for models + backdrops (real hex dots from backdrops.json), order-book rows for BUY / NOTIFY / STOCK, action strip.</p>
+      <ul>
+        <li>All 6 filter sections visible without navigation</li>
+        <li>Price levels in ORDER BOOK style</li>
+        <li>Stock delta with ▲/▼ indicators</li>
+      </ul>
+    </div>
+    <div class="cap">
+      <h4>MOCKUP C <small>bulk / batch mode</small></h4>
+      <p>"Batch mode" swaps terminal header amber. Left-side ASCII checkbox appears on each card, selection inverts background to phosphor-green 15%. Command bar now hosts multi-action verbs.</p>
+      <ul>
+        <li>5 selected of 9 shown · sum 71.00 ◇</li>
+        <li>All cards remain readable; no layout shift</li>
+        <li>ESC cancels, :ALL / :NONE toggle</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- state matrix footer -->
+  <div class="matrix">
+    <h5>STATE MATRIX // 16 FILTER STATES COVERED</h5>
+    <div class="cols">
+      <div>
+        <div><span class="k">01</span> normal <span class="g">● ACTV</span></div>
+        <div><span class="k">02</span> purchase ON <span class="g">● ON</span></div>
+        <div><span class="k">03</span> purchase OFF <span class="r">◌ HALT</span></div>
+        <div><span class="k">04</span> stock 00/N <span class="r">!! CRIT</span></div>
+      </div>
+      <div>
+        <div><span class="k">05</span> notify ON <span class="g">● ON</span></div>
+        <div><span class="k">06</span> notify OFF <span class="a">MUTED</span></div>
+        <div><span class="k">07</span> 0 models <span class="c">ANY</span></div>
+        <div><span class="k">08</span> 1 model</div>
+      </div>
+      <div>
+        <div><span class="k">09</span> 2-5 models (chain)</div>
+        <div><span class="k">10</span> &gt;5 models (count)</div>
+        <div><span class="k">11</span> 0 backdrops <span class="c">ANY</span></div>
+        <div><span class="k">12</span> 1 backdrop</div>
+      </div>
+      <div>
+        <div><span class="k">13</span> 2–N backdrops (split)</div>
+        <div><span class="k">14</span> &gt;N backdrops (custom)</div>
+        <div><span class="k">15</span> bulk mode ON</div>
+        <div><span class="k">16</span> selected in bulk <span class="g">■</span></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  /* ----------------------------------------------------------------------
+     Typewriter reveal of prompt names on load. Cheap, no deps.
+     Walks every .card .rw .v[data-tw] (added via JS) and types char-by-char.
+  ---------------------------------------------------------------------- */
+  (function () {
+    const revealNames = () => {
+      const names = document.querySelectorAll('#phA .card:not(.empty) .rows .rw:first-child .v');
+      names.forEach((el, i) => {
+        const txt = el.textContent;
+        el.textContent = '';
+        el.classList.add('tw');
+        let idx = 0;
+        const step = () => {
+          if (idx <= txt.length) {
+            el.textContent = txt.slice(0, idx);
+            idx++;
+            setTimeout(step, 18 + Math.random() * 22);
+          } else {
+            el.classList.remove('tw');
+          }
+        };
+        setTimeout(step, 140 + i * 90);
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', revealNames);
+    } else {
+      revealNames();
+    }
+  })();
+</script>
+
+</body>
+</html>
