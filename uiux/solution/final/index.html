@@ -83,17 +83,19 @@ img{display:block}
 .brand .name em{color:var(--text-sec);font-weight:500;font-style:normal;margin-left:4px}
 .head-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .balance{
-  display:flex;align-items:center;gap:6px;
+  display:flex;align-items:center;gap:3px;
   height:34px;padding:0 4px 0 12px;
   background:var(--secondary);border-radius:999px;
   font-size:14px;font-weight:500;color:var(--text);
   border:1px solid var(--outlines);
 }
 .balance .ton{width:16px;height:16px;color:var(--text)}
+.balance span:not(.plus){margin-left:2px}
 .balance .plus{
   width:26px;height:26px;border-radius:999px;background:var(--primary);
   display:flex;align-items:center;justify-content:center;
   color:#fff;font-size:16px;font-weight:600;line-height:1;
+  margin-left:4px;
 }
 .icon-btn{
   width:32px;height:32px;border-radius:8px;
@@ -148,10 +150,10 @@ img{display:block}
 .cta .ton{width:13px;height:13px;color:var(--text)}
 .cta svg.ic{width:14px;height:14px}
 
-.grid-wrap{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:10px 12px 80px;position:relative;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.grid-wrap{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:10px 12px 88px;position:relative;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
 .grid-wrap::-webkit-scrollbar{width:4px}
 .grid-wrap::-webkit-scrollbar-thumb{background:var(--outlines);border-radius:4px}
-.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 8px}
 
 .card{
   background:var(--fg);
@@ -175,14 +177,14 @@ img{display:block}
   padding-top:1px;
 }
 .c-head button{
-  width:32px;height:32px;border-radius:8px;
+  width:26px;height:26px;border-radius:6px;
   color:var(--text-sec);display:inline-flex;align-items:center;justify-content:center;
-  flex-shrink:0;margin:-6px -4px -6px 0;
+  flex-shrink:0;margin:-3px -3px -3px 0;
   transition:background 200ms var(--ease),color 200ms var(--ease);
 }
 .c-head button:hover{background:rgba(255,255,255,0.06);color:var(--text)}
-.c-head .info svg{width:16px;height:16px}
-.c-head .more svg{width:18px;height:18px}
+.c-head .info svg{width:14px;height:14px}
+.c-head .more svg{width:16px;height:16px}
 
 .c-preview-wrap{position:relative;height:76px;border-radius:10px;background:var(--secondary);margin-bottom:8px;overflow:hidden;cursor:pointer}
 /* Spotlight + vignette layers per tg-gifts-autotrade-system/app/static/css/pages.css */
@@ -281,27 +283,26 @@ body.bulk .info{display:none}
 .card.selected .c-check svg{opacity:1}
 
 .tab{
-  position:absolute;left:0;right:0;bottom:0;height:64px;
+  position:absolute;left:0;right:0;bottom:0;height:72px;
   background:var(--navbar-bg);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-top:1px solid var(--outlines);
-  display:flex;align-items:center;justify-content:space-around;
-  padding:0 4px;flex-shrink:0;z-index:5;
+  display:flex;align-items:center;
+  padding:0 8px 14px;flex-shrink:0;z-index:5;
 }
 .tab .t{
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-  color:var(--text-sec);font-size:10px;font-weight:400;
-  padding:8px 4px;min-width:60px;background:transparent;
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:var(--text-sec);font-size:10.5px;font-weight:400;
+  padding-top:10px;background:transparent;
 }
-.tab .t svg{width:22px;height:22px;margin-bottom:2px}
+.tab .t .tab-ic{
+  width:54px;height:30px;border-radius:999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background 200ms var(--ease),color 200ms var(--ease);
+}
+.tab .t .tab-ic svg{width:22px;height:22px}
 .tab .t.active{color:var(--text);font-weight:500}
-.tab .t.pill{
-  background:var(--primary);color:var(--text);
-  border-radius:999px;padding:8px 14px;gap:4px;
-  flex-direction:row;align-items:center;min-width:auto;
-}
-.tab .t.pill svg{width:18px;height:18px;margin:0}
-.tab .t.pill span{font-size:13px;font-weight:500}
+.tab .t.active .tab-ic{background:var(--primary);color:var(--text)}
 
 /* Modal */
 .modal{position:absolute;inset:0;z-index:20;display:none}
@@ -466,26 +467,26 @@ body.bulk .info{display:none}
       <div class="grid" id="grid"></div>
     </div>
 
-    <!-- Tab bar (v1) -->
+    <!-- Tab bar (v3 style: 5 tabs, active gets primary pill on icon only) -->
     <div class="tab">
       <button class="t">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H8v2h8v-2h-1c-.55 0-1-.45-1-1v-2.34M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        <span class="tab-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span>
         <span>Лидеры</span>
       </button>
       <button class="t">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="tab-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg></span>
         <span>Подписки</span>
       </button>
-      <button class="t pill active">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <button class="t active">
+        <span class="tab-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
         <span>Поиск</span>
       </button>
       <button class="t">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 4 4 6-6"/></svg>
+        <span class="tab-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span>
         <span>Статистика</span>
       </button>
       <button class="t">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="tab-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
         <span>Профиль</span>
       </button>
     </div>
