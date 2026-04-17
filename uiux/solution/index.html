@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gift Satellite · Redesign · 5 вариантов (evolution)</title>
+<style>
+  @font-face{
+    font-family:'Hauora';
+    src:url('../assets/fonts/Hauora-Regular.woff2') format('woff2');
+    font-weight:400;font-style:normal;font-display:swap;
+  }
+  @font-face{
+    font-family:'Hauora';
+    src:url('../assets/fonts/Hauora-Medium.woff2') format('woff2');
+    font-weight:500;font-style:normal;font-display:swap;
+  }
+  @font-face{
+    font-family:'Hauora';
+    src:url('../assets/fonts/Hauora-SemiBold.woff2') format('woff2');
+    font-weight:600;font-style:normal;font-display:swap;
+  }
+  :root{
+    --bg:#101010;
+    --fg:#1b1a1d;
+    --secondary:#25242b;
+    --tertiary:#3a3941;
+    --primary:#5535f3;
+    --text:#f0f0f0;
+    --text-sec:#f0f0f080;
+    --text-dim:#f0f0f04d;
+    --outlines:#f0f0f026;
+    --destructive:#fc4a2f;
+    --success:#79dd3b;
+    --font: 'Hauora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:56px 32px 96px}
+
+  header.top{
+    display:flex;align-items:center;gap:24px;
+    margin-bottom:48px;padding-bottom:28px;
+    border-bottom:1px solid var(--outlines);
+  }
+  header.top img.mascot{
+    width:88px;height:88px;border-radius:20px;
+    box-shadow:0 0 0 1px var(--outlines), 0 16px 40px rgba(0,0,0,0.4);
+  }
+  header.top h1{
+    font-size:40px;margin:0 0 6px;letter-spacing:-0.02em;font-weight:600;line-height:1.05;
+  }
+  header.top p{
+    margin:0;color:var(--text-sec);font-size:14px;max-width:620px;line-height:1.55;
+  }
+  header.top .meta{
+    margin-top:10px;font-size:10px;color:var(--text-dim);letter-spacing:0.18em;text-transform:uppercase;
+  }
+
+  .intro{
+    background:var(--fg);
+    border:1px solid var(--outlines);
+    border-radius:16px;
+    padding:20px 22px;
+    margin-bottom:32px;
+    display:flex;gap:16px;align-items:flex-start;
+  }
+  .intro .dot{
+    width:10px;height:10px;border-radius:999px;background:var(--primary);
+    margin-top:6px;flex:none;
+    box-shadow:0 0 0 4px rgba(85,53,243,0.15);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 0 4px rgba(85,53,243,0.15)}
+    50%{box-shadow:0 0 0 8px rgba(85,53,243,0.05)}
+  }
+  .intro h3{margin:0 0 4px;font-size:14px;font-weight:600}
+  .intro p{margin:0;font-size:13px;color:var(--text-sec);line-height:1.5}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
+    gap:18px;
+  }
+  .card{
+    position:relative;
+    background:var(--fg);
+    border:1px solid var(--outlines);
+    border-radius:16px;
+    padding:22px 24px 20px;
+    text-decoration:none;color:inherit;
+    display:block;
+    transition:border-color 200ms cubic-bezier(0.4,0,0.2,1),
+               transform 200ms cubic-bezier(0.4,0,0.2,1),
+               box-shadow 200ms cubic-bezier(0.4,0,0.2,1);
+  }
+  .card:hover{
+    border-color:var(--primary);
+    transform:translateY(-2px);
+    box-shadow:0 16px 32px rgba(0,0,0,0.4), 0 0 0 1px var(--primary);
+  }
+  .card .num{
+    font-size:10px;color:var(--text-dim);
+    letter-spacing:0.2em;text-transform:uppercase;
+    margin-bottom:12px;font-weight:500;
+  }
+  .card h2{
+    font-size:24px;margin:0 0 6px;
+    letter-spacing:-0.01em;font-weight:600;line-height:1.15;
+  }
+  .card .layout{
+    font-size:11px;color:var(--primary);
+    font-weight:500;letter-spacing:0.02em;
+    margin-bottom:10px;
+    display:inline-block;
+    padding:3px 8px;
+    background:rgba(85,53,243,0.12);
+    border-radius:999px;
+  }
+  .card .tag{
+    font-size:13px;color:var(--text-sec);
+    margin:0 0 18px;line-height:1.5;
+  }
+  .card .for{
+    font-size:11px;color:var(--text-dim);
+    text-transform:uppercase;letter-spacing:0.1em;
+    display:flex;align-items:center;gap:6px;
+  }
+  .card .for::before{
+    content:"";width:12px;height:1px;background:var(--text-dim);
+  }
+  .card .thumb{
+    position:absolute;top:20px;right:20px;
+    width:44px;height:44px;border-radius:10px;
+    border:1px solid var(--outlines);
+  }
+  .card .status{
+    position:absolute;top:20px;right:76px;
+    font-size:9.5px;color:var(--text-dim);
+    letter-spacing:0.14em;text-transform:uppercase;
+    padding:4px 8px;
+    background:var(--secondary);
+    border-radius:6px;
+  }
+  .card.ready .status{color:var(--success);background:rgba(121,221,59,0.1)}
+  .card.ready .status::before{
+    content:"●";margin-right:4px;
+  }
+
+  footer{
+    margin-top:72px;padding-top:24px;
+    border-top:1px solid var(--outlines);
+    color:var(--text-dim);
+    font-size:11px;letter-spacing:0.12em;text-transform:uppercase;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  }
+  footer a{color:var(--text-dim);text-decoration:none}
+  footer a:hover{color:var(--text-sec)}
+
+  @media (max-width:640px){
+    .wrap{padding:32px 20px 64px}
+    header.top{flex-direction:column;align-items:flex-start;gap:16px}
+    header.top h1{font-size:28px}
+    .card{padding:18px 20px 16px}
+    .card h2{font-size:20px}
+    .card .thumb{top:16px;right:16px;width:36px;height:36px}
+    .card .status{top:18px;right:60px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <img class="mascot" src="../assets/logo.jpg" alt="Gift Satellite">
+    <div>
+      <h1>Редизайн карточки подписки</h1>
+      <p>Эволюционный редизайн в стиле Gift Satellite. Та же палитра, тот же шрифт Hauora, те же формы — улучшена информационная архитектура карточки. Пять вариантов отличаются только плотностью и подходом к layout.</p>
+      <div class="meta">Gift Satellite · IT Monday · 14 Apr 2026 · v0.2 evolutionary</div>
+    </div>
+  </header>
+
+  <div class="intro">
+    <div class="dot"></div>
+    <div>
+      <h3>Готово — 5 вариантов</h3>
+      <p>Все прототипы собраны. Единая брендовая система Gift Satellite: палитра, шрифт Hauora (local), радиусы, примитивы. Отличия — только в подходе к IA карточки (плотность, layout, акценты). Архив первых радикально-эстетических экспериментов остался в <code>variants/archive-*/</code> на случай если захочешь вернуться к какой-то детали.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <a class="card ready" href="variants/v1-classic-plus/">
+      <img class="thumb" src="../assets/logo.jpg" alt="">
+      <div class="status">ready</div>
+      <div class="num">Variant 01</div>
+      <h2>Classic+</h2>
+      <div class="layout">2×3 · 6 на экран</div>
+      <p class="tag">Эволюция оригинала: почти тот же layout, добавлены промпт-имя, цепочка моделей, цветовая визуализация фонов, маркеты, info-кнопка, bulk-чекбокс. Минимум визуального риска.</p>
+      <div class="for">safe baseline для всех</div>
+    </a>
+
+    <a class="card ready" href="variants/v2-compact-pack/">
+      <img class="thumb" src="../assets/logo.jpg" alt="">
+      <div class="status">ready</div>
+      <div class="num">Variant 02</div>
+      <h2>Compact Pack</h2>
+      <div class="layout">2×4 · 8 на экран</div>
+      <p class="tag">Плотная сетка для power users. Микро-превью 56px, инлайн-метаданные через точки, компактный Switch. Быстрое вертикальное сканирование большого каталога.</p>
+      <div class="for">у тебя 30+ подписок</div>
+    </a>
+
+    <a class="card ready" href="variants/v3-showroom/">
+      <img class="thumb" src="../assets/logo.jpg" alt="">
+      <div class="status">ready</div>
+      <div class="num">Variant 03</div>
+      <h2>Showroom</h2>
+      <div class="layout">2×2 · 4 на экран</div>
+      <p class="tag">Просторная сетка. Большое превью-hero сверху, полная цепочка моделей до 5 иконок, крупные маркеты 22px. Для визуалистов и новичков.</p>
+      <div class="for">визуальное сканирование</div>
+    </a>
+
+    <a class="card ready" href="variants/v4-ledger-list/">
+      <img class="thumb" src="../assets/logo.jpg" alt="">
+      <div class="status">ready</div>
+      <div class="num">Variant 04</div>
+      <h2>Ledger List</h2>
+      <div class="layout">1×N · полная ширина</div>
+      <p class="tag">Одна карточка в ряд, горизонтально. Превью 72px слева, метаданные справа, Switch и цена далеко справа. Feed-like сканирование как в мессенджере.</p>
+      <div class="for">быстрый вертикальный обзор</div>
+    </a>
+
+    <a class="card ready" href="variants/v5-signal-bar/">
+      <img class="thumb" src="../assets/logo.jpg" alt="">
+      <div class="status">ready</div>
+      <div class="num">Variant 05</div>
+      <h2>Signal Bar</h2>
+      <div class="layout">2×3 + status stripe</div>
+      <p class="tag">Та же плотность, но каждая карточка увенчана цветной 4px полосой-индикатором: зелёная — активна, серая — выключена, жёлтая — только нотификации, красная — куплено 0 шт. Состояние видно с одного взгляда.</p>
+      <div class="for">operators, мониторинг статуса</div>
+    </a>
+
+  </div>
+
+  <footer>
+    <span>Evolutionary redesign · 5 вариантов · single-file HTML + Hauora local</span>
+    <span><a href="variants/archive-v1-velvet-vault/">archive</a> · прежние радикальные эксперименты</span>
+  </footer>
+
+</div>
+</body>
+</html>

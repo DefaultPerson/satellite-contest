@@ -1,0 +1,1106 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gift Satellite — Classic+ (v1)</title>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@2.0.12/dist/lottie-player.js"></script>
+<!--
+  Concept: "Classic+" — evolutionary re-take of the original Gift Satellite
+  card. Same 2×3 grid, same preview size, same surfaces. We kill the two
+  action buttons in favor of a ⋯ menu, add a thin backdrop color strip
+  and a markets row that the original was missing, and tighten meta lines.
+  Font: Hauora (local woff2). Palette: strictly Gift Satellite tokens.
+  Differs from v2-compact-pack (denser 2×4), v3-showroom (hero preview),
+  v4-ledger-list (1×N row), v5-signal-bar (stacked status bars).
+-->
+<style>
+/* ---------- Fonts ---------- */
+@font-face{font-family:'Hauora';src:url('../../../assets/fonts/Hauora-Regular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Hauora';src:url('../../../assets/fonts/Hauora-Medium.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:'Hauora';src:url('../../../assets/fonts/Hauora-SemiBold.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}
+
+/* ---------- Tokens (frozen) ---------- */
+:root{
+  --bg:#101010;
+  --fg:#1b1a1d;
+  --secondary:#25242b;
+  --tertiary:#3a3941;
+  --tertiary-bg:#18171c;
+  --navbar-bg:#18171cbf;
+  --overlays:#10101080;
+  --primary:#5535f3;
+  --primary-soft:#5535f326;
+  --text:#f0f0f0;
+  --text-sec:#f0f0f080;
+  --text-dim:#f0f0f04d;
+  --outlines:#f0f0f026;
+  --destructive:#fc4a2f;
+  --destructive-soft:#fc4a2f26;
+  --success:#79dd3b;
+  --success-soft:#79dd3b26;
+  --warning:#f0b429;
+  --warning-soft:#f0b42926;
+  --font:'Hauora',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+  --ease:cubic-bezier(0.4,0,0.2,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#0a0a0a;color:var(--text);font-family:var(--font);font-size:14px;line-height:1.35;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01","ss03"}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block}
+
+/* ---------- Page layout ---------- */
+.page{min-height:100vh;padding:32px 24px 64px;display:flex;flex-direction:column;align-items:center;gap:24px}
+.page-head{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.page-head h1{font-size:18px;font-weight:600;letter-spacing:-0.01em}
+.page-head p{font-size:12px;color:var(--text-sec)}
+.mockup-row{display:flex;flex-direction:row;gap:48px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+.mockup{display:flex;flex-direction:column;align-items:center;gap:14px}
+.mockup-label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-sec);font-weight:500}
+.mockup-desc{font-size:11px;color:var(--text-dim);max-width:393px;text-align:center;line-height:1.5}
+
+/* ---------- Phone frame ---------- */
+.phone{
+  width:393px;height:852px;
+  background:var(--bg);
+  border-radius:36px;
+  border:1px solid var(--secondary);
+  box-shadow:0 0 0 6px var(--fg), 0 40px 80px rgba(0,0,0,0.5);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.safe-top{height:40px;background:transparent;flex-shrink:0;position:relative}
+.safe-top::before{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);width:116px;height:30px;background:#000;border-radius:999px}
+.status-bar{position:absolute;top:14px;left:24px;right:24px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text);font-weight:500;height:14px}
+.status-bar .icons{display:flex;gap:4px;align-items:center}
+.phone-body{flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative}
+
+/* ---------- App header ---------- */
+.tg-bar{
+  height:44px;padding:0 16px;flex-shrink:0;
+  display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid #000;
+  background:#000;
+}
+.tg-bar .x{color:var(--text);width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center}
+.tg-bar .brand{display:flex;align-items:center;gap:8px;flex:1}
+.tg-bar .brand-logo{width:28px;height:28px;border-radius:8px;object-fit:cover}
+.tg-bar .brand-name{font-size:16px;font-weight:600}
+.tg-bar .dots{color:var(--text-sec);width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center}
+
+.app-head{
+  padding:8px 12px 4px;flex-shrink:0;
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);
+}
+.app-head .cog{width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-sec)}
+.app-head .logo{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.app-head .logo img{width:30px;height:30px;border-radius:8px;object-fit:cover}
+.app-head .logo-mark{font-size:15px;font-weight:600;opacity:0}/* original layout shows just a logo pill */
+.app-head .bal{
+  display:flex;align-items:center;gap:6px;
+  font-size:15px;font-weight:500;
+}
+.app-head .bal .d{width:14px;height:14px;color:var(--primary)}
+.app-head .bal .plus{width:20px;height:20px;border-radius:6px;background:var(--secondary);display:inline-flex;align-items:center;justify-content:center;color:var(--text);font-size:13px}
+
+/* ---------- Toolbar ---------- */
+.toolbar{padding:2px 12px 8px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;background:var(--bg)}
+.chip-row{display:flex;gap:6px;align-items:center}
+.chip{
+  height:30px;padding:0 10px;
+  border-radius:999px;background:var(--secondary);
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:12px;color:var(--text);font-weight:400;
+  border:1px solid transparent;
+  transition:background 200ms var(--ease);
+}
+.chip svg{width:14px;height:14px;opacity:0.55}
+.chip.search{flex:1;background:var(--secondary);color:var(--text-dim);justify-content:flex-start;padding-left:12px}
+.chip.search svg{opacity:0.4}
+.sort-row{display:flex;align-items:center;justify-content:space-between}
+.sort-row .sort{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);font-weight:400}
+.sort-row .sort svg{width:14px;height:14px;color:var(--text-sec)}
+.sort-row .density{display:flex;gap:4px;padding:3px;background:var(--secondary);border-radius:8px}
+.sort-row .density button{width:26px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-sec)}
+.sort-row .density button.on{background:var(--tertiary);color:var(--text)}
+.sort-row .density svg{width:14px;height:14px}
+.counter{font-size:11px;color:var(--text-sec);text-align:center;padding:0}
+.cta-row{display:flex;gap:6px}
+.cta{
+  flex:1;height:40px;border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  font-size:13px;font-weight:500;
+}
+.cta.primary{background:var(--primary);color:var(--text)}
+.cta.secondary{background:var(--secondary);color:var(--text)}
+.cta .d{width:13px;height:13px}
+
+/* ---------- Grid ---------- */
+/* flex:1 + min-height:0 allows the grid to scroll inside the fixed phone-body column.
+   padding-bottom leaves breathing room above the bottom tab bar (64px). */
+.grid-wrap{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 12px 72px;position:relative;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.grid-wrap::-webkit-scrollbar{width:4px}
+.grid-wrap::-webkit-scrollbar-thumb{background:var(--outlines);border-radius:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:2px 0 12px}
+
+/* ---------- Subscription card ---------- */
+.card{
+  background:var(--fg);
+  border-radius:16px;
+  border:1px solid var(--outlines);
+  padding:10px 10px 8px;
+  position:relative;
+  display:flex;flex-direction:column;
+  min-height:214px;
+  transition:transform 200ms var(--ease),border-color 200ms var(--ease);
+}
+.card.dim{opacity:0.55}
+.card.alert{border-color:var(--destructive);border-width:2px;padding:9px 9px 7px}
+.card.selected{border-color:var(--primary);border-width:2px;padding:9px 9px 7px}
+
+/* Row 1: header */
+.c-head{display:flex;align-items:flex-start;gap:4px;margin-bottom:6px;min-height:16px}
+.c-name{
+  flex:1;font-size:13px;font-weight:600;line-height:1.25;color:var(--text);
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;text-overflow:ellipsis;
+  padding-top:1px;
+}
+/* Icon-button sizing per brand: hit-area 32×32, inner glyph 16-18.
+   Negative margin compensates so the bigger tap target doesn't expand the
+   card header row visually. */
+.c-head .info{
+  width:32px;height:32px;border-radius:8px;
+  color:var(--text-sec);display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin:-6px -4px -6px 0;
+  transition:background 200ms var(--ease),color 200ms var(--ease);
+}
+.c-head .info:hover{background:rgba(255,255,255,0.06);color:var(--text)}
+.c-head .info svg{width:16px;height:16px}
+.c-head .more{
+  width:32px;height:32px;border-radius:8px;
+  color:var(--text-sec);display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin:-6px -4px -6px 0;
+  transition:background 200ms var(--ease),color 200ms var(--ease);
+}
+.c-head .more:hover{background:rgba(255,255,255,0.06);color:var(--text)}
+/* Edit/Delete are accessed via the ⋯ dropdown menu (popup). They are not
+   duplicated inline on the card to keep the 2-column density; in the
+   details modal (mockup B) they appear as primary "Изменить" + danger "🗑"
+   buttons in the sheet footer. */
+.c-head .more svg{width:18px;height:18px}
+
+/* Row 2: preview */
+.c-preview-wrap{
+  position:relative;
+  height:70px;
+  border-radius:10px;
+  background:var(--secondary);
+  margin-bottom:8px;
+  overflow:hidden;
+}
+.c-preview-bands{
+  position:absolute;inset:0;
+  display:flex;
+}
+.c-preview-bands .band{flex:1}
+.c-preview-bands.radial{background:radial-gradient(ellipse at center,rgba(85,53,243,0.35),transparent 70%),var(--secondary)}
+.c-preview-bands.custom5{background:conic-gradient(from 180deg at 50% 50%, #ca70c6,#858ff3,#79dd3b,#f0b429,#fc4a2f,#ca70c6)}
+.c-preview-bands.custom-many{background:conic-gradient(from 220deg at 50% 50%, #7596f9,#a980f3,#ca70c6,#f0b429,#79dd3b,#7596f9)}
+.c-preview-bands.none{background:repeating-linear-gradient(45deg,#25242b,#25242b 6px,#1f1e24 6px,#1f1e24 12px)}
+.c-preview{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  padding:4px;
+}
+.c-preview img{width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.35))}
+.c-preview lottie-player{width:60px;height:60px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.35))}
+.c-preview .chain{display:flex;align-items:center}
+.c-preview .chain img,
+.c-preview .chain lottie-player{
+  width:38px;height:38px;object-fit:contain;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+  background:rgba(27,26,29,0.55);
+  border-radius:999px;border:1.5px solid rgba(240,240,240,0.2);
+  padding:2px;margin-left:-10px;
+  box-sizing:border-box;
+}
+.c-preview .chain img:first-child,
+.c-preview .chain lottie-player:first-child{margin-left:0}
+.c-preview .any{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  color:var(--text-sec);font-size:10px;letter-spacing:0.04em;text-transform:uppercase;
+}
+.c-preview .any svg{width:30px;height:30px;opacity:0.6}
+
+/* bottom badge shown when alert */
+.c-badge-top{
+  position:absolute;top:-8px;left:10px;
+  background:var(--destructive);color:var(--text);
+  font-size:10px;font-weight:600;padding:3px 8px;
+  border-radius:999px;
+  letter-spacing:0.02em;display:inline-flex;align-items:center;gap:4px;
+  box-shadow:0 0 0 2px var(--fg);
+}
+.c-badge-top svg{width:11px;height:11px}
+.c-badge-top.off{background:var(--secondary);color:var(--text-sec);border:1px solid var(--outlines);box-shadow:none}
+
+/* Row 3: meta */
+.c-meta{display:flex;flex-direction:column;gap:1px;flex:1;margin-bottom:6px}
+.c-meta .row{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec);line-height:1.35;min-height:14px}
+.c-meta .row svg{width:11px;height:11px;flex-shrink:0;opacity:0.65}
+.c-meta .row .v{flex:1;color:var(--text);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-meta .row .k{color:var(--text-dim);font-size:10px;text-transform:uppercase;letter-spacing:0.03em;display:none}
+.c-meta .row.muted .v{color:var(--text-sec)}
+
+/* Row 4: markets */
+.c-markets{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:6px;margin-bottom:6px;height:16px;
+}
+.c-markets .grp{display:flex;align-items:center;gap:3px;min-width:0;flex:1}
+.c-markets .grp svg.i{width:12px;height:12px;color:var(--text-sec);flex-shrink:0}
+.c-markets .grp .ms{display:flex;min-width:0;flex-shrink:1}
+.c-markets .grp .m{
+  width:16px;height:16px;border-radius:999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:#fff;
+  border:1.5px solid var(--fg);margin-left:-5px;flex-shrink:0;
+}
+.c-markets .grp .m svg{width:10px;height:10px;display:block}
+.c-markets .grp .m:first-child{margin-left:0}
+.c-markets .grp.dim svg.i{opacity:0.4}
+.c-markets .grp.dim .m{background:var(--tertiary) !important;color:var(--text-dim)}
+.c-markets .grp .off{font-size:10px;color:var(--text-dim);font-style:italic}
+/* external brand colors: Portals, Fragment, Tonnel, Getgems, MRKT.
+   Explicit brand exception — NOT tokenized into --primary because each
+   marketplace has its own identity that must remain recognizable. */
+.m.portals{background:#4c2ad6}
+.m.fragment{background:#3093fc}
+.m.mrkt{background:#fc4a2f}
+.m.tonnel{background:#f0b429;color:#101010}
+.m.getgems{background:#79dd3b;color:#101010}
+
+/* Row 5: footer */
+.c-foot{
+  display:flex;align-items:center;gap:8px;
+  padding-top:6px;
+  border-top:1px solid var(--outlines);
+  min-height:26px;
+}
+.switch{
+  width:36px;height:20px;border-radius:999px;
+  background:var(--tertiary);position:relative;flex-shrink:0;
+  transition:background 220ms var(--ease);
+}
+.switch::after{
+  content:"";position:absolute;top:2px;left:2px;
+  width:16px;height:16px;border-radius:999px;background:#fff;
+  transition:transform 220ms var(--ease);
+  box-shadow:0 1px 3px rgba(0,0,0,0.35);
+}
+.switch.on{background:var(--primary)}
+.switch.on::after{transform:translateX(16px)}
+.switch.dimmed{opacity:0.5}
+.c-foot .price{
+  flex:1;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:0;
+  text-align:right;line-height:1.1;
+}
+.c-foot .price .big{font-size:13px;font-weight:600;color:var(--text);display:inline-flex;align-items:center;gap:3px}
+.c-foot .price .big svg{width:11px;height:11px;color:var(--text-sec)}
+.c-foot .price .big.strike{text-decoration:line-through;color:var(--text-dim)}
+.c-foot .price .big.danger{color:var(--destructive)}
+.c-foot .price .sub{font-size:10px;color:var(--text-sec)}
+.c-foot .price .sub.danger{color:var(--destructive);font-weight:500}
+
+/* Bulk-select checkbox: visual 24, invisible 36 hit-area via ::before */
+.c-check{
+  position:absolute;top:8px;left:8px;
+  width:24px;height:24px;border-radius:999px;
+  border:1.5px solid var(--outlines);background:var(--bg);
+  display:none;align-items:center;justify-content:center;
+  color:var(--text);
+}
+.c-check::before{
+  content:"";position:absolute;inset:-6px;border-radius:999px;
+}
+.c-check svg{width:14px;height:14px;opacity:0}
+.bulk .c-check{display:inline-flex}
+.bulk .c-head{padding-left:30px}
+.card.selected .c-check{background:var(--primary);border-color:var(--primary)}
+.card.selected .c-check svg{opacity:1}
+
+/* ---------- Bottom tab ---------- */
+.tab{
+  position:absolute;left:0;right:0;bottom:0;
+  height:64px;
+  background:var(--navbar-bg);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-top:1px solid var(--outlines);
+  display:flex;align-items:center;justify-content:space-around;
+  padding:0 4px;flex-shrink:0;z-index:5;
+}
+.tab .t{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  color:var(--text-sec);font-size:10px;font-weight:400;
+  padding:8px 4px;min-width:60px;
+}
+.tab .t svg{width:22px;height:22px;margin-bottom:2px}
+.tab .t.active{color:var(--text);font-weight:500}
+.tab .t.pill{
+  background:var(--primary);color:var(--text);
+  border-radius:999px;padding:8px 14px;gap:4px;
+  flex-direction:row;align-items:center;
+  min-width:auto;
+}
+.tab .t.pill svg{width:18px;height:18px;margin:0}
+.tab .t.pill span{font-size:13px;font-weight:500}
+
+/* ---------- Mockup B: Modal ---------- */
+.scrim{
+  position:absolute;inset:0;background:var(--overlays);
+  backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+  z-index:10;
+}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;
+  max-height:85%;
+  background:var(--tertiary-bg);
+  border-top-left-radius:18px;border-top-right-radius:18px;
+  border-top:1px solid var(--outlines);
+  z-index:11;
+  display:flex;flex-direction:column;
+  box-shadow:0 -20px 60px rgba(0,0,0,0.5);
+}
+.sheet .handle{width:36px;height:4px;background:var(--tertiary);border-radius:999px;margin:8px auto 0}
+.sheet .sheet-head{padding:14px 16px 10px;display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--outlines)}
+.sheet .sheet-head .preview-mini{width:44px;height:44px;border-radius:10px;background:var(--secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.sheet .sheet-head .preview-mini img{width:36px;height:36px;object-fit:contain}
+.sheet .sheet-head .preview-mini lottie-player{width:40px;height:40px}
+.sheet .sheet-head .title{flex:1;min-width:0}
+.sheet .sheet-head .title h2{font-size:15px;font-weight:600;line-height:1.2;margin-bottom:2px}
+.sheet .sheet-head .title .sub{font-size:11px;color:var(--text-sec)}
+.sheet .sheet-head .close{width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-sec);flex-shrink:0}
+.sheet-body{flex:1;overflow-y:auto;padding:14px 16px 8px;display:flex;flex-direction:column;gap:14px}
+.sect{display:flex;flex-direction:column;gap:6px}
+.sect .lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);font-weight:500;display:flex;align-items:center;gap:6px}
+.sect .lbl svg{width:12px;height:12px}
+.sect .val{font-size:14px;font-weight:500;color:var(--text)}
+.sect .val-small{font-size:13px;color:var(--text-sec);font-weight:400}
+.sect .chips{display:flex;flex-wrap:wrap;gap:6px}
+.sect .chips .c{
+  background:var(--secondary);color:var(--text);
+  border-radius:999px;padding:6px 10px;
+  font-size:12px;display:inline-flex;align-items:center;gap:5px;
+}
+.sect .chips .c .dot{width:8px;height:8px;border-radius:999px;flex-shrink:0}
+.sect-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sect-box{
+  background:var(--fg);border:1px solid var(--outlines);
+  border-radius:12px;padding:12px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.sect-box .top{display:flex;align-items:center;justify-content:space-between}
+.sect-box .top .h{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-sec);font-weight:500}
+.sect-box .top .h svg{width:14px;height:14px}
+.sect-box .big{font-size:18px;font-weight:600;color:var(--text);display:inline-flex;align-items:center;gap:4px}
+.sect-box .big svg{width:14px;height:14px;color:var(--text-sec)}
+.sect-box .sub{font-size:11px;color:var(--text-sec)}
+.sect-box .ms-row{display:flex;gap:5px;margin-top:2px}
+.sect-box .ms-row .m{
+  width:20px;height:20px;border-radius:999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:#fff;margin:0;border:0;
+}
+.sect-box .ms-row .m svg{width:12px;height:12px;display:block}
+.sheet-foot{
+  padding:12px 16px 22px;
+  display:flex;gap:8px;border-top:1px solid var(--outlines);
+  background:var(--tertiary-bg);
+}
+.sheet-foot .b{
+  flex:1;height:44px;border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  font-size:14px;font-weight:500;
+}
+.sheet-foot .b.primary{background:var(--primary);color:var(--text)}
+.sheet-foot .b.danger{background:var(--destructive-soft);color:var(--destructive);flex:0 0 44px;padding:0}
+.sheet-foot .b svg{width:16px;height:16px}
+
+/* ---------- Mockup C: bulk action bar ---------- */
+.bulk-top{
+  padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg);flex-shrink:0;border-bottom:1px solid var(--outlines);
+}
+.bulk-top .count{font-size:14px;font-weight:500;color:var(--text)}
+.bulk-top .count b{color:var(--primary)}
+.bulk-top .allbtn{
+  font-size:12px;color:var(--primary);font-weight:500;
+  padding:6px 10px;border-radius:8px;background:var(--primary-soft);
+}
+.bulk-bar{
+  position:absolute;left:12px;right:12px;bottom:76px;
+  background:var(--tertiary-bg);
+  border:1px solid var(--outlines);
+  border-radius:14px;
+  padding:8px;
+  display:flex;gap:4px;z-index:6;
+  box-shadow:0 10px 40px rgba(0,0,0,0.5);
+}
+.bulk-bar .b{
+  flex:1;height:48px;border-radius:10px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  font-size:10px;color:var(--text-sec);font-weight:500;
+  background:transparent;
+}
+.bulk-bar .b svg{width:18px;height:18px;margin-bottom:1px}
+.bulk-bar .b.danger{color:var(--destructive)}
+.bulk-bar .b.ok{color:var(--success)}
+.bulk-bar .b.primary{color:var(--primary)}
+.bulk-bar .b.cancel{color:var(--text)}
+
+/* ---------- utility ---------- */
+.hide{display:none !important}
+.ton{display:inline-block;vertical-align:middle;color:currentColor;flex-shrink:0}
+
+/* Bulk card minimal padding fix */
+.bulk .card{padding-top:34px}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-head">
+    <h1>Gift Satellite — v1 Classic+</h1>
+    <p>Эволюция оригинала. Та же сетка 2×3, те же размеры. Добавлены: цветная полоска фонов, строка маркетов, инфо-модалка, bulk-режим. Два кнопки заменены на ⋯ меню.</p>
+  </div>
+
+  <div class="mockup-row">
+
+    <!-- ========== MOCKUP A: GRID ========== -->
+    <div class="mockup">
+      <div class="mockup-label">A · Подписки (сетка)</div>
+      <div class="phone" id="mk-a">
+        <div class="safe-top">
+          <div class="status-bar"><span>14:52</span><span class="icons">WiFi · 5G · 78%</span></div>
+        </div>
+        <div class="phone-body">
+          <!-- Telegram-style in-app header -->
+          <div class="tg-bar">
+            <span class="x">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M6 6l12 12M6 18L18 6"/></svg>
+            </span>
+            <div class="brand">
+              <img class="brand-logo" src="../../../assets/logo.jpg" alt="">
+              <span class="brand-name">Gift Satellite Bot</span>
+            </div>
+            <span class="dots">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="20" height="20"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </span>
+          </div>
+
+          <!-- App head: cog + logo + balance -->
+          <div class="app-head">
+            <button class="cog" aria-label="Settings">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9 1.65 1.65 0 0 0 4.27 7.18l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <div class="logo">
+              <img src="../../../assets/logo.jpg" alt="Gift Satellite">
+            </div>
+            <div class="bal">
+              <span>1.92</span>
+              <svg class="ton d" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+              <span class="plus">+</span>
+            </div>
+          </div>
+
+          <!-- Toolbar -->
+          <div class="toolbar">
+            <div class="chip-row">
+              <button class="chip">Коллекция
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <button class="chip">Фон
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <button class="chip search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                Поиск…
+              </button>
+            </div>
+            <div class="sort-row">
+              <button class="sort">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+                Сначала новые
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
+              </button>
+              <div class="density">
+                <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+                <button class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+              </div>
+            </div>
+            <div class="counter">Всего 45 слотов · Создано 45 ордеров</div>
+            <div class="cta-row">
+              <button class="cta primary">Слот за 1
+                <svg class="ton d" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="15" height="15"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+              </button>
+              <button class="cta secondary">Добавить подписку</button>
+            </div>
+          </div>
+
+          <!-- Grid -->
+          <div class="grid-wrap">
+            <div class="grid" id="grid-a"></div>
+          </div>
+        </div>
+
+        <!-- Bottom tab bar -->
+        <div class="tab">
+          <button class="t">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H8v2h8v-2h-1c-.55 0-1-.45-1-1v-2.34M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            <span>Лидеры</span>
+          </button>
+          <button class="t">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15h6M9 11h6"/></svg>
+            <span>Подписки</span>
+          </button>
+          <button class="t pill active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <span>Поиск</span>
+          </button>
+          <button class="t">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 4 4 6-6"/></svg>
+            <span>Статистика</span>
+          </button>
+          <button class="t">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Профиль</span>
+          </button>
+        </div>
+      </div>
+      <div class="mockup-desc">6 карточек на экран. Цветная полоска фонов под превью. Ряд маркетов. Switch доминирует.</div>
+    </div>
+
+    <!-- ========== MOCKUP B: MODAL ========== -->
+    <div class="mockup">
+      <div class="mockup-label">B · Инфо-модалка</div>
+      <div class="phone" id="mk-b">
+        <div class="safe-top"><div class="status-bar"><span>14:52</span><span class="icons">WiFi · 5G · 78%</span></div></div>
+        <div class="phone-body">
+          <div class="tg-bar">
+            <span class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M6 6l12 12M6 18L18 6"/></svg></span>
+            <div class="brand"><img class="brand-logo" src="../../../assets/logo.jpg" alt=""><span class="brand-name">Gift Satellite Bot</span></div>
+            <span class="dots"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="20" height="20"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></span>
+          </div>
+
+          <div class="app-head">
+            <button class="cog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+            <div class="logo"><img src="../../../assets/logo.jpg" alt=""></div>
+            <div class="bal"><span>1.92</span><svg class="ton d" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span class="plus">+</span></div>
+          </div>
+
+          <div class="toolbar">
+            <div class="chip-row">
+              <button class="chip">Коллекция <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+              <button class="chip">Фон <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+              <button class="chip search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Поиск…</button>
+            </div>
+            <div class="sort-row">
+              <button class="sort"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg>Сначала новые <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg></button>
+              <div class="density"><button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><button class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button></div>
+            </div>
+            <div class="counter">Всего 45 слотов · Создано 45 ордеров</div>
+          </div>
+          <div class="grid-wrap"><div class="grid" id="grid-b"></div></div>
+        </div>
+
+        <!-- Bottom tab under scrim -->
+        <div class="tab">
+          <button class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H8v2h8v-2h-1c-.55 0-1-.45-1-1v-2.34M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg><span>Лидеры</span></button>
+          <button class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15h6M9 11h6"/></svg><span>Подписки</span></button>
+          <button class="t pill active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span>Поиск</span></button>
+          <button class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 4 4 6-6"/></svg><span>Статистика</span></button>
+          <button class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Профиль</span></button>
+        </div>
+
+        <!-- Scrim + Sheet -->
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="handle"></div>
+          <div class="sheet-head">
+            <div class="preview-mini"><lottie-player src="../../../assets/models-lottie/ice-cream/apple-dip.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+            <div class="title">
+              <h2>Ice Cream флип до 12</h2>
+              <div class="sub">Создано 2 дня назад · активно</div>
+            </div>
+            <button class="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+          </div>
+
+          <div class="sheet-body">
+            <div class="sect">
+              <div class="lbl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg>
+                Коллекция
+              </div>
+              <div class="val">Ice Cream</div>
+            </div>
+
+            <div class="sect">
+              <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Модели · 1</div>
+              <div class="chips">
+                <div class="c">Ghost Biters</div>
+              </div>
+            </div>
+
+            <div class="sect">
+              <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 13l3-3 4 4 4-4 7 7"/></svg>Фоны · 2</div>
+              <div class="chips">
+                <div class="c"><span class="dot" style="background:#58a3c8"></span>Sapphire</div>
+                <div class="c"><span class="dot" style="background:#78c585"></span>Emerald</div>
+              </div>
+            </div>
+
+            <div class="sect">
+              <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z M8 4v16 M16 4v16 M4 8h16 M4 16h16"/></svg>Узоры · любые</div>
+              <div class="val-small">Не фильтруется по узорам</div>
+            </div>
+
+            <div class="sect">
+              <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>Числовой паттерн</div>
+              <div class="val-small">Любой номер</div>
+            </div>
+
+            <div class="sect-grid">
+              <div class="sect-box">
+                <div class="top">
+                  <div class="h">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2l1 5h10l1-5M3 7h18l-2 11a2 2 0 0 1-2 1H7a2 2 0 0 1-2-1L3 7z"/></svg>
+                    Покупка
+                  </div>
+                  <div class="switch on"></div>
+                </div>
+                <div class="big">до 12
+                  <svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="15" height="15"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="sub">Остаток: 1 шт</div>
+                <div class="ms-row">
+                  <div class="m portals" title="Portals"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2l3.5 6.5L22 10l-5 4.5L18 22l-6-3-6 3 1-7.5L2 10l6.5-1.5z"/></svg></div>
+                  <div class="m fragment" title="Fragment"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4h11l5 5v11H4z"/></svg></div>
+                  <div class="m mrkt" title="MRKT"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5M4 9v11h16V9M9 20v-6h6v6"/></svg></div>
+                </div>
+              </div>
+              <div class="sect-box">
+                <div class="top">
+                  <div class="h">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+                    Нотификации
+                  </div>
+                  <div class="switch on"></div>
+                </div>
+                <div class="big">до 15
+                  <svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="15" height="15"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="sub">Без лимита шт</div>
+                <div class="ms-row">
+                  <div class="m portals" title="Portals"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2l3.5 6.5L22 10l-5 4.5L18 22l-6-3-6 3 1-7.5L2 10l6.5-1.5z"/></svg></div>
+                  <div class="m fragment" title="Fragment"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4h11l5 5v11H4z"/></svg></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sheet-foot">
+            <button class="b primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Изменить
+            </button>
+            <button class="b danger" aria-label="Удалить">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-desc">Bottom-sheet 85%. Все секции: коллекция, модели, фоны, узоры, паттерн, блоки покупки и нотификаций с маркетами.</div>
+    </div>
+
+    <!-- ========== MOCKUP C: BULK ========== -->
+    <div class="mockup">
+      <div class="mockup-label">C · Массовый выбор</div>
+      <div class="phone" id="mk-c">
+        <div class="safe-top"><div class="status-bar"><span>14:52</span><span class="icons">WiFi · 5G · 78%</span></div></div>
+        <div class="phone-body">
+          <div class="tg-bar">
+            <span class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M6 6l12 12M6 18L18 6"/></svg></span>
+            <div class="brand"><img class="brand-logo" src="../../../assets/logo.jpg" alt=""><span class="brand-name">Gift Satellite Bot</span></div>
+            <span class="dots"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="20" height="20"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></span>
+          </div>
+
+          <div class="bulk-top">
+            <div class="count">Выбрано <b>4</b> из 45</div>
+            <button class="allbtn">Выбрать всё</button>
+          </div>
+
+          <div class="grid-wrap bulk"><div class="grid" id="grid-c"></div></div>
+        </div>
+
+        <div class="bulk-bar">
+          <button class="b danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            Удалить
+          </button>
+          <button class="b">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
+            Выкл
+          </button>
+          <button class="b ok">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+            Вкл
+          </button>
+          <button class="b primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Дублировать
+          </button>
+          <button class="b cancel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+            Отмена
+          </button>
+        </div>
+
+        <div class="tab">
+          <button class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H8v2h8v-2h-1c-.55 0-1-.45-1-1v-2.34M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg><span>Лидеры</span></button>
+          <button class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15h6M9 11h6"/></svg><span>Подписки</span></button>
+          <button class="t pill active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span>Поиск</span></button>
+          <button class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 4 4 6-6"/></svg><span>Статистика</span></button>
+          <button class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Профиль</span></button>
+        </div>
+      </div>
+      <div class="mockup-desc">Чекбокс ⊙ на каждой карточке. 3-4 выбрано (фиолетовая 2px обводка). Action bar внизу: Удалить / Выкл / Вкл / Дублировать / Отмена.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ----------------------------------------------------------
+  Data for 9 cards covering all states from the task spec.
+---------------------------------------------------------- */
+const PNG = id => `../../../assets/originals/${id}/Original.png`;
+const LOTTIE = slug => `../../../assets/models-lottie/${slug}.json`;
+const lp = (slug) => `<lottie-player src="${LOTTIE(slug)}" background="transparent" speed="1" autoplay loop></lottie-player>`;
+
+const CARDS = [
+  // 1. Default — 1 model, 1 backdrop, 3 buy markets + 2 notify
+  {
+    name:"Ice Cream флип до 12",
+    collection:"Ice Cream",
+    modelsText:"Ghost Biters",
+    modelsCount:1,
+    backdropsText:"Sapphire",
+    backdropsCount:1,
+    patternText:"Все узоры",
+    numberText:"Любой номер",
+    bandClass:"",
+    bands:["#58a3c8"], // real Sapphire hex from backdrops.json
+    preview:{ type:"one", gifts:["5900177027566142759"], lottie:["ice-cream/apple-dip"] },
+    buy:{ on:true, price:"12", count:"1 шт", markets:["portals","fragment","mrkt"] },
+    notify:{ on:true, price:"15", markets:["portals","fragment"] },
+  },
+  // 2. 0/3 bought — destructive, red border (VISIBLE in Mockup A first row)
+  {
+    name:"Jack-in-the-Box · Lucifer",
+    collection:"Jack-in-the-Box",
+    modelsText:"Lucifer",
+    modelsCount:1,
+    backdropsText:"5 фонов",
+    backdropsCount:5,
+    patternText:"Все узоры",
+    numberText:"Любой номер",
+    bandClass:"",
+    bands:["#a980f3","#ca70c6","#fc4a2f","#f0b429","#79dd3b"],
+    preview:{ type:"one", gifts:["6005659564635063386"], lottie:["jack-in-the-box/aliens"] },
+    buy:{ on:true, price:"14", count:"0 из 3", alert:true, markets:["portals","fragment"] },
+    notify:{ on:true, price:"14", markets:["portals","fragment"] },
+    alert:"0 шт",
+  },
+  // 3. All collections + any models — shows "Все коллекции" state per task spec.
+  //    modelsCount:0 → collection icon preview (PNG, no Lottie).
+  //    collection:"Все коллекции" → no specific collection filter.
+  {
+    name:"Любой подарок ≤ 10",
+    collection:"Все коллекции",
+    modelsText:"Любые модели",
+    modelsCount:0,
+    backdropsText:"Любые фоны",
+    backdropsCount:0,
+    patternText:"Любые узоры",
+    numberText:"Любой номер",
+    bandClass:"none",
+    bands:[],
+    preview:{ type:"any", gifts:["5170594532177215681"] },
+    buy:{ on:true, price:"9.5", count:"5 шт", markets:["portals","fragment","tonnel","getgems"] },
+    notify:{ on:true, price:"11", markets:["portals","mrkt","tonnel"] },
+  },
+  // 4. 12 models → collection icon + 3 backdrops split (VISIBLE row 2)
+  {
+    name:"Plush Pepe floor hunt",
+    collection:"Plush Pepe",
+    modelsText:"12 моделей",
+    modelsCount:12,
+    backdropsText:"3 фона",
+    backdropsCount:3,
+    patternText:"2 узора",
+    numberText:"Любой номер",
+    bandClass:"",
+    bands:["#f0b429","#ca70c6","#fc4a2f"],
+    preview:{ type:"one", gifts:["5936013938331222567"] },
+    buy:{ on:true, price:"450", count:"1 шт", markets:["portals","fragment"] },
+    notify:{ on:true, price:"500", markets:["portals","fragment","tonnel"] },
+  },
+  // 5. 3 models chain + 1 background
+  {
+    name:"Light Sword · Samurai trio",
+    collection:"Light Sword",
+    modelsText:"3 модели",
+    modelsCount:3,
+    backdropsText:"Emerald",
+    backdropsCount:1,
+    patternText:"Star",
+    numberText:"77x",
+    bandClass:"",
+    bands:["#78c585"], // real Emerald hex from backdrops.json
+    preview:{ type:"chain", gifts:["5897581235231785485","5897581235231785485","5897581235231785485"], lottie:["light-sword/absinthe","light-sword/andromeda","light-sword/bifrost"] },
+    buy:{ on:true, price:"17", count:"2 шт", markets:["portals","fragment","mrkt","tonnel","getgems"] },
+    notify:{ on:true, price:"19", markets:["portals","fragment","mrkt"] },
+  },
+  // 6. 25 backdrops → custom gradient strip, 2 models chain
+  {
+    name:"Jolly Chimp rainbow",
+    collection:"Jolly Chimp",
+    modelsText:"2 модели",
+    modelsCount:2,
+    backdropsText:"25 фонов",
+    backdropsCount:25,
+    patternText:"Любые узоры",
+    numberText:"XX7",
+    bandClass:"custom-many",
+    bands:[],
+    preview:{ type:"chain", gifts:["6005880141270483700","6005880141270483700"], lottie:["jolly-chimp/abubu","jolly-chimp/alarm-ape"] },
+    buy:{ on:true, price:"9.99", count:"3 шт", markets:["portals","fragment","mrkt","getgems"] },
+    notify:{ on:true, price:"10.5", markets:["fragment","tonnel","getgems"] },
+  },
+  // 7. Purchase disabled — dimmed card + off badge
+  {
+    name:"Homemade Cake · sale",
+    collection:"Homemade Cake",
+    modelsText:"Love Candle",
+    modelsCount:1,
+    backdropsText:"Lavender",
+    backdropsCount:1,
+    patternText:"1 узор",
+    numberText:"Любой номер",
+    bandClass:"",
+    bands:["#b789e4"],
+    preview:{ type:"one", gifts:["5783075783622787539"], lottie:["homemade-cake/angel-cake"] },
+    buy:{ on:false, price:"22", count:"— шт", markets:["portals","fragment","mrkt"] },
+    notify:{ on:true, price:"25", markets:["portals","fragment"] },
+    dim:true,
+    offBadge:"Покупка выкл",
+  },
+  // 8. Notifications OFF — bell-off, 4 patterns Desk Calendar.
+  //    modelsCount:0 → per task spec, preview must be the collection
+  //    image (PNG fallback), NOT a specific model Lottie. Omit `lottie`
+  //    so renderCard() picks the PNG branch (same pattern as Lol Pop #3).
+  {
+    name:"Desk Calendar узорный",
+    collection:"Desk Calendar",
+    modelsText:"Любые модели",
+    modelsCount:0,
+    backdropsText:"Cyberpunk",
+    backdropsCount:1,
+    patternText:"4 узора",
+    numberText:"1XX",
+    bandClass:"",
+    bands:["#858ff3"], // Cyberpunk — already matches backdrops.json
+    preview:{ type:"any", gifts:["5782988952268964995"] },
+    buy:{ on:true, price:"8", count:"5 шт", markets:["portals","tonnel","getgems"] },
+    notify:{ on:false, markets:[] },
+  },
+  // 9. Long prompt — truncation + 5 backdrops
+  {
+    name:"Victory Medal для коллекции чёрных фонов",
+    collection:"Victory Medal",
+    modelsText:"Heartbreaker",
+    modelsCount:1,
+    backdropsText:"5 фонов",
+    backdropsCount:5,
+    patternText:"Любые узоры",
+    numberText:"999",
+    bandClass:"",
+    bands:["#363738","#0e0f0f","#ca70c6","#b789e4","#a980f3"],
+    preview:{ type:"one", gifts:["5830340739074097859"], lottie:["victory-medal/aegis"] },
+    buy:{ on:true, price:"36", count:"1 шт", markets:["portals","fragment","mrkt","tonnel","getgems"] },
+    notify:{ on:true, price:"42", markets:["portals","fragment","mrkt"] },
+  },
+];
+
+/* ---------- card template ---------- */
+/* Marketplace icons: Lucide-style glyphs at 10px inside a 16px circle.
+   stroke-width 1.8 per brand.md. Letters were unreadable at 7px on
+   13px circles — replaced with recognizable shapes that survive below
+   12px body copy. */
+const MARKET_ICONS = {
+  // Portals → star
+  portals:  '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2l3.5 6.5L22 10l-5 4.5L18 22l-6-3-6 3 1-7.5L2 10l6.5-1.5z"/></svg>',
+  // Fragment → square with cut corner (chevron-like notch top-right)
+  fragment: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4h11l5 5v11H4z"/></svg>',
+  // MRKT → Lucide "store"
+  mrkt:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5M4 9v11h16V9M9 20v-6h6v6"/></svg>',
+  // Tonnel → triangle
+  tonnel:   '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l10 18H2z"/></svg>',
+  // Getgems → hexagon
+  getgems:  '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/></svg>',
+};
+function marketChip(m){
+  const glyph = MARKET_ICONS[m] || m[0].toUpperCase();
+  return `<div class="m ${m}" title="${m}">${glyph}</div>`;
+}
+
+function renderCard(c,opts={}){
+  const { bulk=false, selected=false } = opts;
+  const alertCls = c.alert ? "alert" : "";
+  const dimCls = c.dim ? "dim" : "";
+  const selCls = selected ? "selected" : "";
+
+  // preview inner — lottie for concrete models (1..5), PNG for collection icon (0 / 6+)
+  let pvInner;
+  const lottieSlugs = c.preview.lottie;
+  if(c.preview.type==="chain"){
+    if(lottieSlugs && lottieSlugs.length){
+      pvInner = `<div class="chain">${lottieSlugs.map(s=>lp(s)).join("")}</div>`;
+    } else {
+      pvInner = `<div class="chain">${c.preview.gifts.map(id=>`<img src="${PNG(id)}" alt="">`).join("")}</div>`;
+    }
+  } else if(lottieSlugs && lottieSlugs.length){
+    pvInner = lp(lottieSlugs[0]);
+  } else {
+    pvInner = `<img src="${PNG(c.preview.gifts[0])}" alt="">`;
+  }
+
+  // bands
+  let bandsHTML = "";
+  if(c.bandClass){
+    bandsHTML = `<div class="c-preview-bands ${c.bandClass}"></div>`;
+  } else if(c.bands && c.bands.length){
+    bandsHTML = `<div class="c-preview-bands">${c.bands.map(b=>`<div class="band" style="background:${b}"></div>`).join("")}</div>`;
+  } else {
+    bandsHTML = `<div class="c-preview-bands none"></div>`;
+  }
+
+  // badge top (alert / off)
+  let badgeTop = "";
+  if(c.alert){
+    badgeTop = `<div class="c-badge-top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>0 шт</div>`;
+  } else if(c.offBadge){
+    badgeTop = `<div class="c-badge-top off">${c.offBadge}</div>`;
+  }
+
+  // markets row
+  const buyMs = c.buy.markets && c.buy.markets.length
+    ? c.buy.markets.slice(0,5).map(marketChip).join("")
+    : "";
+  const ntMs = c.notify.on && c.notify.markets && c.notify.markets.length
+    ? c.notify.markets.slice(0,5).map(marketChip).join("")
+    : "";
+
+  const buyDim = c.buy.on ? "" : "dim";
+  const buyMkHTML = c.buy.markets && c.buy.markets.length
+    ? `<div class="ms">${buyMs}</div>`
+    : `<span class="off">—</span>`;
+
+  const notifyIcon = c.notify.on
+    ? `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>`
+    : `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.7 21a2 2 0 0 1-3.4 0M18 8a6 6 0 0 0-9.33-5M6 8c0 6-3 9-3 9h13M1 1l22 22"/></svg>`;
+  const notifyMkHTML = c.notify.on
+    ? (ntMs ? `<div class="ms">${ntMs}</div>` : `<span class="off">—</span>`)
+    : `<span class="off">выкл</span>`;
+  const notifyDim = c.notify.on ? "" : "dim";
+
+  // price display
+  let priceBigCls = "";
+  let priceBigExtra = "";
+  if(c.alert){ priceBigCls="danger"; }
+
+  // footer: switch + price + sub
+  const sw = c.buy.on ? "on" : "";
+  const swDim = "";
+
+  let countLabel = c.buy.count || "";
+  let countCls = "";
+  if(c.alert){ countCls="danger"; countLabel=c.buy.count; }
+
+  return `
+    <div class="card ${alertCls} ${dimCls} ${selCls}">
+      ${bulk ? `<div class="c-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>` : ""}
+      ${badgeTop}
+      <div class="c-head">
+        <div class="c-name">${c.name}</div>
+        <button class="info" aria-label="Info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+        <button class="more" aria-label="More"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      </div>
+
+      <div class="c-preview-wrap">
+        ${bandsHTML}
+        <div class="c-preview">${pvInner}</div>
+      </div>
+
+      <div class="c-meta">
+        <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><span class="v">${c.collection}</span></div>
+        <div class="row ${c.modelsCount===0?"muted":""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="9"/></svg><span class="v">${c.modelsText}</span></div>
+        <div class="row ${c.backdropsCount===0?"muted":""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span class="v">${c.backdropsText}</span></div>
+        <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 10h16M10 4v16"/></svg><span class="v">${c.patternText} · ${c.numberText}</span></div>
+      </div>
+
+      <div class="c-markets">
+        <div class="grp ${buyDim}">
+          <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2l1 5h10l1-5M3 7h18l-2 11a2 2 0 0 1-2 1H7a2 2 0 0 1-2-1L3 7z"/></svg>
+          ${buyMkHTML}
+        </div>
+        <div class="grp ${notifyDim}">
+          ${notifyIcon}
+          ${notifyMkHTML}
+        </div>
+      </div>
+
+      <div class="c-foot">
+        <div class="switch ${sw} ${swDim}"></div>
+        <div class="price">
+          <div class="big ${priceBigCls} ${c.buy.on?'':'strike'}">
+            до ${c.buy.price}
+            <svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="sub ${countCls}">${countLabel}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- inject ---------- */
+function mount(elId, bulkSelection=null){
+  const el = document.getElementById(elId);
+  const isBulk = !!bulkSelection;
+  el.innerHTML = CARDS.slice(0,9).map((c,i)=>
+    renderCard(c, { bulk:isBulk, selected:bulkSelection ? bulkSelection.includes(i) : false })
+  ).join("");
+}
+
+mount("grid-a");
+mount("grid-b");
+mount("grid-c", [0,1,3,5]); // 4 cards selected (incl. alert, gradient)
+</script>
+</body>
+</html>

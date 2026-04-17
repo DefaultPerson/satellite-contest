@@ -1,0 +1,2047 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Gift Satellite — v3 Showroom</title>
+
+<!--
+  ============================================================================
+  Gift Satellite — v3 «Showroom» (эволюционный редизайн карточки подписки)
+  ============================================================================
+
+  КОНЦЕПЦИЯ
+  ---------
+  Showroom — просторная витрина. Вместо сетки 2×3 (6 карточек) идёт сетка
+  2×2 (4 карточки). Высвободившееся пространство тратится на ОДНУ вещь —
+  крупный hero-блок превью, где реальные цвета фонов работают подложкой,
+  а поверх них центровано превью коллекции + видимая цепочка моделей до 5шт.
+  Узнавание подписки происходит за 200мс без чтения текста.
+
+  ПОЧЕМУ 2×2, А НЕ 2×3
+  --------------------
+  Оригинал: 6 микро-превью 40px без фонов. Пользователь путается между
+  подписками одной коллекции (Ice Cream × 3 в оригинале!). В Showroom
+  hero 130-150px с реальной подложкой фонов делает каждую карточку
+  мгновенно отличимой. Цена плотности — стоящая: 4 карточки с «кино» вместо
+  6 со «слайд-шоу thumbnails».
+
+  ЧЕМ ОТЛИЧАЕТСЯ ОТ СИБЛИНГОВ
+  ---------------------------
+  • v1 Classic+      : сохраняет 2×3, полирует оригинал (меньше всего изменений)
+  • v2 Compact Pack  : плотный 2×3, экономит каждый px, максимум на экран
+  • v3 Showroom  ←   : просторный 2×2, крупные hero + цепочки моделей, для
+                       визуалистов; больше воздуха, ниже плотность, выше recall
+  • v4 Ledger List   : 1×N строками, табличный, data-dense
+  • v5 Signal Bar    : 2×3 + верхний сигнальный бар состояний, акцент на status
+
+  Showroom — единственный вариант, где превью и фоны ДОМИНИРУЮТ. Это витрина
+  для юзеров, которые думают «какого цвета моя Ice Cream» вместо «как она
+  называется».
+
+  ГИДЫ БРЕНДА
+  -----------
+  - Палитра: только токены из brand.md (#101010 / #5535f3 / #f0f0f0 etc)
+  - Шрифт: Hauora локально (+ JetBrains Mono для цен, опционально)
+  - Радиус: card 16-18px, chip 999px, button 10px — ничего своего
+  - Motion: 200ms cubic-bezier(.4,0,.2,1) — без spring/flicker
+  - Иконки: Lucide inline SVG, stroke 1.8-2
+  ============================================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@2.0.12/dist/lottie-player.js"></script>
+
+<style>
+
+/* =====================================================================
+   FONTS
+===================================================================== */
+@font-face{
+  font-family:'Hauora';
+  src:url('../../../assets/fonts/Hauora-Regular.woff2') format('woff2');
+  font-weight:400;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Hauora';
+  src:url('../../../assets/fonts/Hauora-Medium.woff2') format('woff2');
+  font-weight:500;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Hauora';
+  src:url('../../../assets/fonts/Hauora-SemiBold.woff2') format('woff2');
+  font-weight:600;font-style:normal;font-display:swap;
+}
+
+/* =====================================================================
+   BRAND TOKENS (frozen, do not extend)
+===================================================================== */
+:root{
+  --bg:#101010;
+  --fg:#1b1a1d;
+  --secondary:#25242b;
+  --tertiary:#3a3941;
+  --tertiary-bg:#18171c;
+  --navbar-bg:#18171cbf;
+  --overlays:#10101080;
+
+  --primary:#5535f3;
+  --primary-soft:#5535f326;
+
+  --text:#f0f0f0;
+  --text-sec:#f0f0f080;
+  --text-dim:#f0f0f04d;
+  --outlines:#f0f0f026;
+  --outlines-soft:#f0f0f014;
+
+  --destructive:#fc4a2f;
+  --destructive-soft:#fc4a2f26;
+  --success:#79dd3b;
+  --success-soft:#79dd3b26;
+
+  --font-sans:'Hauora',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --ease:cubic-bezier(0.4,0,0.2,1);
+  --dur:200ms;
+}
+
+/* =====================================================================
+   RESET
+===================================================================== */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-sans);
+  font-size:14px;
+  line-height:1.35;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+  padding:32px 24px 80px;
+}
+img{display:block;max-width:100%}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+
+/* =====================================================================
+   PAGE LAYOUT — 3 mockups side-by-side
+===================================================================== */
+.stage{
+  max-width:1400px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:48px;
+}
+.stage-head h1{
+  font-size:22px;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  margin:0 0 8px;
+}
+.stage-head p{
+  font-size:13px;
+  color:var(--text-sec);
+  margin:0;
+  max-width:780px;
+}
+.mockups{
+  display:flex;
+  gap:40px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.mockup{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+}
+.mockup-label{
+  font-size:11px;
+  font-weight:500;
+  color:var(--text-sec);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+}
+.mockup-label b{color:var(--text);font-weight:600}
+
+/* desktop stage chrome — outside TG app: phone bezel, notch, tg-chrome, legend */
+/* Phone frame 393px (Pixel-ish) */
+.phone{
+  width:393px;
+  height:852px;
+  background:var(--bg);
+  border-radius:44px;
+  border:1px solid #2a2a2a;
+  box-shadow:
+    0 0 0 8px #151515,
+    0 40px 80px rgba(0,0,0,0.5),
+    0 0 120px rgba(85,53,243,0.04);
+  overflow:hidden;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+.phone::before{ /* notch */
+  content:'';
+  position:absolute;
+  top:14px; left:50%;
+  transform:translateX(-50%);
+  width:120px; height:28px;
+  background:#050505;
+  border-radius:999px;
+  z-index:50;
+}
+
+/* =====================================================================
+   TELEGRAM TOP CHROME (fixed)
+===================================================================== */
+.tg-chrome{
+  height:46px;
+  padding:10px 16px 0;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:#0f0f10;
+  flex-shrink:0;
+}
+.tg-chrome .tg-close,
+.tg-chrome .tg-more{
+  color:var(--text-sec);
+  width:24px;height:24px;
+  display:flex;align-items:center;justify-content:center;
+}
+.tg-chrome .tg-title{
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:15px;
+  font-weight:500;
+}
+.tg-chrome .tg-title::before{
+  content:'';
+  width:28px;height:28px;
+  border-radius:7px;
+  background:url('../../../assets/logo.jpg') center/cover no-repeat, #2a2a2a;
+}
+
+/* =====================================================================
+   APP HEADER — logo / tone-balance / cog
+===================================================================== */
+.app-head{
+  padding:12px 16px 10px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-shrink:0;
+}
+.app-logo{
+  width:32px;height:32px;
+  border-radius:8px;
+  background:url('../../../assets/logo.jpg') center/cover no-repeat, var(--secondary);
+  border:1px solid var(--outlines);
+}
+.app-head .spacer{flex:1}
+.tone-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 10px 6px 12px;
+  background:var(--secondary);
+  border:1px solid var(--outlines);
+  border-radius:999px;
+  font-size:13px;
+  font-weight:500;
+  font-family:var(--font-mono);
+}
+.tone-pill .diamond{color:var(--primary);font-family:var(--font-sans)}
+.tone-pill .plus{
+  width:18px;height:18px;
+  border-radius:999px;
+  background:var(--primary);
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-left:2px;
+}
+.cog-btn{
+  width:36px;height:36px;
+  border-radius:8px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--text-sec);
+}
+.cog-btn:hover{background:rgba(255,255,255,0.06)}
+
+/* =====================================================================
+   TOOLBAR — filter chips, sort, CTA
+===================================================================== */
+.toolbar{
+  padding:4px 16px 10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  flex-shrink:0;
+}
+.chip-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.chip{
+  height:32px;
+  padding:0 14px;
+  border-radius:999px;
+  background:var(--secondary);
+  border:1px solid var(--outlines);
+  color:var(--text);
+  font-size:13px;
+  font-weight:500;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  white-space:nowrap;
+}
+.chip svg{color:var(--text-sec)}
+.chip.active{background:var(--primary);border-color:transparent}
+.chip.active svg{color:var(--text)}
+.search-chip{
+  flex:1;
+  background:var(--secondary);
+  border:1px solid var(--outlines);
+  border-radius:999px;
+  height:32px;
+  padding:0 12px 0 34px;
+  color:var(--text-sec);
+  font-size:13px;
+  position:relative;
+  display:flex;
+  align-items:center;
+}
+.search-chip::before{
+  content:'';
+  position:absolute;
+  left:12px;
+  width:14px;height:14px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23f0f0f080' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.sort-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:13px;
+  color:var(--text-sec);
+}
+.sort-row .sort-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:var(--text);
+  font-weight:500;
+}
+.sort-row .spacer{flex:1}
+.density-toggle{
+  display:inline-flex;
+  border:1px solid var(--outlines);
+  border-radius:8px;
+  background:var(--secondary);
+  padding:2px;
+  gap:2px;
+}
+.density-toggle button{
+  width:28px;height:24px;
+  border-radius:6px;
+  color:var(--text-sec);
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.density-toggle button.on{
+  background:var(--primary);
+  color:var(--text);
+}
+
+.count-line{
+  font-size:12px;
+  color:var(--text-sec);
+  text-align:center;
+  margin-top:-2px;
+}
+.count-line b{color:var(--text);font-weight:500}
+
+.cta-row{
+  display:flex;
+  gap:10px;
+  margin-top:4px;
+}
+.cta{
+  flex:1;
+  height:40px;
+  border-radius:10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  font-size:14px;
+  font-weight:500;
+}
+.cta.primary{background:var(--primary);color:var(--text)}
+.cta.secondary{background:var(--secondary);color:var(--text);border:1px solid var(--outlines)}
+.cta .diamond{color:inherit;opacity:0.9}
+
+/* =====================================================================
+   GRID — 2×2 Showroom
+===================================================================== */
+.scroll-area{
+  flex:1;
+  overflow:hidden;
+  padding:6px 16px 72px;
+  position:relative;
+}
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+/* =====================================================================
+   SUBSCRIPTION CARD — the heart of the variant
+===================================================================== */
+.card{
+  background:var(--fg);
+  border:1px solid var(--outlines);
+  border-radius:18px;
+  padding:14px 14px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  position:relative;
+  overflow:hidden;
+  min-height:352px;
+  transition:transform var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.card.dim{opacity:0.55}
+.card.alert{
+  border-color:var(--destructive);
+  border-width:2px;
+  padding:13px 13px 11px;
+}
+
+/* Row 1 : title + info */
+.card-head{
+  display:flex;
+  gap:6px;
+  align-items:flex-start;
+  min-height:38px;
+}
+.card-title{
+  flex:1;
+  font-size:15px;
+  font-weight:600;
+  line-height:1.25;
+  color:var(--text);
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  letter-spacing:-0.005em;
+  min-width:0;
+  word-break:break-word;
+}
+.info-btn{
+  width:22px;height:22px;
+  border-radius:6px;
+  color:var(--text-sec);
+  flex-shrink:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-top:-1px;
+}
+.info-btn:hover{background:rgba(255,255,255,0.06);color:var(--text)}
+
+/* Row 2 : HERO — the signature of Showroom */
+.hero{
+  position:relative;
+  height:146px;
+  border-radius:12px;
+  overflow:hidden;
+  border:1px solid var(--outlines-soft);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  /* painted per-card via inline style */
+}
+.hero-vignette{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 50% 100%, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 60%),
+    linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 40%);
+  pointer-events:none;
+}
+.hero-img{
+  width:96px;
+  height:96px;
+  object-fit:contain;
+  filter:drop-shadow(0 6px 16px rgba(0,0,0,0.55)) drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  position:relative;
+  z-index:2;
+  transform:translateY(-8px);
+}
+lottie-player.hero-img{
+  display:block;
+}
+lottie-player.model-chain-lottie{
+  width:100%;
+  height:100%;
+  display:block;
+}
+.sheet-head .thumb lottie-player{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+.chip-sheet .mini lottie-player{width:100%;height:100%;display:block}
+
+/* model chain bottom overlay */
+.model-chain{
+  position:absolute;
+  left:6px; right:6px; bottom:6px;
+  z-index:3;
+  display:flex;
+  gap:4px;
+  justify-content:center;
+  align-items:flex-end;
+}
+.model-chain-item{
+  width:26px;height:26px;
+  border-radius:7px;
+  background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.16);
+  padding:2px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.4);
+}
+.model-chain-item img{width:100%;height:100%;object-fit:contain}
+
+/* many-models badge */
+.many-models-badge{
+  position:absolute;
+  top:8px; right:8px;
+  z-index:3;
+  padding:4px 8px;
+  background:rgba(0,0,0,0.65);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.2);
+  color:var(--text);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:0.04em;
+  border-radius:999px;
+  text-transform:uppercase;
+  display:inline-flex;
+  gap:4px;
+  align-items:center;
+}
+
+/* purchase-off badge on hero */
+.hero-state-badge{
+  position:absolute;
+  top:8px; left:8px;
+  z-index:3;
+  padding:4px 10px;
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  border-radius:999px;
+  display:inline-flex;
+  gap:5px;
+  align-items:center;
+}
+.hero-state-badge.off{
+  background:rgba(0,0,0,0.7);
+  color:var(--text);
+  border:1px solid rgba(255,255,255,0.2);
+}
+.hero-state-badge.warn{
+  background:var(--destructive);
+  color:var(--text);
+}
+
+/* Row 3 : text meta 3 lines */
+.meta{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  font-size:11.5px;
+  color:var(--text-sec);
+  min-height:52px;
+}
+.meta-line{
+  display:flex;
+  gap:5px;
+  align-items:center;
+  line-height:1.3;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.meta-line svg{
+  flex-shrink:0;
+  color:var(--text-dim);
+}
+.meta-line b{
+  color:var(--text);
+  font-weight:500;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Row 4 : markets (buy & notify) */
+.markets{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.market-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.market-row > svg{
+  color:var(--text-sec);
+  flex-shrink:0;
+}
+.market-row.dim > svg{color:var(--text-dim)}
+.markets-list{
+  display:flex;
+  gap:4px;
+  align-items:center;
+  flex:1;
+}
+.market{
+  width:20px;height:20px;
+  border-radius:6px;
+  display:inline-flex;
+  align-items:center;justify-content:center;
+  font-size:10px;
+  font-weight:700;
+  color:#fff;
+  letter-spacing:-0.02em;
+  box-shadow:0 1px 2px rgba(0,0,0,0.35);
+  border:1px solid rgba(255,255,255,0.08);
+}
+.market.portals{background:linear-gradient(135deg,#7e5bf5,#5535f3)}
+.market.fragment{background:linear-gradient(135deg,#4a5562,#2d343d)}
+.market.mrkt{background:linear-gradient(135deg,#f0b429,#c48817)}
+.market.tonnel{background:linear-gradient(135deg,#22b8d6,#0e8aa8)}
+.market.getgems{background:linear-gradient(135deg,#df3870,#b01c54)}
+.market-row.dim .market{opacity:0.35;filter:grayscale(0.6)}
+.market-row.off-label{
+  font-size:10.5px;
+  color:var(--text-dim);
+  letter-spacing:0.02em;
+  text-transform:uppercase;
+  font-weight:500;
+}
+
+/* Row 5 : footer bar */
+.footer{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding-top:8px;
+  border-top:1px solid var(--outlines-soft);
+  margin-top:auto;
+}
+.switch{
+  width:38px;height:22px;
+  border-radius:999px;
+  background:var(--tertiary);
+  position:relative;
+  flex-shrink:0;
+  transition:background var(--dur) var(--ease);
+}
+.switch::after{
+  content:'';
+  position:absolute;
+  top:2px;left:2px;
+  width:18px;height:18px;
+  border-radius:999px;
+  background:#f0f0f0;
+  transition:transform var(--dur) var(--ease);
+  box-shadow:0 1px 3px rgba(0,0,0,0.35);
+}
+.switch.on{background:var(--primary)}
+.switch.on::after{transform:translateX(16px)}
+.switch.dim{opacity:0.5}
+
+.price{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  line-height:1.1;
+}
+.price .amount{
+  font-family:var(--font-mono);
+  font-size:14px;
+  font-weight:500;
+  color:var(--text);
+  letter-spacing:-0.01em;
+  white-space:nowrap;
+}
+.price .amount .max{color:var(--text-sec);font-weight:400;font-size:11px;margin-right:2px;font-family:var(--font-sans)}
+.price .amount.crossed{color:var(--text-dim);text-decoration:line-through}
+.price .qty{
+  font-size:10.5px;
+  color:var(--text-sec);
+  margin-top:1px;
+  letter-spacing:0.02em;
+}
+.price .qty.err{color:var(--destructive);font-weight:500}
+
+.more-btn{
+  width:24px;height:24px;
+  border-radius:6px;
+  color:var(--text-sec);
+  display:inline-flex;
+  align-items:center;justify-content:center;
+  flex-shrink:0;
+  margin-right:-2px;
+}
+.more-btn:hover{background:rgba(255,255,255,0.08)}
+
+/* bulk mode checkbox */
+.card-check{
+  position:absolute;
+  top:10px; left:10px;
+  z-index:4;
+  width:22px;height:22px;
+  border-radius:7px;
+  background:rgba(10,10,10,0.85);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  border:1.5px solid rgba(240,240,240,0.5);
+  display:inline-flex;align-items:center;justify-content:center;
+  color:transparent;
+  box-shadow:0 1px 4px rgba(0,0,0,0.4);
+}
+.card-check.checked{
+  background:var(--primary);
+  border-color:var(--primary);
+  color:var(--text);
+}
+.card.selected{
+  border-color:var(--primary);
+  box-shadow:0 0 0 1px var(--primary) inset, 0 0 0 2px var(--primary-soft);
+}
+/* shift title right when bulk checkbox is present, to avoid overlap */
+.card:has(.card-check) .card-title{padding-left:26px}
+
+/* =====================================================================
+   BOTTOM TAB BAR — frozen (5 items, Search active)
+===================================================================== */
+.tab-bar{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:72px;
+  background:var(--navbar-bg);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--outlines);
+  display:flex;
+  align-items:center;
+  padding:0 8px 14px;
+  z-index:40;
+}
+.tab{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+  font-size:10.5px;
+  color:var(--text-sec);
+  padding-top:10px;
+}
+.tab.active{color:var(--text)}
+.tab.active .tab-ic{
+  background:var(--primary);
+  color:var(--text);
+}
+.tab-ic{
+  width:54px;height:30px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;justify-content:center;
+}
+
+/* =====================================================================
+   BOTTOM SHEET MODAL (mockup B)
+===================================================================== */
+.sheet-backdrop{
+  position:absolute;inset:0;
+  background:var(--overlays);
+  z-index:20;
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+}
+.sheet{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:85%;
+  background:var(--tertiary-bg);
+  border-top-left-radius:20px;
+  border-top-right-radius:20px;
+  border-top:1px solid var(--outlines);
+  z-index:30;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.sheet-handle{
+  width:40px;height:4px;
+  background:var(--tertiary);
+  border-radius:999px;
+  margin:8px auto 4px;
+  flex-shrink:0;
+}
+.sheet-head{
+  padding:8px 16px 12px;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  flex-shrink:0;
+  border-bottom:1px solid var(--outlines-soft);
+}
+.sheet-head .thumb{
+  width:42px;height:42px;
+  border-radius:10px;
+  background:linear-gradient(135deg,#58a3c8,#0d45b6);
+  position:relative;
+  overflow:hidden;
+  flex-shrink:0;
+  border:1px solid var(--outlines);
+}
+.sheet-head .thumb img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+.sheet-head .titles{flex:1;min-width:0}
+.sheet-head h2{
+  font-size:16px;
+  font-weight:600;
+  margin:0 0 2px;
+  letter-spacing:-0.01em;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.sheet-head .subtitle{
+  font-size:12px;
+  color:var(--text-sec);
+}
+.sheet-head .close{
+  width:30px;height:30px;
+  border-radius:8px;
+  color:var(--text-sec);
+  display:inline-flex;
+  align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.sheet-head .close:hover{background:rgba(255,255,255,0.06)}
+
+.sheet-body{
+  flex:1;
+  overflow-y:auto;
+  padding:14px 16px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.sheet-section h3{
+  margin:0 0 8px;
+  font-size:10.5px;
+  font-weight:600;
+  color:var(--text-sec);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.sheet-section h3 .count{
+  background:var(--secondary);
+  border:1px solid var(--outlines);
+  padding:1px 7px;
+  border-radius:999px;
+  font-size:10px;
+  color:var(--text);
+  letter-spacing:0;
+  text-transform:none;
+}
+.chips-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.chip-sheet{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 10px 5px 5px;
+  border-radius:999px;
+  background:var(--secondary);
+  border:1px solid var(--outlines);
+  font-size:12px;
+  color:var(--text);
+  font-weight:500;
+}
+.chip-sheet .dot{
+  width:16px;height:16px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.15);
+}
+.chip-sheet .mini{
+  width:18px;height:18px;
+  border-radius:5px;
+  padding:1px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--outlines-soft);
+}
+.chip-sheet .mini img{width:100%;height:100%;object-fit:contain}
+.chip-sheet.txt{padding:5px 12px}
+
+.sheet-block{
+  background:var(--fg);
+  border:1px solid var(--outlines);
+  border-radius:14px;
+  padding:12px 14px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.sheet-block .block-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:11px;
+  font-weight:600;
+  color:var(--text-sec);
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+}
+.sheet-block .block-head .ok{
+  color:var(--success);
+  font-size:10px;
+  padding:2px 7px;
+  background:var(--success-soft);
+  border-radius:999px;
+  letter-spacing:0.04em;
+}
+.sheet-block .row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-size:13px;
+}
+.sheet-block .row .label{color:var(--text-sec)}
+.sheet-block .row .value{color:var(--text);font-weight:500}
+.sheet-block .row .value.mono{font-family:var(--font-mono)}
+.sheet-block .mkts{display:flex;gap:5px}
+.sheet-block .mkts .market{width:22px;height:22px;font-size:11px}
+
+.sheet-actions{
+  padding:12px 16px 18px;
+  display:flex;
+  gap:10px;
+  border-top:1px solid var(--outlines-soft);
+  background:var(--tertiary-bg);
+  flex-shrink:0;
+}
+.sheet-actions .btn{
+  flex:1;
+  height:44px;
+  border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:8px;
+  font-size:14px;
+  font-weight:500;
+}
+.btn.primary{background:var(--primary);color:var(--text)}
+.btn.secondary{background:var(--secondary);color:var(--text);border:1px solid var(--outlines)}
+.btn.destructive{
+  background:transparent;
+  color:var(--destructive);
+  border:1px solid var(--destructive-soft);
+  flex:0 0 44px;
+  width:44px;
+  padding:0;
+}
+
+/* =====================================================================
+   BULK MODE BAR (mockup C)
+===================================================================== */
+.bulk-head{
+  padding:12px 16px 10px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-shrink:0;
+  border-bottom:1px solid var(--outlines-soft);
+}
+.bulk-head .cancel-btn{
+  padding:0 12px;
+  height:32px;
+  border-radius:8px;
+  font-size:14px;
+  color:var(--text);
+  font-weight:500;
+}
+.bulk-head .counter{
+  flex:1;
+  font-size:15px;
+  font-weight:600;
+  text-align:center;
+  letter-spacing:-0.005em;
+}
+.bulk-head .counter span{color:var(--text-sec);font-weight:400}
+.bulk-head .select-all{
+  padding:0 10px;
+  height:32px;
+  border-radius:8px;
+  font-size:13px;
+  color:var(--primary);
+  font-weight:500;
+}
+
+.bulk-bar{
+  position:absolute;
+  left:12px;right:12px;bottom:80px;
+  z-index:40;
+  background:var(--tertiary-bg);
+  border:1px solid var(--outlines);
+  border-radius:16px;
+  padding:8px;
+  display:flex;
+  justify-content:space-around;
+  gap:4px;
+  box-shadow:0 12px 32px rgba(0,0,0,0.6), 0 2px 6px rgba(0,0,0,0.4);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+.bulk-act{
+  flex:1;
+  padding:8px 4px;
+  border-radius:10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+  font-size:10.5px;
+  color:var(--text-sec);
+  letter-spacing:0;
+}
+.bulk-act:hover{background:rgba(255,255,255,0.05);color:var(--text)}
+.bulk-act.danger{color:var(--destructive)}
+.bulk-act svg{margin-bottom:1px}
+
+/* fifth-card scroll hint */
+.scroll-hint{
+  position:absolute;
+  left:16px;right:16px;
+  bottom:72px;
+  height:34px;
+  background:linear-gradient(180deg,transparent 0%, #0f0f10 70%);
+  pointer-events:none;
+  z-index:5;
+}
+
+/* =====================================================================
+   UTILITIES for per-card backdrop painting
+   (hero-bg .bg-N paints real colors from backdrops.json)
+===================================================================== */
+/* single-color */
+.bg-sapphire{background:radial-gradient(circle at 50% 45%, #58a3c8 0%, #5379c2 55%, #0d45b6 100%)}
+.bg-emerald {background:radial-gradient(circle at 50% 45%, #78c585 0%, #42a171 55%, #006532 100%)}
+.bg-electric-purple{background:radial-gradient(circle at 50% 45%, #ca70c6 0%, #9662d4 55%, #620fb4 100%)}
+.bg-lavender{background:radial-gradient(circle at 50% 45%, #b789e4 0%, #8a5abc 55%, #5b10ab 100%)}
+.bg-cyberpunk{background:radial-gradient(circle at 50% 45%, #858ff3 0%, #865fd3 55%, #4318a6 100%)}
+.bg-electric-indigo{background:radial-gradient(circle at 50% 45%, #a980f3 0%, #5b62d8 55%, #3722ab 100%)}
+.bg-neon-blue{background:radial-gradient(circle at 50% 45%, #7596f9 0%, #5b68d9 55%, #2820ac 100%)}
+.bg-pure-gold{background:radial-gradient(circle at 50% 45%, #ccab41 0%, #987b32 55%, #703c00 100%)}
+.bg-amber{background:radial-gradient(circle at 50% 45%, #dab345 0%, #b1802a 55%, #7a3100 100%)}
+.bg-coral-red{background:radial-gradient(circle at 50% 45%, #da896b 0%, #c4654f 55%, #891200 100%)}
+.bg-mint-green{background:radial-gradient(circle at 50% 45%, #7ecb82 0%, #459e5a 55%, #026b22 100%)}
+.bg-navy-blue{background:radial-gradient(circle at 50% 45%, #6c9edd 0%, #5c6ec9 55%, #1239a2 100%)}
+.bg-black{background:radial-gradient(circle at 50% 45%, #363738 0%, #1a1b1c 55%, #0e0f0f 100%)}
+
+/* 2-backdrop split (diagonal) */
+.bg-pair-gold-amber{
+  background:
+    linear-gradient(135deg, #ccab41 0%, #ccab41 50%, #dab345 50%, #dab345 100%);
+}
+/* 3-backdrop split (3 vertical wedges + soft overlap) */
+.bg-triple-goldamberred{
+  background:
+    conic-gradient(from 180deg at 50% 50%,
+      #ccab41 0deg,
+      #ccab41 120deg,
+      #dab345 120deg,
+      #dab345 240deg,
+      #da896b 240deg,
+      #da896b 360deg);
+}
+/* 5-backdrop split (conic five wedges) */
+.bg-penta{
+  background:conic-gradient(from 200deg at 50% 50%,
+    #58a3c8 0deg 72deg,
+    #78c585 72deg 144deg,
+    #ca70c6 144deg 216deg,
+    #dab345 216deg 288deg,
+    #da896b 288deg 360deg);
+}
+/* many-backdrops custom gradient (25+) */
+.bg-many{
+  background:
+    radial-gradient(ellipse at 20% 20%, #ca70c6 0%, transparent 45%),
+    radial-gradient(ellipse at 80% 10%, #7596f9 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 80%, #dab345 0%, transparent 45%),
+    radial-gradient(ellipse at 15% 90%, #78c585 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, #5535f3 0%, transparent 70%),
+    #18171c;
+}
+/* no backdrop (checkered placeholder) */
+.bg-none{
+  background:
+    repeating-conic-gradient(#1b1a1d 0% 25%, #25242b 0% 50%) 50% / 14px 14px,
+    var(--fg);
+  background-blend-mode:normal;
+}
+
+/* Slight inner shadow common to all hero backgrounds */
+.hero-bg::after{
+  content:'';
+  position:absolute;inset:0;
+  box-shadow:inset 0 0 40px rgba(0,0,0,0.25);
+  pointer-events:none;
+}
+
+/* =====================================================================
+   STAGE LEGEND (footnote under mockups)
+===================================================================== */
+.legend{
+  max-width:1300px;
+  margin:0 auto;
+  padding:24px;
+  color:var(--text-sec);
+  font-size:12px;
+  line-height:1.55;
+  border-top:1px solid #1b1b1b;
+}
+.legend b{color:var(--text);font-weight:600}
+.legend .cols{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+  margin-top:12px;
+}
+.legend .col h4{
+  font-size:11px;
+  font-weight:600;
+  color:var(--text);
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  margin:0 0 6px;
+}
+@media (max-width:1100px){
+  .legend .cols{grid-template-columns:repeat(2,1fr)}
+}
+
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <header class="stage-head">
+    <h1>Gift Satellite — v3 «Showroom»</h1>
+    <p>Эволюционный редизайн карточки подписки. Сетка 2×2 вместо 2×3: 4 карточки на экран вместо 6. Высвободившееся место тратится на крупный hero-блок с реальными цветами фонов и видимой цепочкой моделей. Узнавание подписки — за долю секунды, без чтения.</p>
+  </header>
+
+  <section class="mockups">
+
+    <!-- ==================================================================
+         MOCKUP A — MAIN SCREEN: 2×2 grid with 4 visible cards + 5th peek
+    ================================================================== -->
+    <div class="mockup">
+      <div class="mockup-label"><b>A</b> &nbsp;Главный экран · 2×2 · 4 карточки</div>
+      <div class="phone">
+
+        <!-- Telegram chrome -->
+        <div class="tg-chrome">
+          <span class="tg-close">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </span>
+          <span class="tg-title">Gift Satellite Bot
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.7;margin-left:2px"><path d="m6 9 6 6 6-6"/></svg>
+          </span>
+          <span class="tg-more">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </span>
+        </div>
+
+        <!-- App header -->
+        <div class="app-head">
+          <div class="app-logo"></div>
+          <div class="spacer"></div>
+          <div class="tone-pill">1.92 <span class="diamond"><svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="plus">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          </span></div>
+          <button class="cog-btn" aria-label="Настройки">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <div class="chip-row">
+            <button class="chip">Коллекция
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <button class="chip">Фон
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div class="search-chip">Поиск...</div>
+          </div>
+          <div class="sort-row">
+            <button class="sort-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
+              Сначала новые
+            </button>
+            <div class="spacer"></div>
+            <div class="density-toggle" title="Плотность сетки">
+              <button aria-label="Список">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+              </button>
+              <button aria-label="Сетка компактная">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+              </button>
+              <button class="on" aria-label="Сетка просторная">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8.5" height="8.5" x="3" y="3" rx="1.2"/><rect width="8.5" height="8.5" x="12.5" y="3" rx="1.2"/><rect width="8.5" height="8.5" x="12.5" y="12.5" rx="1.2"/><rect width="8.5" height="8.5" x="3" y="12.5" rx="1.2"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="count-line"><b>Всего 45 слотов</b> · Создано 45 ордеров</div>
+          <div class="cta-row">
+            <button class="cta primary">Слот за 1 <span class="diamond"><svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" aria-hidden="true"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span></button>
+            <button class="cta secondary">Добавить подписку</button>
+          </div>
+        </div>
+
+        <!-- GRID 2×2 -->
+        <div class="scroll-area">
+          <div class="grid">
+
+            <!-- CARD 1 — обычная (Ice Cream, 1 model, 1 backdrop Sapphire) -->
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Ice Cream Сапфировый</div>
+                <button class="info-btn" aria-label="Подробнее">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </button>
+              </div>
+              <div class="hero">
+                <div class="hero-bg bg-sapphire"></div>
+                <div class="hero-vignette"></div>
+                <lottie-player class="hero-img" src="../../../assets/models-lottie/ice-cream/apple-dip.json" background="transparent" speed="1" autoplay loop></lottie-player>
+                <div class="model-chain">
+                  <div class="model-chain-item"><lottie-player class="model-chain-lottie" src="../../../assets/models-lottie/ice-cream/apple-dip.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+                </div>
+              </div>
+              <div class="meta">
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <b>Ice Cream</b>
+                </div>
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="17" r="2"/><circle cx="6" cy="12" r="2"/></svg>
+                  <b>Ghost Biters</b>
+                </div>
+                <div class="meta-line"><span>1 фон Sapphire · Все узоры · Любой номер</span></div>
+              </div>
+              <div class="markets">
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                    <span class="market mrkt">M</span>
+                    <span class="market tonnel">T</span>
+                    <span class="market getgems">G</span>
+                  </div>
+                </div>
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                    <span class="market mrkt">M</span>
+                    <span class="market tonnel">T</span>
+                    <span class="market getgems">G</span>
+                  </div>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="switch on" role="switch" aria-checked="true"></div>
+                <div class="price">
+                  <div class="amount"><span class="max">до</span>12 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="qty">1 шт · нотиф до 10 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11" aria-hidden="true" style="vertical-align:-1px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                </div>
+                <button class="more-btn" aria-label="Меню действий">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- CARD 2 — «Любые» × 2 (Lol Pop) -->
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Любой Lol Pop</div>
+                <button class="info-btn" aria-label="Подробнее">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </button>
+              </div>
+              <div class="hero">
+                <div class="hero-bg bg-none"></div>
+                <div class="hero-vignette"></div>
+                <img class="hero-img" src="../../../assets/originals/5170594532177215681/Original.png" alt="Lol Pop" loading="lazy"/>
+              </div>
+              <div class="meta">
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <b>Lol Pop</b>
+                </div>
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="17" r="2"/><circle cx="6" cy="12" r="2"/></svg>
+                  <span>Любые модели</span>
+                </div>
+                <div class="meta-line"><span>Любые фоны · Любые узоры</span></div>
+              </div>
+              <div class="markets">
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                    <span class="market tonnel">T</span>
+                  </div>
+                </div>
+                <div class="market-row dim">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="m2 2 20 20"/><path d="M8.7 3.7A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5.6"/><path d="M17 17H3a1 1 0 0 1-.74-1.67C3.59 13.956 5 12.499 5 8a6 6 0 0 1 .09-1"/></svg>
+                  <span class="off-label">Нотиф. выкл</span>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="switch on" role="switch" aria-checked="true"></div>
+                <div class="price">
+                  <div class="amount"><span class="max">до</span>30 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="qty">3 шт</div>
+                </div>
+                <button class="more-btn" aria-label="Меню действий">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- CARD 3 — 3 models chain (Light Sword, Emerald) -->
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Light Sword · Изумруд</div>
+                <button class="info-btn" aria-label="Подробнее">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </button>
+              </div>
+              <div class="hero">
+                <div class="hero-bg bg-emerald"></div>
+                <div class="hero-vignette"></div>
+                <lottie-player class="hero-img" src="../../../assets/models-lottie/light-sword/absinthe.json" background="transparent" speed="1" autoplay loop></lottie-player>
+                <div class="model-chain">
+                  <div class="model-chain-item"><lottie-player class="model-chain-lottie" src="../../../assets/models-lottie/light-sword/absinthe.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+                  <div class="model-chain-item"><lottie-player class="model-chain-lottie" src="../../../assets/models-lottie/light-sword/andromeda.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+                  <div class="model-chain-item"><lottie-player class="model-chain-lottie" src="../../../assets/models-lottie/light-sword/bifrost.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+                </div>
+              </div>
+              <div class="meta">
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <b>Light Sword</b>
+                </div>
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="17" r="2"/><circle cx="6" cy="12" r="2"/></svg>
+                  <b>3 модели</b>
+                </div>
+                <div class="meta-line"><span>1 фон Emerald · 2 узора</span></div>
+              </div>
+              <div class="markets">
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                    <span class="market mrkt">M</span>
+                    <span class="market tonnel">T</span>
+                  </div>
+                </div>
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                    <span class="market mrkt">M</span>
+                  </div>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="switch on" role="switch" aria-checked="true"></div>
+                <div class="price">
+                  <div class="amount"><span class="max">до</span>17 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="qty">2 шт · нотиф до 14 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11" aria-hidden="true" style="vertical-align:-1px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                </div>
+                <button class="more-btn" aria-label="Меню действий">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- CARD 4 — 12 models, 3 backdrops (Plush Pepe) -->
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Plush Pepe трио</div>
+                <button class="info-btn" aria-label="Подробнее">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </button>
+              </div>
+              <div class="hero">
+                <div class="hero-bg bg-triple-goldamberred"></div>
+                <div class="hero-vignette"></div>
+                <img class="hero-img" src="../../../assets/originals/5936013938331222567/Original.png" alt="Plush Pepe" loading="lazy"/>
+                <span class="many-models-badge">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="17" r="2"/><circle cx="6" cy="12" r="2"/></svg>
+                  12 моделей
+                </span>
+              </div>
+              <div class="meta">
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <b>Plush Pepe</b>
+                </div>
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="17" r="2"/><circle cx="6" cy="12" r="2"/></svg>
+                  <b>12 моделей</b>
+                </div>
+                <div class="meta-line"><span>3 фона · Все узоры · №7777</span></div>
+              </div>
+              <div class="markets">
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                  </div>
+                </div>
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                    <span class="market mrkt">M</span>
+                    <span class="market tonnel">T</span>
+                    <span class="market getgems">G</span>
+                  </div>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="switch on" role="switch" aria-checked="true"></div>
+                <div class="price">
+                  <div class="amount"><span class="max">до</span>420 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="qty">5 шт · нотиф до 380 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11" aria-hidden="true" style="vertical-align:-1px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                </div>
+                <button class="more-btn" aria-label="Меню действий">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+          <div class="scroll-hint"></div>
+        </div>
+
+        <!-- Bottom tab -->
+        <div class="tab-bar">
+          <button class="tab">
+            <span class="tab-ic">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            </span>
+            <span>Лидеры</span>
+          </button>
+          <button class="tab">
+            <span class="tab-ic">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+            </span>
+            <span>Подписки</span>
+          </button>
+          <button class="tab active">
+            <span class="tab-ic">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </span>
+            <span>Поиск</span>
+          </button>
+          <button class="tab">
+            <span class="tab-ic">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+            </span>
+            <span>Статистика</span>
+          </button>
+          <button class="tab">
+            <span class="tab-ic">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <span>Профиль</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==================================================================
+         MOCKUP B — INFO SHEET (bottom-sheet 85%)
+    ================================================================== -->
+    <div class="mockup">
+      <div class="mockup-label"><b>B</b> &nbsp;Info-модалка · info modal · bottom-sheet 85%</div>
+      <div class="phone">
+
+        <!-- Telegram chrome (same) -->
+        <div class="tg-chrome">
+          <span class="tg-close">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </span>
+          <span class="tg-title">Gift Satellite Bot
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.7;margin-left:2px"><path d="m6 9 6 6 6-6"/></svg>
+          </span>
+          <span class="tg-more">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </span>
+        </div>
+
+        <!-- Dimmed grid behind -->
+        <div class="app-head">
+          <div class="app-logo"></div>
+          <div class="spacer"></div>
+          <div class="tone-pill">1.92 <span class="diamond"><svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="plus">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          </span></div>
+          <button class="cog-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+
+        <div class="scroll-area" style="padding-top:0;padding-bottom:0;filter:blur(1px);opacity:0.4">
+          <div class="grid">
+            <div class="card">
+              <div class="card-head"><div class="card-title">Ice Cream Сапфировый</div></div>
+              <div class="hero"><div class="hero-bg bg-sapphire"></div><div class="hero-vignette"></div><lottie-player class="hero-img" src="../../../assets/models-lottie/ice-cream/apple-dip.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div class="card-title">Jack-in-the-Box</div></div>
+              <div class="hero"><div class="hero-bg bg-electric-indigo"></div><div class="hero-vignette"></div><lottie-player class="hero-img" src="../../../assets/models-lottie/jack-in-the-box/aliens.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Backdrop overlay -->
+        <div class="sheet-backdrop"></div>
+
+        <!-- Bottom sheet -->
+        <div class="sheet">
+          <div class="sheet-handle"></div>
+          <div class="sheet-head">
+            <div class="thumb"><lottie-player src="../../../assets/models-lottie/ice-cream/apple-dip.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+            <div class="titles">
+              <h2>Ice Cream Сапфировый</h2>
+              <div class="subtitle">Создана 3 дня назад · ID 1284</div>
+            </div>
+            <button class="close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+
+          <div class="sheet-body">
+
+            <div class="sheet-section">
+              <h3>Коллекция</h3>
+              <div class="chips-grid">
+                <div class="chip-sheet">
+                  <div class="mini"><img src="../../../assets/originals/5900177027566142759/Original.png" alt=""/></div>
+                  Ice Cream
+                </div>
+              </div>
+            </div>
+
+            <div class="sheet-section">
+              <h3>Модели <span class="count">3</span></h3>
+              <div class="chips-grid">
+                <div class="chip-sheet">
+                  <div class="mini"><lottie-player src="../../../assets/models-lottie/ice-cream/apple-dip.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+                  Ghost Biters
+                </div>
+                <div class="chip-sheet">
+                  <div class="mini"><lottie-player src="../../../assets/models-lottie/ice-cream/banana.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+                  Divine Justice
+                </div>
+                <div class="chip-sheet">
+                  <div class="mini"><lottie-player src="../../../assets/models-lottie/ice-cream/berry-split.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+                  Strawberry Swirl
+                </div>
+              </div>
+            </div>
+
+            <div class="sheet-section">
+              <h3>Фоны <span class="count">1</span></h3>
+              <div class="chips-grid">
+                <div class="chip-sheet">
+                  <div class="dot" style="background:linear-gradient(135deg,#58a3c8,#0d45b6)"></div>
+                  Sapphire
+                </div>
+              </div>
+            </div>
+
+            <div class="sheet-section">
+              <h3>Узоры <span class="count">все</span></h3>
+              <div class="chips-grid">
+                <div class="chip-sheet txt">Любые узоры</div>
+              </div>
+            </div>
+
+            <div class="sheet-section">
+              <h3>Паттерн номера</h3>
+              <div class="chips-grid">
+                <div class="chip-sheet txt">Любой номер</div>
+              </div>
+            </div>
+
+            <div class="sheet-block">
+              <div class="block-head">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                Покупка
+                <span class="ok">ВКЛ</span>
+              </div>
+              <div class="row"><span class="label">Максимальная цена</span><span class="value mono">12.00 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span></div>
+              <div class="row"><span class="label">Количество</span><span class="value">1 шт осталось</span></div>
+              <div class="row"><span class="label">Маркеты</span>
+                <span class="mkts">
+                  <span class="market portals">P</span>
+                  <span class="market fragment">F</span>
+                  <span class="market mrkt">M</span>
+                  <span class="market tonnel">T</span>
+                  <span class="market getgems">G</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="sheet-block">
+              <div class="block-head">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>
+                Нотификации
+                <span class="ok">ВКЛ</span>
+              </div>
+              <div class="row"><span class="label">Цена алерта</span><span class="value mono">10.00 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span></div>
+              <div class="row"><span class="label">Маркеты</span>
+                <span class="mkts">
+                  <span class="market portals">P</span>
+                  <span class="market fragment">F</span>
+                  <span class="market mrkt">M</span>
+                  <span class="market tonnel">T</span>
+                  <span class="market getgems">G</span>
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="sheet-actions">
+            <button class="btn destructive" aria-label="Удалить">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+            <button class="btn secondary">Закрыть</button>
+            <button class="btn primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+              Изменить
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom tab (same) -->
+        <div class="tab-bar">
+          <button class="tab"><span class="tab-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span><span>Лидеры</span></button>
+          <button class="tab"><span class="tab-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg></span><span>Подписки</span></button>
+          <button class="tab active"><span class="tab-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span><span>Поиск</span></button>
+          <button class="tab"><span class="tab-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span><span>Статистика</span></button>
+          <button class="tab"><span class="tab-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Профиль</span></button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==================================================================
+         MOCKUP C — BULK MODE + extra states (0шт alert, purchase off, long prompt, 5 backdrops, 25 backdrops)
+    ================================================================== -->
+    <div class="mockup">
+      <div class="mockup-label"><b>C</b> &nbsp;2×2 · bulk mode + состояния</div>
+      <div class="phone">
+
+        <!-- Telegram chrome -->
+        <div class="tg-chrome">
+          <span class="tg-close">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </span>
+          <span class="tg-title">Gift Satellite Bot
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.7;margin-left:2px"><path d="m6 9 6 6 6-6"/></svg>
+          </span>
+          <span class="tg-more">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </span>
+        </div>
+
+        <!-- BULK HEAD replaces toolbar -->
+        <div class="bulk-head">
+          <button class="cancel-btn">Отмена</button>
+          <div class="counter">Выбрано 2 <span>из 45</span></div>
+          <button class="select-all">Все</button>
+        </div>
+
+        <div class="scroll-area">
+          <div class="grid">
+
+            <!-- CARD A — 0шт alert (Jolly Chimp, 25 custom backdrops, 2 models) -->
+            <div class="card alert">
+              <div class="card-check"></div>
+              <div class="card-head">
+                <div class="card-title">Jolly Chimp — 25 фонов</div>
+                <button class="info-btn" aria-label="Подробнее">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </button>
+              </div>
+              <div class="hero">
+                <div class="hero-bg bg-many"></div>
+                <div class="hero-vignette"></div>
+                <lottie-player class="hero-img" src="../../../assets/models-lottie/jolly-chimp/abubu.json" background="transparent" speed="1" autoplay loop></lottie-player>
+                <div class="model-chain">
+                  <div class="model-chain-item"><lottie-player class="model-chain-lottie" src="../../../assets/models-lottie/jolly-chimp/abubu.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+                  <div class="model-chain-item"><lottie-player class="model-chain-lottie" src="../../../assets/models-lottie/jolly-chimp/alarm-ape.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+                </div>
+                <span class="hero-state-badge warn">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                  Куплено 0 / 3
+                </span>
+              </div>
+              <div class="meta">
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <b>Jolly Chimp</b>
+                </div>
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="17" r="2"/><circle cx="6" cy="12" r="2"/></svg>
+                  <b>2 модели</b>
+                </div>
+                <div class="meta-line"><span>25 фонов · 4 узора · Любой номер</span></div>
+              </div>
+              <div class="markets">
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                    <span class="market mrkt">M</span>
+                    <span class="market tonnel">T</span>
+                    <span class="market getgems">G</span>
+                  </div>
+                </div>
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                    <span class="market mrkt">M</span>
+                  </div>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="switch dim" role="switch" aria-checked="false"></div>
+                <div class="price">
+                  <div class="amount crossed"><span class="max">до</span>18 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="qty err">0 шт · Куплено 3 / 3</div>
+                </div>
+                <button class="more-btn" aria-label="Меню действий">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- CARD B — Purchase off (Jack-in-the-Box) + SELECTED -->
+            <div class="card dim selected">
+              <div class="card-check checked">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="card-head">
+                <div class="card-title">Jack-in-the-Box Редкий</div>
+                <button class="info-btn" aria-label="Подробнее">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </button>
+              </div>
+              <div class="hero">
+                <div class="hero-bg bg-electric-indigo"></div>
+                <div class="hero-vignette"></div>
+                <lottie-player class="hero-img" src="../../../assets/models-lottie/jack-in-the-box/aliens.json" background="transparent" speed="1" autoplay loop></lottie-player>
+                <div class="model-chain">
+                  <div class="model-chain-item"><lottie-player class="model-chain-lottie" src="../../../assets/models-lottie/jack-in-the-box/aliens.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+                </div>
+                <span class="hero-state-badge off">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" x2="12" y1="2" y2="12"/></svg>
+                  Покупка выкл
+                </span>
+              </div>
+              <div class="meta">
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <b>Jack-in-the-Box</b>
+                </div>
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="17" r="2"/><circle cx="6" cy="12" r="2"/></svg>
+                  <b>Lucifer</b>
+                </div>
+                <div class="meta-line"><span>5 фонов · Все узоры · №7</span></div>
+              </div>
+              <div class="markets">
+                <div class="market-row dim">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                    <span class="market mrkt">M</span>
+                    <span class="market tonnel">T</span>
+                    <span class="market getgems">G</span>
+                  </div>
+                </div>
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                  </div>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="switch" role="switch" aria-checked="false"></div>
+                <div class="price">
+                  <div class="amount"><span class="max">до</span>14 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="qty">выкл · нотиф до 11 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11" aria-hidden="true" style="vertical-align:-1px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                </div>
+                <button class="more-btn" aria-label="Меню действий">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- CARD C — Notif off (Desk Calendar, 4 patterns) + SELECTED -->
+            <div class="card selected">
+              <div class="card-check checked">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="card-head">
+                <div class="card-title">Calendar Осень</div>
+                <button class="info-btn" aria-label="Подробнее">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </button>
+              </div>
+              <div class="hero">
+                <div class="hero-bg bg-coral-red"></div>
+                <div class="hero-vignette"></div>
+                <lottie-player class="hero-img" src="../../../assets/models-lottie/desk-calendar/april.json" background="transparent" speed="1" autoplay loop></lottie-player>
+                <div class="model-chain">
+                  <div class="model-chain-item"><lottie-player class="model-chain-lottie" src="../../../assets/models-lottie/desk-calendar/april.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+                </div>
+              </div>
+              <div class="meta">
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <b>Desk Calendar</b>
+                </div>
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="17" r="2"/><circle cx="6" cy="12" r="2"/></svg>
+                  <b>2 модели</b>
+                </div>
+                <div class="meta-line"><span>1 фон Coral Red · 4 узора</span></div>
+              </div>
+              <div class="markets">
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                    <span class="market mrkt">M</span>
+                    <span class="market tonnel">T</span>
+                  </div>
+                </div>
+                <div class="market-row dim">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="m2 2 20 20"/><path d="M8.7 3.7A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5.6"/><path d="M17 17H3a1 1 0 0 1-.74-1.67C3.59 13.956 5 12.499 5 8a6 6 0 0 1 .09-1"/></svg>
+                  <span class="off-label">Нотиф. выкл</span>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="switch on" role="switch" aria-checked="true"></div>
+                <div class="price">
+                  <div class="amount"><span class="max">до</span>9 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="qty">4 шт</div>
+                </div>
+                <button class="more-btn" aria-label="Меню действий">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- CARD D — Long prompt (Victory Medal, 5 backdrops penta) -->
+            <div class="card">
+              <div class="card-check"></div>
+              <div class="card-head">
+                <div class="card-title">Победная медаль Heartbreaker с редкой лентой</div>
+                <button class="info-btn" aria-label="Подробнее">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </button>
+              </div>
+              <div class="hero">
+                <div class="hero-bg bg-penta"></div>
+                <div class="hero-vignette"></div>
+                <lottie-player class="hero-img" src="../../../assets/models-lottie/victory-medal/aegis.json" background="transparent" speed="1" autoplay loop></lottie-player>
+                <div class="model-chain">
+                  <div class="model-chain-item"><lottie-player class="model-chain-lottie" src="../../../assets/models-lottie/victory-medal/aegis.json" background="transparent" speed="1" autoplay loop></lottie-player></div>
+                </div>
+              </div>
+              <div class="meta">
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <b>Victory Medal</b>
+                </div>
+                <div class="meta-line">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="17" r="2"/><circle cx="6" cy="12" r="2"/></svg>
+                  <b>Heartbreaker</b>
+                </div>
+                <div class="meta-line"><span>5 фонов · Все узоры · Любой номер</span></div>
+              </div>
+              <div class="markets">
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                    <span class="market mrkt">M</span>
+                    <span class="market tonnel">T</span>
+                    <span class="market getgems">G</span>
+                  </div>
+                </div>
+                <div class="market-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>
+                  <div class="markets-list">
+                    <span class="market portals">P</span>
+                    <span class="market fragment">F</span>
+                    <span class="market mrkt">M</span>
+                    <span class="market tonnel">T</span>
+                  </div>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="switch on" role="switch" aria-checked="true"></div>
+                <div class="price">
+                  <div class="amount"><span class="max">до</span>36 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="qty">2 шт · нотиф до 23 <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11" aria-hidden="true" style="vertical-align:-1px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                </div>
+                <button class="more-btn" aria-label="Меню действий">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+          <div class="scroll-hint"></div>
+        </div>
+
+        <!-- BULK BAR floating above tabs -->
+        <div class="bulk-bar">
+          <button class="bulk-act danger">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+            Удалить
+          </button>
+          <button class="bulk-act">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" x2="12" y1="2" y2="12"/></svg>
+            Выкл
+          </button>
+          <button class="bulk-act">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+            Вкл
+          </button>
+          <button class="bulk-act">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            Дубл.
+          </button>
+        </div>
+
+        <!-- Bottom tab (same) -->
+        <div class="tab-bar">
+          <button class="tab"><span class="tab-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span><span>Лидеры</span></button>
+          <button class="tab"><span class="tab-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg></span><span>Подписки</span></button>
+          <button class="tab active"><span class="tab-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span><span>Поиск</span></button>
+          <button class="tab"><span class="tab-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span><span>Статистика</span></button>
+          <button class="tab"><span class="tab-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Профиль</span></button>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ======================================================
+       LEGEND — explains design decisions
+  ====================================================== -->
+  <section class="legend">
+    <p><b>Showroom =</b> просторная сетка 2×2 для визуалистов. Ключевая деталь — hero-блок 146px, где <b>реальные цвета фонов</b> из <code>backdrops.json</code> работают подложкой, а поверх них стоит крупное превью 96px и видимая цепочка моделей до 3-5шт без клика. Узнавание подписки происходит за 200мс. Палитра, шрифт и примитивы — те же, что в оригинале Gift Satellite. Снижение плотности (4 вместо 6) окупается тем, что пользователю больше не нужно читать текст чтобы отличить «Ice Cream Divine Justice» от «Ice Cream Ghost Biters».</p>
+    <div class="cols">
+      <div class="col">
+        <h4>Hero-подложка</h4>
+        <p>1 фон = сплошной radial-gradient (центр/край/узор из backdrops.json). 2-4 фона = диагональное/конусное деление. 5 фонов = conic с равными клиньями. 25+ = многоточечный кастом-градиент. 0 фонов = subtle checkered placeholder.</p>
+      </div>
+      <div class="col">
+        <h4>Модели</h4>
+        <p>0 моделей — текст «Любые модели» в центре hero. 1-5 моделей — мини-цепочка 26px glass-chips внизу hero. &gt;5 моделей — большое превью коллекции + бейдж «12 моделей» в углу.</p>
+      </div>
+      <div class="col">
+        <h4>Состояния</h4>
+        <p>0шт — 2px красная обводка + warn-бейдж «Куплено 0/N» + зачёркнутая цена. Покупка выкл — dim 55% + off-бейдж. Нотиф выкл — bell-off + dim-маркеты + текст «Нотиф. выкл» вместо иконок.</p>
+      </div>
+      <div class="col">
+        <h4>Bulk-режим</h4>
+        <p>Toolbar заменяется счётчиком «Выбрано N из 45» + Отмена/Все. 22px чекбоксы в левом верхнем углу hero. Floating action-bar над табами: Удалить / Выкл / Вкл / Дубл. Выделенные карточки — primary-border + inset glow.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1427 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gift Satellite — v2 Compact Pack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="https://unpkg.com/@lottiefiles/lottie-player@2.0.12/dist/lottie-player.js"></script>
+<!--
+  ============================================================================
+  Gift Satellite — редизайн карточки подписки. Вариант V2 «Compact Pack».
+  ============================================================================
+
+  КОНЦЕПЦИЯ
+  ---------
+  Эволюционный компактификатор Gift Satellite для power users, у которых
+  десятки подписок. Не меняет палитру, шрифт, радиусы, иконографику и
+  расстановку хедер/тулбар/таб-бар. Меняет ТОЛЬКО плотность карточки и
+  её внутреннюю IA: вместо 6 карточек на экран влезает 8 (сетка 2×4).
+
+  DENSITY RATIONALE
+  -----------------
+  Оригинал: сетка 2×3 → 6 карточек, каждая ~190×160px со значительным
+  воздухом внутри, двумя отдельными кнопками «Изменить/Удалить» + switch
+  — итого 3 действия на каждой карточке.
+
+  Compact Pack: сетка 2×4 → 8 карточек, 178×130px. Как это сделано
+  (только типографика и space scale, без визуальных компромиссов):
+    • убраны отдельные кнопки Edit/Delete — оба действия живут в `⋯`
+      и в info-модалке (по ТЗ допустимо: ⋯-меню + клик на карточку
+      вызывает модалку с действиями);
+    • промпт-имя занимает всю ширину (слева шёл отступ под превью);
+    • превью уменьшено с 80×80 до 36×36 — распознаваемо, но уступает
+      главенство промпту и строке маркетов;
+    • «цветная подложка фонов» превращена в 3px полоску под превью
+      (как шкала — реальные hex из backdrops.json);
+    • метаданные (коллекция/модели/паттерн) склеены в одну строку
+      через разделитель « · », truncate по ширине;
+    • маркеты сведены в одну строку: `bell` + 5 × 10px + `$` + 5 × 10px;
+    • action row: 28×16 switch, numeric price 14px Medium, `⋯` 20px.
+
+  ЧТО ОБЩЕГО С Classic+ (и оригиналом)
+  ------------------------------------
+  Палитра 1:1 из brand.md, шрифт Hauora, радиусы карточек 16 / кнопок 10
+  / чипсов 999, тулбар «Коллекция ∨ / Фон ∨ / Поиск», CTA «Слот за 1 ◇
+  / Добавить подписку», таб-бар «Лидеры/Подписки/Поиск/Статистика/
+  Профиль» с активным «Поиск», иконки в стиле Lucide, те же состояния
+  и семантические цвета (destructive для 0/N, dimmed для выкл,
+  warning-оранжевый не используется — только primary-purple).
+
+  ТРИ MOCKUP'А
+  ------------
+    A — главный экран с 9 карточками (2×4 + 1 overflow-ряд)
+    B — info-модалка (bottom sheet 85%) для карточки Ice Cream
+    C — bulk-режим с чекбоксами и sticky action bar
+
+  ============================================================================
+-->
+<style>
+@font-face{
+  font-family:'Hauora';
+  src:url('../../../assets/fonts/Hauora-Regular.woff2') format('woff2');
+  font-weight:400;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Hauora';
+  src:url('../../../assets/fonts/Hauora-Medium.woff2') format('woff2');
+  font-weight:500;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Hauora';
+  src:url('../../../assets/fonts/Hauora-SemiBold.woff2') format('woff2');
+  font-weight:600;font-style:normal;font-display:swap;
+}
+:root{
+  /* Surfaces */
+  --bg:#101010;
+  --fg:#1b1a1d;
+  --secondary:#25242b;
+  --tertiary:#3a3941;
+  --tertiary-bg:#18171c;
+  --navbar-bg:#18171cbf;
+  --overlays:#10101080;
+  /* Brand */
+  --primary:#5535f3;
+  --primary-soft:#5535f326;
+  /* Text */
+  --text:#f0f0f0;
+  --text-sec:#f0f0f080;
+  --text-dim:#f0f0f04d;
+  --outlines:#f0f0f026;
+  /* Semantic */
+  --destructive:#fc4a2f;
+  --destructive-soft:#fc4a2f26;
+  --success:#79dd3b;
+  --success-soft:#79dd3b26;
+  --warning:#f0b429;
+  --warning-soft:#f0b42926;
+
+  --font-sans:'Hauora',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#0b0b0b;color:var(--text);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01";letter-spacing:-0.005em}
+body{min-height:100vh;padding:40px 24px 60px;display:flex;flex-direction:column;align-items:center;gap:36px}
+
+/* ---- showcase shell ---- */
+.showcase-title{
+  font-size:13px;font-weight:500;color:var(--text-sec);
+  text-transform:uppercase;letter-spacing:0.12em;text-align:center;
+}
+.showcase-title h1{font-size:22px;font-weight:600;color:var(--text);letter-spacing:-0.01em;text-transform:none;margin-bottom:6px}
+.showcase-title small{display:block;margin-top:8px;font-size:12px;color:var(--text-dim);letter-spacing:0.04em;text-transform:none;max-width:720px;line-height:1.55}
+
+.stage{
+  display:flex;gap:36px;align-items:flex-start;justify-content:center;
+  flex-wrap:wrap;
+}
+.mockup{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.mockup-label{
+  font-size:11px;font-weight:600;color:var(--text-sec);
+  letter-spacing:0.14em;text-transform:uppercase;
+}
+.mockup-label b{color:var(--primary);font-weight:600;margin-right:6px}
+.frame{
+  width:393px;height:852px;
+  background:var(--bg);
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 0 0 1px #1c1c20, 0 40px 80px -30px #000, 0 0 0 10px #0e0e10;
+  isolation:isolate;
+  display:flex;flex-direction:column;
+}
+/* scrollable content column; tab-bar sits outside (absolute) and stays pinned on top */
+.frame-scroll{
+  flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
+  /* leave room for the tab-bar (78px) so bottom rows aren't hidden beneath it */
+  padding-bottom:88px;
+  scrollbar-width:thin;scrollbar-color:var(--tertiary) transparent;
+}
+.frame-scroll::-webkit-scrollbar{width:3px;background:transparent}
+.frame-scroll::-webkit-scrollbar-track{background:transparent}
+.frame-scroll::-webkit-scrollbar-thumb{background:var(--tertiary);border-radius:2px}
+
+/* ---- shared chrome primitives ---- */
+.safe-top{height:32px;padding:0 16px;display:flex;align-items:flex-end;justify-content:space-between;font-size:11px;color:var(--text-sec)}
+.safe-top .ind{display:flex;gap:4px;align-items:center}
+.safe-top .ind i{display:block;width:3px;height:3px;border-radius:50%;background:var(--text-sec)}
+
+.header{
+  height:48px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .logo{width:28px;height:28px;border-radius:8px;background:#2a1b86;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.brand .logo img{width:100%;height:100%;object-fit:cover}
+.brand .name{font-size:15px;font-weight:600;letter-spacing:-0.01em}
+.brand .name span{color:var(--text-sec);font-weight:500}
+.header-right{display:flex;align-items:center;gap:8px}
+.balance{
+  display:flex;align-items:center;gap:6px;height:30px;padding:0 4px 0 10px;
+  background:var(--secondary);border-radius:999px;font-size:13px;font-weight:500;
+  border:1px solid var(--outlines);
+}
+.balance b{font-family:var(--font-mono);font-weight:500;font-size:12.5px}
+.balance .plus{
+  width:22px;height:22px;border-radius:50%;background:var(--primary);
+  display:flex;align-items:center;justify-content:center;color:var(--text);
+  font-size:14px;font-weight:600;line-height:1;
+}
+.icon-btn{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-sec);background:transparent;border:none;cursor:pointer;
+  transition:background 200ms cubic-bezier(.4,0,.2,1), color 200ms cubic-bezier(.4,0,.2,1);
+}
+.icon-btn:hover{background:rgba(255,255,255,.06);color:var(--text)}
+
+/* ---- toolbar ---- */
+.toolbar{padding:2px 12px 0}
+.toolbar-row{display:flex;gap:8px;align-items:center;height:38px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;
+  border-radius:999px;background:var(--secondary);color:var(--text);
+  font-size:13px;font-weight:500;border:1px solid var(--outlines);
+  cursor:pointer;white-space:nowrap;
+  transition:background 200ms cubic-bezier(.4,0,.2,1);
+}
+.chip svg{opacity:.7}
+.chip.search{flex:1;color:var(--text-dim);font-weight:400;padding:0 12px 0 10px}
+.chip.search svg{opacity:.5}
+
+.toolbar-meta{
+  padding:6px 14px 2px;display:flex;justify-content:space-between;align-items:center;
+}
+.sort{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);font-weight:500}
+.sort .arrows{color:var(--text-sec)}
+.density-toggle{
+  display:flex;border:1px solid var(--outlines);border-radius:8px;overflow:hidden;
+}
+.density-toggle button{
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  background:transparent;border:none;color:var(--text-sec);cursor:pointer;
+}
+.density-toggle button.active{background:var(--secondary);color:var(--text)}
+
+.counter{
+  padding:2px 14px 4px;
+  font-size:11.5px;color:var(--text-sec);text-align:center;letter-spacing:.01em;
+}
+.counter b{color:var(--text);font-weight:500}
+.counter .sep{display:inline-block;width:1px;height:10px;background:var(--outlines);vertical-align:middle;margin:0 8px;transform:translateY(-1px)}
+
+.cta-row{padding:2px 12px 8px;display:flex;gap:8px}
+.btn{
+  flex:1;height:40px;border-radius:10px;font-size:14px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  border:none;cursor:pointer;font-family:inherit;letter-spacing:-0.005em;
+  transition:filter 200ms cubic-bezier(.4,0,.2,1), background 200ms cubic-bezier(.4,0,.2,1);
+}
+.btn-primary{background:var(--primary);color:var(--text)}
+.btn-secondary{background:var(--secondary);color:var(--text);border:1px solid var(--outlines)}
+.btn b.diam{font-family:var(--font-mono);font-weight:500}
+
+/* ---- GRID (2×4 compact pack) ---- */
+.grid{
+  padding:2px 12px 12px;
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+.card{
+  background:var(--fg);
+  border:1px solid var(--outlines);
+  border-radius:16px;
+  padding:9px 10px 9px;
+  display:flex;flex-direction:column;gap:6px;
+  position:relative;
+  overflow:hidden;
+  transition:transform 200ms cubic-bezier(.4,0,.2,1),border-color 200ms cubic-bezier(.4,0,.2,1),background 200ms cubic-bezier(.4,0,.2,1);
+  min-height:0;
+}
+/* top row: prompt name + info-dot */
+.c-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:6px;
+  min-height:18px;
+}
+.c-name{
+  flex:1;font-size:13.5px;font-weight:600;letter-spacing:-0.01em;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.c-info{
+  width:28px;height:28px;border-radius:50%;border:1px solid var(--outlines);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  color:var(--text-sec);background:transparent;cursor:pointer;
+  transition:background 200ms cubic-bezier(.4,0,.2,1),color 200ms cubic-bezier(.4,0,.2,1);
+}
+.c-info:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.c-info svg{width:14px;height:14px;stroke-width:1.8}
+
+/* body: preview + strip + meta */
+.c-body{
+  display:flex;gap:9px;align-items:flex-start;min-height:40px;
+}
+.c-preview{
+  width:38px;flex-shrink:0;display:flex;flex-direction:column;gap:3px;
+}
+.c-img{
+  width:38px;height:38px;border-radius:8px;
+  background:var(--secondary);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;position:relative;
+  border:1px solid var(--outlines);
+}
+.c-img img{width:100%;height:100%;object-fit:contain;display:block}
+.c-img.bg-single{border:1px solid transparent}
+/* backdrop gradient for multi-background preview (Jolly Chimp 25 фонов / custom mix) */
+.c-img.custom{
+  background:linear-gradient(135deg,#ca70c6 0%,#a980f3 33%,#7596f9 66%,#79dd3b 100%);
+  border:1px solid transparent;
+}
+
+.bg-strip{
+  height:4px;border-radius:2px;overflow:hidden;display:flex;
+  background:var(--tertiary);
+}
+.bg-strip span{flex:1;min-width:2px}
+.bg-strip.empty{
+  background:
+    repeating-linear-gradient(45deg,
+      var(--tertiary) 0 3px,
+      var(--tertiary-bg) 3px 6px);
+}
+.bg-strip.custom{
+  background:linear-gradient(90deg,#5535f3,#ca70c6,#7596f9,#79dd3b,#f0b429);
+}
+
+.c-meta{
+  flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;
+  padding-top:1px;
+}
+.meta-line{
+  font-size:11px;line-height:1.28;color:var(--text-sec);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  letter-spacing:-0.005em;
+}
+.meta-line.strong{color:var(--text);font-weight:500}
+.meta-line .dim{color:var(--text-dim)}
+.meta-line .dot{display:inline-block;width:2px;height:2px;border-radius:50%;background:var(--text-dim);margin:0 5px;vertical-align:middle;transform:translateY(-1px)}
+
+/* markets row */
+.c-markets{
+  display:flex;align-items:center;gap:6px;height:14px;min-height:14px;
+  font-size:10px;color:var(--text-sec);
+}
+.c-markets .grp{display:flex;align-items:center;gap:4px}
+.c-markets .grp svg{opacity:.75}
+.c-markets .sep-v{width:1px;height:10px;background:var(--outlines);margin:0 2px}
+.mk{
+  width:10px;height:10px;border-radius:3px;display:inline-flex;
+  align-items:center;justify-content:center;font-size:7px;font-weight:700;
+  color:#111;line-height:1;
+  font-family:var(--font-sans);
+}
+.mk.p{background:#5535f3;color:#fff}
+.mk.f{background:#ffffff;color:#0b0b0b}
+.mk.m{background:#79dd3b}
+.mk.t{background:#ca70c6;color:#fff}
+.mk.g{background:#f0b429}
+.mk.dis{opacity:.28}
+
+/* action row */
+.c-action{
+  display:flex;align-items:center;gap:6px;margin-top:auto;
+  padding-top:4px;
+  border-top:1px solid var(--outlines);
+}
+.sw{
+  width:36px;height:20px;border-radius:999px;background:var(--tertiary);
+  position:relative;cursor:pointer;flex-shrink:0;
+  transition:background 220ms cubic-bezier(.4,0,.2,1);
+}
+.sw::after{
+  content:"";position:absolute;top:2px;left:2px;
+  width:16px;height:16px;border-radius:50%;background:#f0f0f0;
+  transition:transform 220ms cubic-bezier(.4,0,.2,1);
+}
+.sw.on{background:var(--primary)}
+.sw.on::after{transform:translateX(16px)}
+.price{
+  font-size:13.5px;font-weight:500;color:var(--text);letter-spacing:-0.01em;
+  display:flex;align-items:baseline;gap:3px;
+  font-family:var(--font-mono);font-weight:500;
+}
+.price .num{font-size:13.5px}
+.price .cur{font-family:var(--font-sans);font-size:11.5px;color:var(--text-sec);font-weight:500;display:inline-flex;align-items:center}
+.price .cnt{font-size:10px;color:var(--text-dim);margin-left:4px;font-family:var(--font-sans);font-weight:500}
+/* TON glyph — inline SVG replacement for the ◇ placeholder */
+.ton{display:inline-block;vertical-align:-1px;flex-shrink:0}
+.more{
+  margin-left:auto;width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;color:var(--text-sec);
+  cursor:pointer;background:transparent;border:none;
+  transition:background 200ms cubic-bezier(.4,0,.2,1);
+}
+.more svg{width:18px;height:18px}
+.more:hover{background:rgba(255,255,255,.06);color:var(--text)}
+
+/* states */
+.card.warn-zero{
+  border-color:var(--destructive);
+  background:linear-gradient(180deg,#1f141200,#1b1a1d);
+}
+.card.warn-zero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  border-radius:16px;
+  box-shadow:inset 0 0 0 1px var(--destructive);
+}
+.zero-badge{
+  position:absolute;top:8px;right:8px;
+  height:16px;padding:0 6px;border-radius:999px;
+  background:var(--destructive-soft);color:var(--destructive);
+  font-size:9.5px;font-weight:600;letter-spacing:0.02em;
+  display:flex;align-items:center;gap:3px;
+  border:1px solid #fc4a2f4d;
+}
+
+.card.off{
+  opacity:.58;
+}
+.card.off .c-action .sw{background:var(--tertiary)}
+.off-badge{
+  position:absolute;top:8px;right:8px;
+  height:15px;padding:0 6px;border-radius:999px;
+  background:var(--secondary);color:var(--text-sec);
+  font-size:9px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;
+  display:flex;align-items:center;
+  border:1px solid var(--outlines);
+}
+
+/* ---- bottom tab bar ---- */
+.tab-bar{
+  position:absolute;bottom:0;left:0;right:0;z-index:4;
+  height:78px;padding:6px 14px 16px;
+  background:var(--navbar-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-top:1px solid var(--outlines);
+  display:flex;justify-content:space-around;align-items:stretch;
+}
+.tab{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;font-size:10px;color:var(--text-dim);font-weight:500;min-width:54px;
+  padding-top:4px;
+}
+.tab svg{width:22px;height:22px;stroke-width:1.8;color:var(--text-sec)}
+.tab.active{color:var(--text)}
+.tab.active .pill{
+  width:54px;height:30px;border-radius:999px;background:var(--primary);
+  display:flex;align-items:center;justify-content:center;margin-bottom:2px;
+}
+.tab.active .pill svg{color:#fff;width:18px;height:18px}
+.tab.active span{color:var(--text);font-weight:600}
+
+/* ---- modal (B) ---- */
+.modal-dim{position:absolute;inset:0;background:#000000a6;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:5;pointer-events:none}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;z-index:6;
+  background:var(--tertiary-bg);
+  border-top-left-radius:18px;border-top-right-radius:18px;
+  border:1px solid var(--outlines);border-bottom:none;
+  max-height:85%;display:flex;flex-direction:column;
+  box-shadow:0 -20px 40px -10px #000;
+  transition:transform 280ms ease-out;
+}
+.modal-dim{transition:opacity 280ms ease-out}
+.sheet-grabber{
+  width:36px;height:4px;border-radius:999px;background:var(--tertiary);
+  margin:8px auto 2px;
+}
+.sheet-head{
+  padding:8px 16px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  border-bottom:1px solid var(--outlines);
+}
+.sheet-head-l{display:flex;gap:12px;align-items:center;min-width:0}
+.sheet-head-img{
+  width:44px;height:44px;border-radius:10px;background:var(--secondary);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  border:1px solid var(--outlines);flex-shrink:0;
+}
+.sheet-head-img img{width:100%;height:100%;object-fit:contain}
+.sheet-title{display:flex;flex-direction:column;gap:2px;min-width:0}
+.sheet-title h3{font-size:16px;font-weight:600;letter-spacing:-0.01em}
+.sheet-title .sub{font-size:12px;color:var(--text-sec)}
+.sheet-body{
+  padding:6px 16px 0;overflow-y:auto;flex:1;
+  display:flex;flex-direction:column;gap:12px;
+}
+.sh-section{
+  padding:12px 0 2px;border-bottom:1px solid var(--outlines);
+}
+.sh-section:last-child{border-bottom:none}
+.sh-label{
+  font-size:10px;font-weight:600;color:var(--text-dim);
+  letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;
+}
+.sh-value{font-size:14px;color:var(--text);font-weight:500;letter-spacing:-0.005em;line-height:1.35}
+.sh-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sh-chip{
+  display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;
+  border-radius:999px;background:var(--secondary);color:var(--text);
+  font-size:12px;font-weight:500;border:1px solid var(--outlines);
+}
+.sh-chip .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sh-block{
+  display:flex;flex-direction:column;gap:8px;
+  background:var(--fg);padding:12px;border-radius:12px;border:1px solid var(--outlines);
+}
+.sh-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px}
+.sh-row .k{color:var(--text-sec);font-weight:500;display:flex;align-items:center;gap:6px}
+.sh-row .v{color:var(--text);font-weight:500;display:flex;align-items:center;gap:6px}
+.sh-row.markets .v{display:flex;gap:4px}
+.sh-row.markets .mk{width:16px;height:16px;border-radius:4px;font-size:9px}
+.sheet-actions{
+  padding:12px 16px 24px;display:flex;gap:8px;border-top:1px solid var(--outlines);
+  background:var(--tertiary-bg);
+}
+.sheet-actions .btn{height:44px;font-size:14px}
+.sheet-actions .btn.danger{background:var(--destructive-soft);color:var(--destructive);border:1px solid #fc4a2f4d}
+
+/* ---- bulk mode (C) ---- */
+.bulk-header{
+  padding:max(12px,env(safe-area-inset-top)) 14px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--tertiary-bg);border-bottom:1px solid var(--outlines);
+}
+.bulk-header .cancel{
+  font-size:14px;color:var(--text-sec);font-weight:500;cursor:pointer;
+  background:transparent;border:none;padding:6px 0;font-family:inherit;
+}
+.bulk-header .count{
+  font-size:14px;font-weight:600;color:var(--text);
+}
+.bulk-header .selall{
+  font-size:13px;color:var(--primary);font-weight:600;cursor:pointer;
+  background:transparent;border:none;padding:6px 0;font-family:inherit;
+}
+.checkbox{
+  position:absolute;top:8px;left:8px;width:18px;height:18px;border-radius:50%;
+  border:1.5px solid var(--outlines);background:var(--tertiary-bg);
+  display:flex;align-items:center;justify-content:center;z-index:2;
+  transition:background 200ms cubic-bezier(.4,0,.2,1),border-color 200ms cubic-bezier(.4,0,.2,1);
+}
+.checkbox.checked{background:var(--primary);border-color:var(--primary)}
+.checkbox.checked svg{color:#fff}
+.checkbox svg{width:10px;height:10px;opacity:0}
+.checkbox.checked svg{opacity:1}
+.card.selected{border-color:var(--primary)}
+.card.selected::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:16px;
+  box-shadow:inset 0 0 0 1px var(--primary);
+}
+.card.bulk .c-head{padding-left:24px}
+
+/* sticky bulk action bar — sits just above the 78px tab-bar */
+.bulk-actions{
+  position:absolute;left:12px;right:12px;bottom:84px;z-index:6;
+  background:var(--tertiary-bg);border:1px solid var(--outlines);
+  border-radius:14px;padding:8px;display:flex;gap:6px;
+  box-shadow:0 20px 40px -10px #000;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+/* in bulk mode the scroll area needs extra bottom padding so last row
+   isn't hidden behind bulk-actions + tab-bar (78 tab + 60 bar + 16 gap) */
+#frameC .frame-scroll{padding-bottom:168px}
+.bulk-actions button{
+  flex:1;height:44px;border-radius:10px;background:var(--secondary);
+  color:var(--text);border:1px solid var(--outlines);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  font-size:10px;font-weight:500;cursor:pointer;font-family:inherit;
+  transition:background 200ms cubic-bezier(.4,0,.2,1);
+}
+.bulk-actions button svg{width:16px;height:16px;stroke-width:1.8;color:var(--text-sec)}
+.bulk-actions button.danger{background:var(--destructive-soft);color:var(--destructive);border-color:#fc4a2f4d}
+.bulk-actions button.danger svg{color:var(--destructive)}
+
+/* ------- interactive ------- */
+.clickable{cursor:pointer}
+
+/* ---- legend ---- */
+.legend{
+  max-width:1260px;margin:0 auto;padding:16px 0;color:var(--text-sec);
+  font-size:12px;line-height:1.65;text-align:center;letter-spacing:0.005em;
+}
+.legend b{color:var(--text)}
+.legend code{font-family:var(--font-mono);font-size:11px;background:var(--fg);padding:2px 6px;border-radius:6px;border:1px solid var(--outlines);color:var(--text)}
+</style>
+</head>
+<body>
+
+<div class="showcase-title">
+  <h1>Gift Satellite — v2 · Compact Pack</h1>
+  <div>Эволюционный редизайн карточки подписки · 2×4 · 8 карточек на экран</div>
+  <small>Та же палитра, шрифт, радиусы и навигация, что в оригинале. Меняется только плотность сетки и внутренняя IA карточки: Edit/Delete уезжают в `⋯` меню и info-модалку, метаданные склеиваются в одну строку, маркеты объединяются в одну строку с иконками bell/$. Размер карточки 178×~130.</small>
+</div>
+
+<div class="stage">
+
+  <!-- ============================================================ -->
+  <!-- ===================   A · MAIN   =========================== -->
+  <!-- ============================================================ -->
+  <div class="mockup">
+    <div class="mockup-label"><b>A</b> Главный экран · 9 подписок</div>
+    <div class="frame" id="frameA">
+
+      <!-- iOS status bar -->
+      <div class="safe-top">
+        <span style="font-weight:600;color:var(--text)">14:52</span>
+        <div class="ind">
+          <!-- signal/wifi/battery -->
+          <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="0.5" y="6" width="2" height="3" rx="0.4"/><rect x="3.5" y="4" width="2" height="5" rx="0.4"/><rect x="6.5" y="2" width="2" height="7" rx="0.4"/><rect x="9.5" y="0" width="2" height="9" rx="0.4"/></svg>
+          <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 8.3l.01 0M2 5.2C3.5 3.7 5.2 3 7 3s3.5.7 5 2.2M0 3C2 1 4.4 0 7 0s5 1 7 3"/></svg>
+          <svg width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="0.5" y="1" width="14" height="8" rx="2"/><rect x="2" y="2.5" width="11" height="5" rx="1" fill="currentColor"/><rect x="15.5" y="3.5" width="1.5" height="3" rx="0.4" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <div class="frame-scroll">
+
+      <!-- Header -->
+      <div class="header">
+        <div class="brand">
+          <div class="logo"><img src="../../../assets/logo.jpg" alt=""></div>
+          <div class="name">Gift Satellite <span>Bot</span></div>
+        </div>
+        <div class="header-right">
+          <div class="balance"><b>1.92</b><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span class="plus">+</span></div>
+          <button class="icon-btn" aria-label="Настройки">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="toolbar-row">
+          <button class="chip">Коллекция<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg></button>
+          <button class="chip">Фон<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg></button>
+          <button class="chip search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>Поиск…</button>
+        </div>
+      </div>
+
+      <div class="toolbar-meta">
+        <div class="sort">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="arrows"><path d="M7 4v16M3 16l4 4 4-4M17 4v16M13 8l4-4 4 4"/></svg>
+          Сначала новые
+        </div>
+        <div class="density-toggle" aria-label="Плотность">
+          <button aria-label="Список"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
+          <button class="active" aria-label="Сетка 2×4"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+        </div>
+      </div>
+
+      <div class="counter">Всего <b>45</b> слотов<span class="sep"></span>Создано <b>45</b> ордеров</div>
+
+      <div class="cta-row">
+        <button class="btn btn-primary">Слот за <b class="diam">1</b><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="15" height="15"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></button>
+        <button class="btn btn-secondary">Добавить подписку</button>
+      </div>
+
+      <!-- GRID 2×4 (+1 overflow row peek) -->
+      <div class="grid">
+
+        <!-- 1. Обычная - Ice Cream, 1 модель, 1 фон Sapphire -->
+        <div class="card clickable" data-card="ice">
+          <div class="c-head">
+            <div class="c-name">Ice Cream холодная</div>
+            <button class="c-info" aria-label="Инфо"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img bg-single" style="background:#1e3a8a"><lottie-player src="../../../assets/models-lottie/ice-cream/apple-dip.json" background="transparent" speed="1" autoplay loop style="width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip"><span style="background:#1e3a8a"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Ghost Biters</div>
+              <div class="meta-line">Sapphire<span class="dot"></span>любой #</div>
+              <div class="meta-line"><span class="dim">узоры: любые</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i>
+            </div>
+            <div class="sep-v"></div>
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f dis" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i>
+            </div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">30</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·2шт</span></div>
+            <button class="more" aria-label="Ещё"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 2. «Любые» × 2 - Lol Pop -->
+        <div class="card">
+          <div class="c-head">
+            <div class="c-name">Lol Pop — любые</div>
+            <button class="c-info" aria-label="Инфо"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img" style="background:var(--secondary)"><img src="../../../assets/originals/5170594532177215681/Original.png" alt=""></div>
+              <div class="bg-strip empty"></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Все коллекции</div>
+              <div class="meta-line"><span class="dim">любые фоны · любой #</span></div>
+              <div class="meta-line"><span class="dim">узоры: любые</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i>
+            </div>
+            <div class="sep-v"></div>
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m dis" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i>
+            </div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">14</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·1шт</span></div>
+            <button class="more" aria-label="Ещё"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 3. 3 модели цепочкой — Light Sword -->
+        <div class="card">
+          <div class="c-head">
+            <div class="c-name">Light Sword · 3 мод</div>
+            <button class="c-info" aria-label="Инфо"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img bg-single" style="background:#047857"><lottie-player src="../../../assets/models-lottie/light-sword/absinthe.json" background="transparent" speed="1" autoplay loop style="width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip"><span style="background:#047857"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Light Sword</div>
+              <div class="meta-line">Emerald<span class="dot"></span>3 мод</div>
+              <div class="meta-line"><span class="dim">узоры: любые</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m dis" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g" title="Getgems"></i>
+            </div>
+            <div class="sep-v"></div>
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <i class="mk p dis" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g" title="Getgems"></i>
+            </div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">17</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·1шт</span></div>
+            <button class="more" aria-label="Ещё"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 4. 12 моделей - Plush Pepe, 3 фона -->
+        <div class="card">
+          <div class="c-head">
+            <div class="c-name">Plush Pepe rare</div>
+            <button class="c-info" aria-label="Инфо"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img" style="background:linear-gradient(90deg,#ca70c6 0%,#ca70c6 33%,#7596f9 33%,#7596f9 66%,#a980f3 66%,#a980f3 100%)"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>
+              <div class="bg-strip"><span style="background:#ca70c6"></span><span style="background:#7596f9"></span><span style="background:#a980f3"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Plush Pepe</div>
+              <div class="meta-line">3 фона<span class="dot"></span>12 мод</div>
+              <div class="meta-line"><span class="dim">2 уз · любой #</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i>
+            </div>
+            <div class="sep-v"></div>
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g" title="Getgems"></i>
+            </div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">45</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·3шт</span></div>
+            <button class="more" aria-label="Ещё"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 5. 25 фонов - Jolly Chimp, 2 модели -->
+        <div class="card">
+          <div class="c-head">
+            <div class="c-name">Jolly Chimp mix</div>
+            <button class="c-info" aria-label="Инфо"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img custom"><lottie-player src="../../../assets/models-lottie/jolly-chimp/abubu.json" background="transparent" speed="1" autoplay loop style="position:relative;z-index:1;width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip custom"></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Jolly Chimp</div>
+              <div class="meta-line">25 фонов<span class="dot"></span>2 мод</div>
+              <div class="meta-line"><span class="dim">любые уз · любой #</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g" title="Getgems"></i>
+            </div>
+            <div class="sep-v"></div>
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f dis" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i>
+            </div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">9.9</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·1шт</span></div>
+            <button class="more" aria-label="Ещё"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 6. 0 шт - warning-zero state Jack-in-the-Box -->
+        <div class="card warn-zero">
+          <div class="zero-badge"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17v.01"/><circle cx="12" cy="12" r="10"/></svg>0/3</div>
+          <div class="c-head">
+            <div class="c-name">Jack box Lucifer</div>
+            <button class="c-info" aria-label="Инфо"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img bg-single" style="background:#ca70c6"><lottie-player src="../../../assets/models-lottie/jack-in-the-box/aliens.json" background="transparent" speed="1" autoplay loop style="width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip"><span style="background:#ca70c6"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Lucifer</div>
+              <div class="meta-line">El. Purple<span class="dot"></span>1 мод<span class="dot"></span><span class="dim">1 уз</span></div>
+              <div class="meta-line" style="color:var(--destructive)">куплено 0/3</div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i>
+            </div>
+            <div class="sep-v"></div>
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f dis" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i>
+            </div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price" style="color:var(--text-sec)"><span class="num">40</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt" style="color:var(--destructive)">·0шт</span></div>
+            <button class="more" aria-label="Ещё"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 7. Покупка выкл - dimmed - Homemade Cake -->
+        <div class="card off">
+          <div class="off-badge">Выкл</div>
+          <div class="c-head">
+            <div class="c-name">Homemade Cake tier</div>
+            <button class="c-info" aria-label="Инфо"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img bg-single" style="background:#f0b429"><lottie-player src="../../../assets/models-lottie/homemade-cake/angel-cake.json" background="transparent" speed="1" autoplay loop style="width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip"><span style="background:#f0b429"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Cake</div>
+              <div class="meta-line">Amber<span class="dot"></span>2 мод</div>
+              <div class="meta-line"><span class="dim">3 уз · любой #</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+              <i class="mk p dis" title="Portals"></i><i class="mk f dis" title="Fragment"></i><i class="mk m dis" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i>
+            </div>
+            <div class="sep-v"></div>
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m dis" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i>
+            </div>
+          </div>
+          <div class="c-action">
+            <div class="sw"></div>
+            <div class="price" style="color:var(--text-dim)"><span class="num">20</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·—</span></div>
+            <button class="more" aria-label="Ещё"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 8. Нотиф выкл, bell-off, 4 узора — Desk Calendar -->
+        <div class="card">
+          <div class="c-head">
+            <div class="c-name">Calendar 4 узора</div>
+            <button class="c-info" aria-label="Инфо"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img bg-single" style="background:#7596f9"><lottie-player src="../../../assets/models-lottie/desk-calendar/april.json" background="transparent" speed="1" autoplay loop style="width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip"><span style="background:#7596f9"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Calendar</div>
+              <div class="meta-line">Neon Blue<span class="dot"></span>1 мод</div>
+              <div class="meta-line">4 узора</div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m dis" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i>
+            </div>
+            <div class="sep-v"></div>
+            <div class="grp" style="opacity:.5">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.23 4.33A6 6 0 0118 8c0 3.52 1 5.5 2 6.75M4 2l16 20M6 8a6 6 0 00.95 3.56M13.73 21a2 2 0 01-3.46 0M18.75 18.75L6 6"/></svg>
+              <span style="font-size:9px">выкл</span>
+            </div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">12</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·1шт</span></div>
+            <button class="more" aria-label="Ещё"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 9. Victory Medal — 5 фонов, demo overflow row -->
+        <div class="card">
+          <div class="c-head">
+            <div class="c-name">Medal флип до 120</div>
+            <button class="c-info" aria-label="Инфо"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img" style="background:linear-gradient(90deg,#ca70c6 0 20%,#7596f9 20% 40%,#a980f3 40% 60%,#79dd3b 60% 80%,#f0b429 80% 100%)"><lottie-player src="../../../assets/models-lottie/victory-medal/aegis.json" background="transparent" speed="1" autoplay loop style="width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip"><span style="background:#ca70c6"></span><span style="background:#7596f9"></span><span style="background:#a980f3"></span><span style="background:#79dd3b"></span><span style="background:#f0b429"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Victory Medal · Heartbreaker</div>
+              <div class="meta-line">5 фонов<span class="dot"></span>1 мод<span class="dot"></span>любые узоры</div>
+              <div class="meta-line"><span class="dim">номер — любой</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g" title="Getgems"></i>
+            </div>
+            <div class="sep-v"></div>
+            <div class="grp">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i>
+            </div>
+            <div class="sep-v"></div>
+            <div style="font-size:9px;color:var(--text-dim);letter-spacing:.02em">5 маркетов</div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">36</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·2шт</span></div>
+            <button class="more" aria-label="Ещё"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+      </div><!-- /grid -->
+
+      </div><!-- /frame-scroll -->
+
+      <!-- tab bar -->
+      <div class="tab-bar">
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M10 14.66V17c0 .55.47.98.97 1.21C12.15 18.75 13 20.24 13 22M14 14.66V17c0 .55-.47.98-.97 1.21C11.85 18.75 11 20.24 11 22M18 2H6v7a6 6 0 0012 0V2z"/></svg><span>Лидеры</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-7M14 17H5M17 13a2 2 0 100-4 2 2 0 000 4zM7 21a2 2 0 100-4 2 2 0 000 4z"/></svg><span>Подписки</span></div>
+        <div class="tab active"><div class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div><span>Поиск</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg><span>Статистика</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a6 6 0 0112 0v2"/></svg><span>Профиль</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===================   B · MODAL   ========================== -->
+  <!-- ============================================================ -->
+  <div class="mockup">
+    <div class="mockup-label"><b>B</b> Info-модалка · Ice Cream</div>
+    <div class="frame" id="frameB">
+      <!-- Copy of main screen chrome (dimmed) -->
+      <div class="safe-top">
+        <span style="font-weight:600;color:var(--text)">14:52</span>
+        <div class="ind">
+          <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="0.5" y="6" width="2" height="3" rx="0.4"/><rect x="3.5" y="4" width="2" height="5" rx="0.4"/><rect x="6.5" y="2" width="2" height="7" rx="0.4"/><rect x="9.5" y="0" width="2" height="9" rx="0.4"/></svg>
+          <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 8.3l.01 0M2 5.2C3.5 3.7 5.2 3 7 3s3.5.7 5 2.2M0 3C2 1 4.4 0 7 0s5 1 7 3"/></svg>
+          <svg width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="0.5" y="1" width="14" height="8" rx="2"/><rect x="2" y="2.5" width="11" height="5" rx="1" fill="currentColor"/><rect x="15.5" y="3.5" width="1.5" height="3" rx="0.4" fill="currentColor"/></svg>
+        </div>
+      </div>
+      <div class="header">
+        <div class="brand">
+          <div class="logo"><img src="../../../assets/logo.jpg" alt=""></div>
+          <div class="name">Gift Satellite <span>Bot</span></div>
+        </div>
+        <div class="header-right">
+          <div class="balance"><b>1.92</b><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span class="plus">+</span></div>
+          <button class="icon-btn" aria-label="Настройки"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-row">
+          <button class="chip">Коллекция<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg></button>
+          <button class="chip">Фон<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg></button>
+          <button class="chip search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>Поиск…</button>
+        </div>
+      </div>
+
+      <!-- dim overlay -->
+      <div class="modal-dim"></div>
+
+      <!-- bottom sheet -->
+      <div class="sheet" style="height:82%">
+        <div class="sheet-grabber"></div>
+        <div class="sheet-head">
+          <div class="sheet-head-l">
+            <div class="sheet-head-img" style="background:#1e3a8a"><lottie-player src="../../../assets/models-lottie/ice-cream/apple-dip.json" background="transparent" speed="1" autoplay loop style="width:44px;height:44px"></lottie-player></div>
+            <div class="sheet-title">
+              <h3>Ice Cream холодная</h3>
+              <div class="sub">Создан 12 апр · #38 · 1 модель · 1 фон</div>
+            </div>
+          </div>
+          <button class="icon-btn" aria-label="Закрыть"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+
+        <div class="sheet-body">
+          <div class="sh-section">
+            <div class="sh-label">Коллекция</div>
+            <div class="sh-value">Ice Cream</div>
+          </div>
+
+          <div class="sh-section">
+            <div class="sh-label">Модель · 1</div>
+            <div class="sh-chips"><span class="sh-chip">Ghost Biters <span class="dim" style="color:var(--text-sec)">· 0.42%</span></span></div>
+          </div>
+
+          <div class="sh-section">
+            <div class="sh-label">Фон · 1</div>
+            <div class="sh-chips"><span class="sh-chip"><span class="dot" style="background:#1e3a8a"></span>Sapphire</span></div>
+          </div>
+
+          <div class="sh-section">
+            <div class="sh-label">Узор · любой</div>
+            <div class="sh-value" style="color:var(--text-sec);font-size:13px">Любые узоры</div>
+          </div>
+
+          <div class="sh-section">
+            <div class="sh-label">Паттерн номера</div>
+            <div class="sh-value" style="color:var(--text-sec);font-size:13px">Любой номер</div>
+          </div>
+
+          <div class="sh-section">
+            <div class="sh-label"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>Покупка включена</div>
+            <div class="sh-block">
+              <div class="sh-row"><div class="k">Лимит цены</div><div class="v" style="font-family:var(--font-mono)">до 30<svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" style="margin-left:4px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div></div>
+              <div class="sh-row"><div class="k">Количество</div><div class="v">2 шт</div></div>
+              <div class="sh-row markets"><div class="k">Маркеты</div><div class="v"><i class="mk p" title="Portals">P</i><i class="mk f" title="Fragment">F</i><i class="mk m" title="MRKT">M</i><i class="mk t" title="Tonnel">T</i></div></div>
+            </div>
+          </div>
+
+          <div class="sh-section">
+            <div class="sh-label"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--warning)"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg>Нотификации включены</div>
+            <div class="sh-block">
+              <div class="sh-row"><div class="k">Лимит цены</div><div class="v" style="font-family:var(--font-mono)">до 28<svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" style="margin-left:4px"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div></div>
+              <div class="sh-row markets"><div class="k">Маркеты</div><div class="v"><i class="mk p" title="Portals">P</i><i class="mk m" title="MRKT">M</i></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet-actions">
+          <button class="btn btn-secondary">Изменить</button>
+          <button class="btn btn-primary">Сохранить</button>
+          <button class="btn danger" aria-label="Удалить" style="flex:0 0 44px;padding:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===================   C · BULK   =========================== -->
+  <!-- ============================================================ -->
+  <div class="mockup">
+    <div class="mockup-label"><b>C</b> Массовый режим · 4 из 45</div>
+    <div class="frame" id="frameC">
+      <div class="safe-top">
+        <span style="font-weight:600;color:var(--text)">14:52</span>
+        <div class="ind">
+          <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="0.5" y="6" width="2" height="3" rx="0.4"/><rect x="3.5" y="4" width="2" height="5" rx="0.4"/><rect x="6.5" y="2" width="2" height="7" rx="0.4"/><rect x="9.5" y="0" width="2" height="9" rx="0.4"/></svg>
+          <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 8.3l.01 0M2 5.2C3.5 3.7 5.2 3 7 3s3.5.7 5 2.2M0 3C2 1 4.4 0 7 0s5 1 7 3"/></svg>
+          <svg width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="0.5" y="1" width="14" height="8" rx="2"/><rect x="2" y="2.5" width="11" height="5" rx="1" fill="currentColor"/><rect x="15.5" y="3.5" width="1.5" height="3" rx="0.4" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <!-- bulk header replacing normal header -->
+      <div class="bulk-header">
+        <button class="cancel">Отмена</button>
+        <div class="count">Выбрано 4 из 45</div>
+        <button class="selall">Выбрать все</button>
+      </div>
+
+      <div class="frame-scroll">
+
+      <div class="toolbar">
+        <div class="toolbar-row">
+          <button class="chip" style="opacity:.55;pointer-events:none">Коллекция<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg></button>
+          <button class="chip" style="opacity:.55;pointer-events:none">Фон<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg></button>
+          <button class="chip search" style="opacity:.55"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>Поиск…</button>
+        </div>
+      </div>
+      <div class="toolbar-meta">
+        <div class="sort" style="opacity:.55">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="arrows"><path d="M7 4v16M3 16l4 4 4-4M17 4v16M13 8l4-4 4 4"/></svg>
+          Сначала новые
+        </div>
+        <div class="density-toggle" style="opacity:.55" aria-label="Плотность">
+          <button aria-label="Список"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
+          <button class="active" aria-label="Сетка 2×4"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+        </div>
+      </div>
+
+      <div class="counter">Всего <b>45</b> слотов<span class="sep"></span>Создано <b>45</b> ордеров</div>
+
+      <div class="grid" style="padding-top:4px">
+
+        <!-- 1 selected Ice Cream -->
+        <div class="card bulk selected">
+          <div class="checkbox checked"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2 2 4-4"/></svg></div>
+          <div class="c-head">
+            <div class="c-name">Ice Cream холодная</div>
+            <button class="c-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img bg-single" style="background:#1e3a8a"><lottie-player src="../../../assets/models-lottie/ice-cream/apple-dip.json" background="transparent" speed="1" autoplay loop style="width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip"><span style="background:#1e3a8a"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Ghost Biters</div>
+              <div class="meta-line">Sapphire<span class="dot"></span>любой #</div>
+              <div class="meta-line"><span class="dim">любые узоры</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg><i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i></div>
+            <div class="sep-v"></div>
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg><i class="mk p" title="Portals"></i><i class="mk f dis" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i></div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">30</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·2шт</span></div>
+            <button class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 2 unselected Lol Pop -->
+        <div class="card bulk">
+          <div class="checkbox"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2 2 4-4"/></svg></div>
+          <div class="c-head">
+            <div class="c-name">Lol Pop — любые</div>
+            <button class="c-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img" style="background:var(--secondary)"><img src="../../../assets/originals/5170594532177215681/Original.png" alt=""></div>
+              <div class="bg-strip empty"></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Все коллекции</div>
+              <div class="meta-line"><span class="dim">любые фоны · любой #</span></div>
+              <div class="meta-line"><span class="dim">узоры: любые</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg><i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i></div>
+            <div class="sep-v"></div>
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg><i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m dis" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i></div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">14</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·1шт</span></div>
+            <button class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 3 selected Light Sword -->
+        <div class="card bulk selected">
+          <div class="checkbox checked"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2 2 4-4"/></svg></div>
+          <div class="c-head">
+            <div class="c-name">Light Sword · 3 мод</div>
+            <button class="c-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img bg-single" style="background:#047857"><lottie-player src="../../../assets/models-lottie/light-sword/absinthe.json" background="transparent" speed="1" autoplay loop style="width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip"><span style="background:#047857"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Light Sword</div>
+              <div class="meta-line">Emerald<span class="dot"></span>3 мод</div>
+              <div class="meta-line"><span class="dim">любые узоры</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg><i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m dis" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g" title="Getgems"></i></div>
+            <div class="sep-v"></div>
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg><i class="mk p dis" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g" title="Getgems"></i></div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">17</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·1шт</span></div>
+            <button class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 4 unselected Plush Pepe -->
+        <div class="card bulk">
+          <div class="checkbox"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2 2 4-4"/></svg></div>
+          <div class="c-head">
+            <div class="c-name">Plush Pepe rare</div>
+            <button class="c-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img" style="background:linear-gradient(90deg,#ca70c6 0%,#ca70c6 33%,#7596f9 33%,#7596f9 66%,#a980f3 66%,#a980f3 100%)"><img src="../../../assets/originals/5936013938331222567/Original.png" alt=""></div>
+              <div class="bg-strip"><span style="background:#ca70c6"></span><span style="background:#7596f9"></span><span style="background:#a980f3"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Plush Pepe</div>
+              <div class="meta-line">3 фона<span class="dot"></span>12 мод</div>
+              <div class="meta-line"><span class="dim">2 уз · любой #</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg><i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i></div>
+            <div class="sep-v"></div>
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg><i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g" title="Getgems"></i></div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">45</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·3шт</span></div>
+            <button class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 5 selected Jolly Chimp -->
+        <div class="card bulk selected">
+          <div class="checkbox checked"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2 2 4-4"/></svg></div>
+          <div class="c-head">
+            <div class="c-name">Jolly Chimp mix</div>
+            <button class="c-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img custom"><lottie-player src="../../../assets/models-lottie/jolly-chimp/abubu.json" background="transparent" speed="1" autoplay loop style="position:relative;z-index:1;width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip custom"></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Jolly Chimp</div>
+              <div class="meta-line">25 фонов<span class="dot"></span>2 мод</div>
+              <div class="meta-line"><span class="dim">любые уз · любой #</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg><i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g" title="Getgems"></i></div>
+            <div class="sep-v"></div>
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg><i class="mk p" title="Portals"></i><i class="mk f dis" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i></div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">9.9</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·1шт</span></div>
+            <button class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 6 unselected zero state Jack box -->
+        <div class="card bulk warn-zero">
+          <div class="checkbox"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2 2 4-4"/></svg></div>
+          <div class="zero-badge" style="top:8px;right:8px">0/3</div>
+          <div class="c-head">
+            <div class="c-name">Jack box Lucifer</div>
+            <button class="c-info" style="visibility:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img bg-single" style="background:#ca70c6"><lottie-player src="../../../assets/models-lottie/jack-in-the-box/aliens.json" background="transparent" speed="1" autoplay loop style="width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip"><span style="background:#ca70c6"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Lucifer</div>
+              <div class="meta-line">El. Purple<span class="dot"></span>1 мод<span class="dot"></span><span class="dim">1 уз</span></div>
+              <div class="meta-line" style="color:var(--destructive)">куплено 0/3</div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg><i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i></div>
+            <div class="sep-v"></div>
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg><i class="mk p" title="Portals"></i><i class="mk f dis" title="Fragment"></i><i class="mk m" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i></div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price" style="color:var(--text-sec)"><span class="num">40</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt" style="color:var(--destructive)">·0шт</span></div>
+            <button class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 7 selected Homemade Cake (отключённая, но выбрана) -->
+        <div class="card bulk selected off">
+          <div class="checkbox checked"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2 2 4-4"/></svg></div>
+          <div class="c-head">
+            <div class="c-name">Cake tier</div>
+            <button class="c-info" style="visibility:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img bg-single" style="background:#f0b429"><lottie-player src="../../../assets/models-lottie/homemade-cake/angel-cake.json" background="transparent" speed="1" autoplay loop style="width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip"><span style="background:#f0b429"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Cake</div>
+              <div class="meta-line">Amber<span class="dot"></span>2 мод</div>
+              <div class="meta-line"><span class="dim">3 уз · любой #</span></div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg><i class="mk p dis" title="Portals"></i><i class="mk f dis" title="Fragment"></i><i class="mk m dis" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i></div>
+            <div class="sep-v"></div>
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 01-3.46 0"/></svg><i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m dis" title="MRKT"></i><i class="mk t dis" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i></div>
+          </div>
+          <div class="c-action">
+            <div class="sw"></div>
+            <div class="price" style="color:var(--text-dim)"><span class="num">20</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·—</span></div>
+            <button class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 8 unselected Desk Calendar -->
+        <div class="card bulk">
+          <div class="checkbox"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2 2 4-4"/></svg></div>
+          <div class="c-head">
+            <div class="c-name">Calendar 4 узора</div>
+            <button class="c-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+          </div>
+          <div class="c-body">
+            <div class="c-preview">
+              <div class="c-img bg-single" style="background:#7596f9"><lottie-player src="../../../assets/models-lottie/desk-calendar/april.json" background="transparent" speed="1" autoplay loop style="width:38px;height:38px"></lottie-player></div>
+              <div class="bg-strip"><span style="background:#7596f9"></span></div>
+            </div>
+            <div class="c-meta">
+              <div class="meta-line strong">Calendar</div>
+              <div class="meta-line">Neon Blue<span class="dot"></span>1 мод</div>
+              <div class="meta-line">4 узора</div>
+            </div>
+          </div>
+          <div class="c-markets">
+            <div class="grp"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg><i class="mk p" title="Portals"></i><i class="mk f" title="Fragment"></i><i class="mk m dis" title="MRKT"></i><i class="mk t" title="Tonnel"></i><i class="mk g dis" title="Getgems"></i></div>
+            <div class="sep-v"></div>
+            <div class="grp" style="opacity:.5"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.23 4.33A6 6 0 0118 8c0 3.52 1 5.5 2 6.75M4 2l16 20M6 8a6 6 0 00.95 3.56M13.73 21a2 2 0 01-3.46 0M18.75 18.75L6 6"/></svg><span style="font-size:9px">выкл</span></div>
+          </div>
+          <div class="c-action">
+            <div class="sw on"></div>
+            <div class="price"><span class="num">12</span><span class="cur"><svg class="ton" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M9 4H4.76619C3.9889 4 3.50878 4.84797 3.9087 5.5145L9 14M9 4V14M9 4H13.2338C14.0111 4 14.4912 4.84797 14.0913 5.5145L9 14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="cnt">·1шт</span></div>
+            <button class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+      </div>
+
+      </div><!-- /frame-scroll -->
+
+      <!-- sticky bulk actions -->
+      <div class="bulk-actions">
+        <button class="danger" aria-label="Удалить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>Удалить</button>
+        <button aria-label="Выкл"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 11-12.73 0M12 2v10"/></svg>Выкл</button>
+        <button aria-label="Вкл"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Вкл</button>
+        <button aria-label="Дублировать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копия</button>
+      </div>
+
+      <!-- tab bar -->
+      <div class="tab-bar">
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M10 14.66V17c0 .55.47.98.97 1.21C12.15 18.75 13 20.24 13 22M14 14.66V17c0 .55-.47.98-.97 1.21C11.85 18.75 11 20.24 11 22M18 2H6v7a6 6 0 0012 0V2z"/></svg><span>Лидеры</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-7M14 17H5M17 13a2 2 0 100-4 2 2 0 000 4zM7 21a2 2 0 100-4 2 2 0 000 4z"/></svg><span>Подписки</span></div>
+        <div class="tab active"><div class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div><span>Поиск</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg><span>Статистика</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a6 6 0 0012 0v2"/></svg><span>Профиль</span></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <b>Gift Satellite · v2 Compact Pack.</b>
+  Плотность: 8 карточек на экран (2×4) вместо 6 (2×3) в оригинале.
+  Карточка <code>178×130px</code>. Палитра и шрифт — из <code>brand.md</code>, без отклонений.
+  Превью <code>40×40</code>, bg-strip <code>4px</code>,
+  switch <code>30×17</code>, маркеты <code>10×10</code>.
+  Действия вынесены в <code>⋯</code>/info-модалку.
+</div>
+
+<script>
+  // Interactive: switch toggle, card → open modal, bulk demo, info-close
+  (function(){
+    // Switch toggle
+    document.querySelectorAll('.sw').forEach(sw => {
+      sw.addEventListener('click', e => {
+        e.stopPropagation();
+        sw.classList.toggle('on');
+      });
+    });
+    // Checkbox toggle in bulk
+    document.querySelectorAll('.checkbox').forEach(cb => {
+      cb.addEventListener('click', e => {
+        e.stopPropagation();
+        cb.classList.toggle('checked');
+        cb.closest('.card').classList.toggle('selected');
+      });
+    });
+    // Close modal on dim click
+    document.querySelectorAll('.sheet').forEach(sheet => {
+      const dim = sheet.parentElement.querySelector('.modal-dim');
+      if(dim){
+        dim.style.pointerEvents = 'auto';
+        dim.addEventListener('click', () => {
+          sheet.style.transform = 'translateY(100%)';
+          dim.style.opacity = '0';
+        });
+      }
+    });
+  })();
+</script>
+</body>
+</html>
