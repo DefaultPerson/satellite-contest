@@ -8,3 +8,11 @@ env/
 
 # IDE
 .vscode/
+
+# Figma MCP plugin workspace
+/tools/
+
+# uiux scratch / session artefacts
+/uiux/meta
+/uiux/assets/figma-preview/
+/uiux/assets/4752686706.html

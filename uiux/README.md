@@ -1,115 +1,83 @@
 # Gift Satellite — Redesign карточки подписки
 
-Конкурс **IT Monday** от Gift Satellite. Первая задача серии — UX-редизайн карточки подписки в главном меню Telegram WebApp.
+Конкурс **IT Monday** от Gift Satellite. UX-редизайн карточки подписки в главном меню Telegram Mini App `@GiftSatelliteBot`.
 
-- **Дедлайн приёма работ:** пятница, 17 апр 2026
-- **Оценка:** пт-сб
-- **Итоги:** воскресенье, 19 апр, 17:00
-- **Куда сдавать:** в ЛС @m1stervlad
-- **Формат сдачи:** макет в Figma
-- **Призы:** 1-е — 200 USDT + Lol Pop + возможный контракт 2-3k USDT; 2-е — 100 USDT; доп. на усмотрение администрации
+- **Дедлайн:** пятница, 17 апр 2026
+- **Формат сдачи:** макет в Figma + HTML-прототип
+- **Призы:** 1-е — 200 USDT + Lol Pop + возможный контракт; 2-е — 100 USDT
 
-## Точки входа (в порядке чтения)
+## Артефакты
 
-| Файл | Что там |
+| Что | Где |
 |---|---|
-| `brif.md` | Условия конкурса от @m1stervlad (опечатка в названии — не трогаем) |
-| `task.md` | Техническое задание на карточку подписки: все поля, все состояния |
-| `plan.md` | **Основной документ проекта:** концепция, IA, состояния, фазы, блокеры |
-| `research/ui-audit.md` | Аудит оригинала и gap-анализ против ТЗ |
-| `research/chat-feedback.md` | Фидбек пользователей из Telegram-чата (заглушка, наполняется в Фазе 1) |
-| `orig/` | Оригиналы UI: скрины, видео, исходный png |
-| `assets/` | Бренд-палитра, иконки, данные подарков |
-| `solution/` | Финальное решение (пока пусто) |
+| 🎨 **Figma — Design file** | https://www.figma.com/design/qVhIG8Sdt5j1XHoSpf2dhl/Untitled?node-id=0-1&p=f |
+| ▶️ **Figma — Prototype** (со scroll) | https://www.figma.com/proto/qVhIG8Sdt5j1XHoSpf2dhl/Untitled?node-id=22-251&p=f&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1 |
+| 🧩 **HTML-прототип** | [`solution/final/index.html`](solution/final/index.html) — интерактивный, 9 карточек, conic-gradient 25 фонов, Lottie-модели |
+| 🗂 **Solution hub** | [`solution/index.html`](solution/index.html) — индекс 5 финальных вариантов + архив |
+| 🎁 **Ассеты для Figma** | [`assets/figma-ready/`](assets/figma-ready/) — SVG-иконки, 5 market-лого, 9 model PNG, collections PNG, brand logo |
 
 ## Структура
 
 ```
 uiux/
-├── README.md                    ← ты сейчас здесь
-├── brif.md                      ← условия конкурса
-├── task.md                      ← ТЗ
-├── plan.md                      ← план работ, концепция, блокеры
+├── README.md                  ← ты здесь
+├── brif.md                    ← условия от @m1stervlad
+├── task.md                    ← ТЗ: все 16 состояний карточки
+├── brand.md                   ← дизайн-токены: палитра, Hauora, радиусы
+├── plan.md                    ← рабочий план/концепция (исторический)
 │
-├── orig/                        ← исходный UI
-│   ├── image.png                ← исходный макет
-│   ├── Screenshot_*.jpg         ← 5 скринов (подписки, сортировка, фильтр фонов)
-│   └── Screen_Recording_*.mp4   ← видео флоу (17 сек)
-│
-├── assets/
-│   ├── colors                   ← исходный дамп токенов (raw)
-│   ├── colors.css               ← валидный CSS с :root { ... } ← использовать в прототипе
-│   ├── svgs                     ← исходный дамп SVG иконок (raw, не валиден как SVG)
-│   ├── icons.md                 ← таблица иконок и планируемое применение
-│   │
-│   ├── data/                    ← реальные данные подарков (скопированы из tg-gifts-autotrade-system)
-│   │   ├── backdrops.json       ← ~80 фонов с hex-цветами
-│   │   ├── id-to-name.json      ← 108 коллекций (ID → имя)
-│   │   ├── patterns.json        ← ~70 паттернов
-│   │   └── patterns-custom-emoji.json
-│   │
-│   ├── originals → ...          ← симлинк: превью коллекций (151 × Original.png)
-│   ├── models-tgs → ...         ← симлинк: .tgs модели (Lottie, 1.9 GB — не рендерим в браузере)
-│   ├── backdrops-tgs → ...      ← симлинк: .tgs фоны
-│   └── patterns-tgs → ...       ← симлинк: .tgs паттерны
+├── orig/                      ← оригинал UI — скрины + видео для референса
 │
 ├── research/
-│   ├── ui-audit.md              ← аудит текущего UI + gap-анализ по ТЗ
-│   └── chat-feedback.md         ← фидбек из Telegram чата (TODO)
+│   ├── ui-audit.md            ← gap-анализ против ТЗ
+│   ├── chat-feedback.md       ← фидбек из чата
+│   └── dev/lottie-test.html   ← песочница для .tgs → PNG
 │
-└── solution/                    ← финальный HTML/CSS прототип (пока пусто)
-    └── .gitkeep
+├── assets/
+│   ├── figma-ready/           ← ассеты для drag-drop в Figma ⭐
+│   │   ├── icons/             ← 29 Lucide SVG (tab-bar + meta + UI)
+│   │   ├── markets/           ← portals/fragment/mrkt/tonnel/getgems
+│   │   ├── models/            ← 10 Lottie→PNG моделей
+│   │   ├── collections/       ← 3 collection-иконки для >4 моделей
+│   │   └── brand/logo.jpg     ← логотип приложения
+│   │
+│   ├── data/                  ← реальные данные: backdrops, patterns, id-to-name
+│   ├── fonts/                 ← Hauora (Regular/Medium/SemiBold .woff2 + .ttf)
+│   ├── market-logos/          ← исходники маркетов (SVG/PNG)
+│   ├── models-png/            ← Lottie → PNG rendering
+│   ├── colors.css             ← CSS с :root дизайн-токенами
+│   └── *-tgs → symlinks       ← .tgs оригиналы из tg-gifts-autotrade-system
+│
+└── solution/
+    ├── index.html             ← hub с 5 вариантами + архив
+    ├── final/index.html       ← финальный прототип (выбран для сдачи)
+    └── variants/              ← 5 финальных + 5 архивных экспериментов
 ```
-
-## Стек для прототипа
-
-Чистый **HTML + CSS + inline SVG + data.js**. Без сборки, без фреймворков, без TypeScript. Открывается `open solution/index.html`.
 
 ## Бренд
 
-- **Палитра:** `assets/colors.css` → `:root { --primary: #5535f3; ... }`
-- **Шрифт:** `Hauora` (fallback: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`)
-- **Иконки:** [Lucide](https://lucide.dev) — см. `assets/icons.md`
+- **Палитра:** `brand.md` / `assets/colors.css` → `:root { --primary: #5535f3; --bg: #101010; ... }`
+- **Шрифт:** Hauora (Regular/Medium/SemiBold) с fallback на Roboto
+- **Иконки:** [Lucide](https://lucide.dev) с `stroke="currentColor"`
 - **Тема:** только тёмная
-
-## Целевой viewport
-
-Telegram WebApp внутри клиента — 360–430 × 640+, iOS и Android. Safe area для Telegram header.
 
 ## Ключевые решения
 
-Закреплено в `plan.md`:
+- **Промпт-имя пользователя** = главный заголовок карточки (truncate ≤40 симв)
+- **Превью фонов:** 1 фон → radial, 2-5 → horizontal bands, >5 → conic-gradient
+- **Превью моделей:** 1-4 конкретных → Lottie, 0 или ≥5 → collection-иконка
+- **Info** → bottom-sheet модалка с полным описанием подписки
+- **Bulk-select** через кнопку в toolbar (long-tap блокируется iOS Telegram)
+- **Маркеты:** Portals, Fragment, MRKT, Tonnel, GetGems (отображаем до 2 + «+N»)
+- **Dim state** при `buy.on = false`; **alert state** при `count = 0`
 
-- Промпт-имя пользователя = главный заголовок карточки (truncate ≤40 симв)
-- Два режима плотности: **compact** (2×3) и **comfortable** (2×2)
-- Info-кнопка → bottom-sheet модалка с полным описанием
-- Мультивыбор через кнопку в toolbar (long-tap блокируется iOS Telegram)
-- `⋯` меню вместо двух отдельных кнопок «Изменить»/«Удалить»
-- **X для фонов = 4** (до 4 — делим пространство на части, >4 — кастом-градиент) _— ждёт апрува_
-- Маркеты: Portals, Fragment, MRKT, Tonnel, GetGems _— ждёт апрува_
-
-## Блокеры (ждут ответа пользователя)
-
-1. Апрув концепции (промпт-заголовок, два режима, `⋯` меню, модалка, мультивыбор)
-2. Апрув списка маркетов
-3. Апрув X = 4
-4. Scope: трогаем только карточку и переключатель плотности?
-5. Стиль презентации для жюри: сухой или продающий?
+Все 16 состояний из `task.md` покрыты 9 карточками прототипа.
 
 ## Как запускать
 
 ```bash
-cd /home/def/projects/misc/satellite-contest/uiux
-python -m http.server 8080     # потом: http://localhost:8080/solution/
-# или просто: xdg-open solution/index.html
+cd uiux
+python -m http.server 8080
+# http://localhost:8080/solution/          — hub с 5 вариантами
+# http://localhost:8080/solution/final/    — финальный прототип
 ```
-
-## Что сейчас делается
-
-См. задачи проекта (`TaskList`). Основной поток:
-
-1. ~~Разведка ассетов~~ ✅
-2. Прочесать чат-экспорт на фидбек ← в работе
-3. Собрать IA карточки (после апрува концепции)
-4. HTML/CSS прототип
-5. Презентационная страница для жюри

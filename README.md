@@ -1,6 +1,6 @@
 # Satellite Contest
 
-Проект для конкурса с тремя задачами: сортировка цветов, группировка коллекций подарков Telegram и анализ алгоритма распределения призов.
+Проект для конкурса с четырьмя задачами: сортировка цветов, группировка коллекций подарков Telegram, анализ алгоритма распределения призов и UX-редизайн карточки подписки.
 
 ## Структура проекта
 
@@ -23,6 +23,12 @@ satellite-contest/
 ├── algorithm/              # Задача 3: Анализ алгоритма призов
 │   ├── prize_simulation.ipynb  # Monte Carlo симуляция
 │   └── task.md             # Условие конкурса
+│
+├── uiux/                   # Задача 4: UX-редизайн карточки подписки Gift Satellite
+│   ├── solution/final/     # Финальный HTML-прототип (интерактивный)
+│   ├── assets/figma-ready/ # Ассеты для Figma (SVG, PNG, logo)
+│   ├── brand.md, task.md   # Дизайн-токены + ТЗ
+│   └── README.md           # Ссылки на Figma (design + prototype)
 │
 ├── research/               # Результаты исследований
 │   ├── contest-answer.md   # Ответ для конкурса
@@ -93,6 +99,22 @@ uv run generate_groups_split.py
 - `algorithm/task.md` — условие конкурса
 - `algorithm/prize_simulation.ipynb` — симуляция Monte Carlo
 - `research/contest-answer.md` — готовый ответ для конкурса
+
+## Задача 4: UX-редизайн карточки подписки Gift Satellite
+
+Редизайн карточки подписки в Telegram Mini App `@GiftSatelliteBot`. 16 состояний из ТЗ: 0/1/N моделей, фонов, узоров, dim/alert state'ы, bulk-select, info-modal.
+
+- **Figma — Design file:** https://www.figma.com/design/qVhIG8Sdt5j1XHoSpf2dhl/Untitled?node-id=0-1&p=f
+- **Figma — Prototype (со scroll):** https://www.figma.com/proto/qVhIG8Sdt5j1XHoSpf2dhl/Untitled?node-id=22-251&p=f&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1
+- **HTML-прототип:** [`uiux/solution/final/index.html`](uiux/solution/final/index.html) — интерактивный с 9 карточками, conic-gradient для 25 фонов, реальными Lottie-моделями
+
+### Файлы
+
+- `uiux/brif.md` — условия от @m1stervlad
+- `uiux/task.md` — техническое задание (поля, состояния, правила)
+- `uiux/brand.md` — дизайн-токены Gift Satellite (палитра, Hauora, радиусы)
+- `uiux/solution/final/index.html` — итоговый HTML-прототип
+- `uiux/assets/figma-ready/` — drag-drop ассеты для Figma (SVG-иконки, market-логотипы, model PNG, logo)
 
 ## Цветовые пространства
 
