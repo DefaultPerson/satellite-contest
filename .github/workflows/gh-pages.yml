@@ -54,8 +54,10 @@ jobs:
             cp "$src" "public/assets/originals/$id/Original.png"
           done
 
-          # Solution prototype (index.html + bulk.html + info.html + variants)
-          cp -r uiux/solution public/solution
+          # Solution prototype — only the final/ directory (keep path so
+          # relative ../../assets/… still resolves to /assets).
+          mkdir -p public/solution
+          cp -r uiux/solution/final public/solution/final
 
           # Landing redirect to /solution/final/
           cat > public/index.html <<'HTML'
@@ -65,16 +67,9 @@ jobs:
             <meta charset="utf-8">
             <title>Gift Satellite — Подписки</title>
             <meta http-equiv="refresh" content="0;url=./solution/final/">
-            <style>body{font-family:system-ui,sans-serif;background:#101010;color:#f0f0f0;padding:40px;text-align:center}a{color:#5535f3}</style>
           </head>
           <body>
-            <h1>Gift Satellite — Подписки</h1>
-            <p>Redirecting to the <a href="./solution/final/">final prototype</a>…</p>
-            <ul style="list-style:none;padding:0;line-height:2">
-              <li><a href="./solution/final/">index.html</a> — default view</li>
-              <li><a href="./solution/final/bulk.html">bulk.html</a> — bulk-select mode</li>
-              <li><a href="./solution/final/info.html">info.html</a> — info modal opened</li>
-            </ul>
+            <p>Redirecting to <a href="./solution/final/">final prototype</a>…</p>
           </body>
           </html>
           HTML
