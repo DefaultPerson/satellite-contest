@@ -1,0 +1,89 @@
+name: Deploy uiux to Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'uiux/**'
+      - '.github/workflows/gh-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble site
+        run: |
+          set -eu
+          mkdir -p public/assets
+
+          # Static asset folders (no broken symlinks)
+          for d in fonts data figma-ready market-logos models-png; do
+            if [ -d "uiux/assets/$d" ]; then
+              cp -r "uiux/assets/$d" "public/assets/$d"
+            fi
+          done
+
+          # Root-level files
+          [ -f uiux/assets/logo.jpg ] && cp uiux/assets/logo.jpg public/assets/logo.jpg
+          [ -f uiux/assets/colors.css ] && cp uiux/assets/colors.css public/assets/colors.css
+
+          # Originals fallback for collection cards (3, 5, 8).
+          # HTML references ../../assets/originals/<id>/Original.png when no Lottie slug is available.
+          for pair in \
+            "5170594532177215681:any-gift_5170594532177215681.png" \
+            "5936013938331222567:plush-pepe_5936013938331222567.png" \
+            "5782988952268964995:desk-calendar_5782988952268964995.png"; do
+            id="${pair%%:*}"
+            src="uiux/assets/figma-ready/collections/${pair##*:}"
+            mkdir -p "public/assets/originals/$id"
+            cp "$src" "public/assets/originals/$id/Original.png"
+          done
+
+          # Solution prototype (index.html + bulk.html + info.html + variants)
+          cp -r uiux/solution public/solution
+
+          # Landing redirect to /solution/final/
+          cat > public/index.html <<'HTML'
+          <!doctype html>
+          <html lang="ru">
+          <head>
+            <meta charset="utf-8">
+            <title>Gift Satellite — Подписки</title>
+            <meta http-equiv="refresh" content="0;url=./solution/final/">
+            <style>body{font-family:system-ui,sans-serif;background:#101010;color:#f0f0f0;padding:40px;text-align:center}a{color:#5535f3}</style>
+          </head>
+          <body>
+            <h1>Gift Satellite — Подписки</h1>
+            <p>Redirecting to the <a href="./solution/final/">final prototype</a>…</p>
+            <ul style="list-style:none;padding:0;line-height:2">
+              <li><a href="./solution/final/">index.html</a> — default view</li>
+              <li><a href="./solution/final/bulk.html">bulk.html</a> — bulk-select mode</li>
+              <li><a href="./solution/final/info.html">info.html</a> — info modal opened</li>
+            </ul>
+          </body>
+          </html>
+          HTML
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
