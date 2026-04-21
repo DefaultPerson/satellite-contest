@@ -977,7 +977,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); if
 // Debug/demo auto-states via URL query: ?m=0 auto-opens modal for card 0, ?bulk=1 auto-enables bulk
 const qp = new URLSearchParams(location.search);
 if(qp.has('m')){ setTimeout(()=>openModal(parseInt(qp.get('m'))), 50); }
-if(qp.get('bulk')==='1'){ setTimeout(()=>{ toggleBulk(); toggleSelect(0); toggleSelect(2); }, 50); }
+toggleBulk(); toggleSelect(0); toggleSelect(2);
 if(qp.get('full')==='1'){
   // Expand phone to show all cards vertically for screenshot/preview
   document.querySelector('.phone').style.height='auto';

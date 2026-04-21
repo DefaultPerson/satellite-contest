@@ -327,6 +327,7 @@ body.bulk .c-head .edit,body.bulk .c-head .delete{visibility:hidden;pointer-even
   animation:sheetUp 280ms ease-out;
 }
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet{animation:none !important}
 .sheet .handle{width:36px;height:4px;background:var(--tertiary);border-radius:999px;margin:8px auto 0}
 .sheet-head{padding:14px 16px 10px;display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--outlines)}
 .sheet-head .preview-mini{width:44px;height:44px;border-radius:10px;background:var(--secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
@@ -976,7 +977,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); if
 
 // Debug/demo auto-states via URL query: ?m=0 auto-opens modal for card 0, ?bulk=1 auto-enables bulk
 const qp = new URLSearchParams(location.search);
-if(qp.has('m')){ setTimeout(()=>openModal(parseInt(qp.get('m'))), 50); }
+openModal(0);
 if(qp.get('bulk')==='1'){ setTimeout(()=>{ toggleBulk(); toggleSelect(0); toggleSelect(2); }, 50); }
 if(qp.get('full')==='1'){
   // Expand phone to show all cards vertically for screenshot/preview
